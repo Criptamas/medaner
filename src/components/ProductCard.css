@@ -55,9 +55,31 @@
   overflow: hidden;
 }
 
+.product-card__footer {
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .product-card__price {
-  margin: 4px 0 0;
+  margin: 0;
   font-size: 14px;
   font-weight: 600;
   color: var(--text-h);
+}
+
+.product-card__add {
+  flex-shrink: 0;
+  margin-left: auto;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
 }

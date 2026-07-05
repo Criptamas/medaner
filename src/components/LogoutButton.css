@@ -1,0 +1,14 @@
+.logout-button {
+  font: inherit;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-h);
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  border-color: var(--accent-border);
+  color: var(--accent);
+}

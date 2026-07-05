@@ -1,0 +1,57 @@
+.order-progress {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.order-progress__step {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.order-progress__step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 28px;
+  bottom: -10px;
+  width: 2px;
+  background: var(--border);
+}
+
+.order-progress__dot {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--border);
+  z-index: 1;
+}
+
+.order-progress__label {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.order-progress__step--done .order-progress__dot,
+.order-progress__step--current .order-progress__dot {
+  background: var(--accent);
+}
+
+.order-progress__step--done:not(:last-child)::after {
+  background: var(--accent);
+}
+
+.order-progress__step--done .order-progress__label,
+.order-progress__step--current .order-progress__label {
+  color: var(--text-h);
+}
+
+.order-progress__step--current .order-progress__label {
+  font-weight: 600;
+}

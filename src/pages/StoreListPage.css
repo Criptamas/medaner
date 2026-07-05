@@ -23,6 +23,21 @@
   color: var(--text);
 }
 
+.store-list-page__last-order {
+  display: block;
+  margin: 0 0 16px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
 .store-list-page__list {
   list-style: none;
   margin: 0;

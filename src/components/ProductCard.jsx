@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useCart } from '../hooks/useCart'
 import './ProductCard.css'
 
 const priceFormatter = new Intl.NumberFormat('es-AR', {
@@ -8,6 +9,7 @@ const priceFormatter = new Intl.NumberFormat('es-AR', {
 
 export default function ProductCard({ product }) {
   const [imageFailed, setImageFailed] = useState(false)
+  const { addItem } = useCart()
 
   return (
     <div className="product-card">
@@ -29,9 +31,14 @@ export default function ProductCard({ product }) {
       <div className="product-card__body">
         <h3 className="product-card__name">{product.nombre}</h3>
         {product.descripcion && <p className="product-card__description">{product.descripcion}</p>}
-        {typeof product.precio === 'number' && (
-          <p className="product-card__price">{priceFormatter.format(product.precio)}</p>
-        )}
+        <div className="product-card__footer">
+          {typeof product.precio === 'number' && (
+            <p className="product-card__price">{priceFormatter.format(product.precio)}</p>
+          )}
+          <button type="button" className="product-card__add" onClick={() => addItem(product)}>
+            Agregar
+          </button>
+        </div>
       </div>
     </div>
   )

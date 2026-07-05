@@ -1,0 +1,21 @@
+.admin-page {
+  padding: 16px;
+  max-width: 640px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.admin-page__header {
+  padding: 8px 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.admin-page__header h1 {
+  margin: 0;
+  font-size: 28px;
+  text-align: left;
+}

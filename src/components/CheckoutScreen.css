@@ -1,0 +1,110 @@
+.checkout-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: var(--bg);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.checkout-screen__header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.checkout-screen__back {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.checkout-screen__header h1 {
+  margin: 0;
+  font-size: 18px;
+  text-align: left;
+}
+
+.checkout-screen__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text);
+}
+
+.checkout-screen__summary strong {
+  color: var(--text-h);
+  font-size: 16px;
+}
+
+.checkout-screen__form {
+  padding: 16px;
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.checkout-screen__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  text-align: left;
+}
+
+.checkout-screen__field input,
+.checkout-screen__field select {
+  font: inherit;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+.checkout-screen__field input:focus,
+.checkout-screen__field select:focus {
+  outline: none;
+  border-color: var(--accent-border);
+}
+
+.checkout-screen__error {
+  font-size: 14px;
+  color: #e5484d;
+}
+
+.checkout-screen__form button[type='submit'] {
+  font: inherit;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+.checkout-screen__form button[type='submit']:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

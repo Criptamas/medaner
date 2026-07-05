@@ -1,10 +1,13 @@
+import { Link } from 'react-router-dom'
 import { useActiveStores } from '../hooks/useActiveStores'
+import { useLastOrderId } from '../hooks/useLastOrderId'
 import StoreCard from '../components/StoreCard'
 import StatusMessage from '../components/StatusMessage'
 import './StoreListPage.css'
 
 export default function StoreListPage() {
   const { stores, loading, error } = useActiveStores()
+  const lastOrderId = useLastOrderId()
 
   return (
     <div className="store-list-page">
@@ -12,6 +15,12 @@ export default function StoreListPage() {
         <h1>Medaner</h1>
         <p>Elegí una tienda para ver su catálogo</p>
       </header>
+
+      {lastOrderId && (
+        <Link to={`/pedido/${lastOrderId}`} className="store-list-page__last-order">
+          Ver mi último pedido
+        </Link>
+      )}
 
       {loading && <StatusMessage variant="loading" title="Cargando tiendas..." />}
 
