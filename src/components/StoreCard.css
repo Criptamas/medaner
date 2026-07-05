@@ -1,0 +1,49 @@
+.store-card {
+  display: block;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.store-card:hover,
+.store-card:focus-visible {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow);
+}
+
+.store-card__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.store-card__name {
+  margin: 0;
+  font-size: 18px;
+  line-height: 130%;
+  color: var(--text-h);
+}
+
+.store-card__category {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+.store-card__description {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: var(--text);
+}
