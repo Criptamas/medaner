@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase'
-
-export const LAST_ORDER_STORAGE_KEY = 'medaner:lastOrderId'
+import { agregarPedidoActivo } from '../utils/seguimientoLocal'
 
 export function useCreateOrder() {
   const [submitting, setSubmitting] = useState(false)
@@ -36,7 +35,9 @@ export function useCreateOrder() {
           precio: item.product.precio,
         })),
       })
-      localStorage.setItem(LAST_ORDER_STORAGE_KEY, docRef.id)
+      // Sin cuentas de cliente: este navegador queda como "dueño" del
+      // pedido para poder mostrarlo en "Mis pedidos recientes".
+      agregarPedidoActivo({ id: docRef.id, tipo: 'pedido' })
       return docRef.id
     } catch (err) {
       setError(err)

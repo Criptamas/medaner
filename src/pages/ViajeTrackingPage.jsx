@@ -2,17 +2,14 @@ import { Link, useParams } from 'react-router-dom'
 import { useViaje } from '../hooks/useViaje'
 import EstadoProgress from '../components/EstadoProgress'
 import StatusMessage from '../components/StatusMessage'
-import { PAYMENT_LABELS } from '../utils/pedidoLabels'
+import { PAYMENT_LABELS, VIAJE_ESTADO_LABELS } from '../utils/pedidoLabels'
 import './ViajeTrackingPage.css'
 
-const VIAJE_STEPS = [
-  { key: 'pendiente', label: 'Buscando un conductor' },
-  { key: 'confirmado', label: 'Tu conductor va en camino' },
-  { key: 'en_curso', label: 'Viaje en curso' },
-  { key: 'completado', label: 'Viaje completado' },
-]
+// Pasos del progreso derivados de VIAJE_ESTADO_LABELS para que este orden y
+// sus textos no puedan divergir de los que usa "Mis pedidos recientes".
+const VIAJE_STEPS = Object.entries(VIAJE_ESTADO_LABELS).map(([key, label]) => ({ key, label }))
 
-const STATUS_LABELS = Object.fromEntries(VIAJE_STEPS.map((step) => [step.key, step.label]))
+const STATUS_LABELS = VIAJE_ESTADO_LABELS
 
 const VEHICULO_LABELS = {
   moto: 'Moto',
