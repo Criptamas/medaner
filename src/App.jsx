@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import StoreListPage from './pages/StoreListPage'
 import StoreCatalogPage from './pages/StoreCatalogPage'
@@ -5,7 +6,16 @@ import LoginPage from './pages/LoginPage'
 import AdminPage from './pages/AdminPage'
 import ConductorPage from './pages/ConductorPage'
 import OrderTrackingPage from './pages/OrderTrackingPage'
+import ViajeTrackingPage from './pages/ViajeTrackingPage'
 import ProtectedRoute from './components/ProtectedRoute'
+import StatusMessage from './components/StatusMessage'
+
+// mapbox-gl es pesado (~1.5MB). Las páginas que lo usan se cargan de forma
+// lazy para que NO entre en el bundle principal, que descargan todos los
+// usuarios (incluido el cliente que solo pide comida) con conexión que en
+// Falcón puede ser inestable. Solo se baja al abrir estas rutas.
+const PedirViajePage = lazy(() => import('./pages/PedirViajePage'))
+const TestMapaPage = lazy(() => import('./pages/TestMapaPage'))
 
 function App() {
   return (
@@ -13,7 +23,25 @@ function App() {
       <Route path="/" element={<StoreListPage />} />
       <Route path="/tienda/:storeId" element={<StoreCatalogPage />} />
       <Route path="/pedido/:pedidoId" element={<OrderTrackingPage />} />
+      <Route
+        path="/pedir-viaje"
+        element={
+          <Suspense fallback={<StatusMessage variant="loading" title="Cargando..." />}>
+            <PedirViajePage />
+          </Suspense>
+        }
+      />
+      <Route path="/viaje/:viajeId" element={<ViajeTrackingPage />} />
       <Route path="/login" element={<LoginPage />} />
+      {/* TODO: borrar esta ruta antes de mergear a producción — es solo para probar SelectorUbicacion */}
+      <Route
+        path="/test-mapa"
+        element={
+          <Suspense fallback={<StatusMessage variant="loading" title="Cargando mapa..." />}>
+            <TestMapaPage />
+          </Suspense>
+        }
+      />
       <Route
         path="/admin"
         element={

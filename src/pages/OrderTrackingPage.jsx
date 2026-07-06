@@ -1,16 +1,18 @@
 import { Link, useParams } from 'react-router-dom'
 import { useOrder } from '../hooks/useOrder'
-import OrderProgress from '../components/OrderProgress'
+import EstadoProgress from '../components/EstadoProgress'
 import StatusMessage from '../components/StatusMessage'
 import { PAYMENT_LABELS, priceFormatter } from '../utils/pedidoLabels'
 import './OrderTrackingPage.css'
 
-const STATUS_LABELS = {
-  pendiente: 'Buscando un conductor',
-  confirmado: 'Pedido confirmado',
-  en_camino: 'Tu pedido va en camino',
-  entregado: 'Pedido entregado',
-}
+const ORDER_STEPS = [
+  { key: 'pendiente', label: 'Buscando un conductor' },
+  { key: 'confirmado', label: 'Pedido confirmado' },
+  { key: 'en_camino', label: 'Tu pedido va en camino' },
+  { key: 'entregado', label: 'Pedido entregado' },
+]
+
+const STATUS_LABELS = Object.fromEntries(ORDER_STEPS.map((step) => [step.key, step.label]))
 
 export default function OrderTrackingPage() {
   const { pedidoId } = useParams()
@@ -45,7 +47,7 @@ export default function OrderTrackingPage() {
             {STATUS_LABELS[order.estado] ?? order.estado}
           </p>
 
-          <OrderProgress estado={order.estado} />
+          <EstadoProgress estado={order.estado} steps={ORDER_STEPS} />
 
           <section className="order-tracking-page__section">
             <h2>Productos</h2>

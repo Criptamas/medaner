@@ -16,6 +16,10 @@ export default function StoreListPage() {
         <p>Elegí una tienda para ver su catálogo</p>
       </header>
 
+      <Link to="/pedir-viaje" className="store-list-page__pedir-viaje">
+        🚕 Pedir un viaje
+      </Link>
+
       {lastOrderId && (
         <Link to={`/pedido/${lastOrderId}`} className="store-list-page__last-order">
           Ver mi último pedido

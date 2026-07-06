@@ -1,4 +1,4 @@
-.order-progress {
+.estado-progress {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -6,7 +6,7 @@
   flex-direction: column;
 }
 
-.order-progress__step {
+.estado-progress__step {
   position: relative;
   display: flex;
   align-items: center;
@@ -14,7 +14,7 @@
   padding: 10px 0;
 }
 
-.order-progress__step:not(:last-child)::after {
+.estado-progress__step:not(:last-child)::after {
   content: '';
   position: absolute;
   left: 5px;
@@ -24,7 +24,7 @@
   background: var(--border);
 }
 
-.order-progress__dot {
+.estado-progress__dot {
   flex-shrink: 0;
   width: 12px;
   height: 12px;
@@ -33,25 +33,25 @@
   z-index: 1;
 }
 
-.order-progress__label {
+.estado-progress__label {
   font-size: 14px;
   color: var(--text);
 }
 
-.order-progress__step--done .order-progress__dot,
-.order-progress__step--current .order-progress__dot {
+.estado-progress__step--done .estado-progress__dot,
+.estado-progress__step--current .estado-progress__dot {
   background: var(--accent);
 }
 
-.order-progress__step--done:not(:last-child)::after {
+.estado-progress__step--done:not(:last-child)::after {
   background: var(--accent);
 }
 
-.order-progress__step--done .order-progress__label,
-.order-progress__step--current .order-progress__label {
+.estado-progress__step--done .estado-progress__label,
+.estado-progress__step--current .estado-progress__label {
   color: var(--text-h);
 }
 
-.order-progress__step--current .order-progress__label {
+.estado-progress__step--current .estado-progress__label {
   font-weight: 600;
 }

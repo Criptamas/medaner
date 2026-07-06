@@ -35,5 +35,15 @@ service cloud.firestore {
       allow list: if request.auth != null;
       allow update, delete: if request.auth != null;
     }
+
+    // Mismo esquema que pedidos: el cliente crea el viaje sin iniciar sesión,
+    // cualquiera puede leer un viaje puntual para seguirlo, y solo usuarios
+    // autenticados (conductores/admin) pueden listar o actualizar estado.
+    match /viajes/{viajeId} {
+      allow create: if true;
+      allow get: if true;
+      allow list: if request.auth != null;
+      allow update, delete: if request.auth != null;
+    }
   }
 }

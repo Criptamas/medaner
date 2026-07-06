@@ -1,0 +1,35 @@
+.selector-ubicacion {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.selector-ubicacion__mapa {
+  width: 100%;
+  height: 360px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.selector-ubicacion__boton-ubicacion {
+  font: inherit;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.selector-ubicacion__boton-ubicacion:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.selector-ubicacion__error {
+  margin: 0;
+  font-size: 14px;
+  color: #dc2626;
+}
