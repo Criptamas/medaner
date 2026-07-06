@@ -1,0 +1,67 @@
+.admin-pedido-row {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  text-align: left;
+}
+
+.admin-pedido-row__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.admin-pedido-row__header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-h);
+}
+
+.admin-pedido-row__badge {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 999px;
+  padding: 4px 10px;
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.admin-pedido-row__badge--entregado {
+  color: #2e9e5b;
+  background: rgba(46, 158, 91, 0.12);
+}
+
+.admin-pedido-row__badge--en_camino {
+  color: #d08700;
+  background: rgba(208, 135, 0, 0.12);
+}
+
+.admin-pedido-row__cliente,
+.admin-pedido-row__productos,
+.admin-pedido-row__direccion {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.admin-pedido-row__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text);
+}
+
+.admin-pedido-row__footer strong {
+  font-size: 16px;
+  color: var(--text-h);
+}

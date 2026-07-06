@@ -2,24 +2,14 @@ import { Link, useParams } from 'react-router-dom'
 import { useOrder } from '../hooks/useOrder'
 import OrderProgress from '../components/OrderProgress'
 import StatusMessage from '../components/StatusMessage'
+import { PAYMENT_LABELS, priceFormatter } from '../utils/pedidoLabels'
 import './OrderTrackingPage.css'
-
-const priceFormatter = new Intl.NumberFormat('es-AR', {
-  style: 'currency',
-  currency: 'ARS',
-})
 
 const STATUS_LABELS = {
   pendiente: 'Buscando un conductor',
   confirmado: 'Pedido confirmado',
   en_camino: 'Tu pedido va en camino',
   entregado: 'Pedido entregado',
-}
-
-const PAYMENT_LABELS = {
-  efectivo: 'Efectivo',
-  pago_movil: 'Pago móvil',
-  zelle: 'Zelle',
 }
 
 export default function OrderTrackingPage() {

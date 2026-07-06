@@ -1,15 +1,6 @@
 import { useStore } from '../hooks/useStore'
+import { ESTADO_BADGE_LABELS, priceFormatter } from '../utils/pedidoLabels'
 import './ConductorPedidoCard.css'
-
-const priceFormatter = new Intl.NumberFormat('es-AR', {
-  style: 'currency',
-  currency: 'ARS',
-})
-
-const ESTADO_LABELS = {
-  confirmado: 'Confirmado',
-  en_camino: 'En camino',
-}
 
 export default function ConductorPedidoCard({ pedido, mostrarEstado = false, children }) {
   const { store } = useStore(pedido.tiendaId)
@@ -20,7 +11,7 @@ export default function ConductorPedidoCard({ pedido, mostrarEstado = false, chi
         <h2>{store?.nombre ?? 'Tienda'}</h2>
         {mostrarEstado && (
           <span className="conductor-pedido-card__badge">
-            {ESTADO_LABELS[pedido.estado] ?? pedido.estado}
+            {ESTADO_BADGE_LABELS[pedido.estado] ?? pedido.estado}
           </span>
         )}
       </div>

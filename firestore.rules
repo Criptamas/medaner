@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Único admin habilitado hoy (no hay sistema de roles todavía).
+    // Para sumar otro admin, agregar su UID a esta lista.
+    function isAdmin() {
+      return request.auth != null && request.auth.uid in ['vJVgS8PZpSOro7OmcRLtOxMowXy1'];
+    }
+
+    match /tiendas/{tiendaId} {
+      allow read: if true;
+      // Solo el admin puede escribir, y solo puede tocar el campo "activa"
+      // (activar/desactivar tienda desde el panel), no el resto del documento.
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activa']);
+      allow create, delete: if false;
+
+      match /productos/{productoId} {
+        allow read: if true;
+        allow write: if false;
+      }
+    }
+
+    match /conductores/{conductorId} {
+      allow read: if isAdmin();
+      // Solo el admin, y solo puede tocar "cuotaSemanalPagada".
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cuotaSemanalPagada']);
+      allow create, delete: if false;
+    }
+
+    match /pedidos/{pedidoId} {
+      allow create: if true;
+      allow get: if true;
+      allow list: if request.auth != null;
+      allow update, delete: if request.auth != null;
+    }
+  }
+}

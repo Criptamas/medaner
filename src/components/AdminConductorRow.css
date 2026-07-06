@@ -1,0 +1,23 @@
+.admin-conductor-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  text-align: left;
+}
+
+.admin-conductor-row__info h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-h);
+}
+
+.admin-conductor-row__telefono {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--text);
+}
