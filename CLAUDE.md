@@ -1,0 +1,150 @@
+# CLAUDE.md — Proyecto Medaner
+
+Este archivo define las reglas que Claude Code debe seguir siempre al trabajar en este repositorio.
+
+## Contexto del proyecto
+
+Medaner (medaner.com) es una app web de delivery y taxi/mototaxi para Punto Fijo, estado Falcón, Venezuela.
+
+- **Stack:** React + Vite (PWA)
+- **Backend/DB:** Firebase (plan Spark) — Firestore, Auth, FCM. Storage NO disponible (restricción de facturación de Google Cloud en Venezuela) → imágenes vía URL externa (Por ahora)
+- **Mapas:** Mapbox
+- **Hosting:** Vercel
+- **Pagos:** efectivo o pago móvil directo cliente-conductor. Sin Stripe (no soportado en Venezuela). Sin comprobante obligatorio.
+- **Modelo de negocio:** conductores pagan $5/semana fijo; a futuro comisión 10–15% a tiendas al escalar.
+- **Restricción de hardware del desarrollador:** laptop con 4GB RAM, i3 11va gen, 128GB almacenamiento. Evitar dependencias o procesos de build muy pesados cuando exista una alternativa más liviana.
+
+## Reglas de estilo UI/Frontend
+
+- Diseño moderno, minimalista y simple, pero NO insípido ni genérico.
+- Priorizar practicidad y usabilidad sobre decoración innecesaria.
+- Usar detalles de diseño con intención (tipografía, espaciado, color) para que se sienta cuidado, sin caer en exceso de elementos.
+- Mobile-first: la mayoría de los usuarios finales (clientes y conductores) usarán esto desde el celular.
+
+## Reglas de comunicación
+
+- Responder siempre en español.
+- Explicaciones claras, sencillas y concisas.
+- No sacrificar información relevante por brevedad: ser directo, no incompleto.
+
+## Reglas de arquitectura y escalabilidad
+
+- Toda decisión de desarrollo debe considerar que el proyecto escalará (más tiendas, más conductores, más ciudades del estado Falcón a futuro).
+- Evitar soluciones "quick fix" que compliquen crecer después (estructuras de datos rígidas, lógica hardcodeada, acoplamiento innecesario).
+- Estructurar Firestore y el código pensando en que el volumen de datos y usuarios va a crecer.
+
+## Reglas de documentación de código
+
+- Comentar las partes importantes del código, no todo — el comentario debe aportar contexto (el "por qué", no solo el "qué").
+- Dejar claridad en archivos clave (configuración, integración con Firebase/Mapbox, lógica de negocio) para que sea fácil retomar el proyecto después.
+- Mantener nombres de funciones/variables descriptivos para reducir la necesidad de comentarios obvios.
+
+## Reglas técnicas específicas de Medaner
+
+- No usar Stripe ni asumir pagos con tarjeta — el flujo de pago es efectivo/pago móvil manual.
+- No usar Firebase Storage — imágenes siempre vía URL externa.
+- Tener en cuenta las limitaciones de recursos del entorno de desarrollo local al sugerir herramientas, dependencias o procesos de build.
+- Nunca subir .env ni API keys al repo, reglas de seguridad de Firestore explícitas antes de cada deploy.
+- Convención de commits — algo simple tipo **feat:, fix:, docs:** para que el historial no sea un caos cuando el proyecto crezca.
+- Manejo de errores consistente: Mostrar errores al usuario (toasts, mensajes) de forma uniforme en toda la app, importante para UX en delivery/taxi donde fallos de red son comunes.
+- Offline-first / PWA — ya que es PWA y tus usuarios en Falcón pueden tener conexión inestable, una regla tipo "considerar estados offline/carga lenta en cada feature".
+- No romper lo que ya funciona — antes de refactorizar, confirmar que no se rompe el flujo de pago o el matching conductor-cliente.
+
+---
+
+## Estado actual del proyecto
+
+### Infraestructura (Phase 1 completada)
+- **Dominio:** medaner.com comprado en Cloudflare (registrar). DNS configurado, proxy de Cloudflare desactivado (DNS only). Apunta a Vercel.
+- **Hosting:** Vercel — proyecto deployado con variables de entorno configuradas.
+- **Firebase:** proyecto Spark configurado. Firestore activo. Auth activo. FCM activo. Storage omitido (no disponible por restricciones de facturación/país de Google Cloud en Venezuela).
+- **Mapas:** Mapbox integrado.
+- **Editor:** VS Code + Claude Code.
+
+### Estructura de Firestore
+
+```
+tiendas/                        ← colección principal de tiendas
+  {tiendaId}/
+    nombre: string
+    categoria: string
+    descripcion: string
+    telefono: string
+    activa: boolean
+    productos/                  ← subcolección de productos por tienda
+      {productoId}/
+        nombre: string
+        descripcion: string
+        precio: number (double)
+        imagen: string (URL externa — LoremFlickr u otro)
+        disponible: boolean
+
+conductores/                    ← colección de conductores
+  {conductorId}/
+    (campos a definir según avance)
+```
+
+### Variables de entorno (.env)
+Las siguientes variables deben estar configuradas en `.env` local y en Vercel. **Nunca commitear valores reales al repo.**
+
+```
+VITE_FIREBASE_API_KEY
+VITE_FIREBASE_AUTH_DOMAIN
+VITE_FIREBASE_PROJECT_ID
+VITE_FIREBASE_MESSAGING_SENDER_ID
+VITE_FIREBASE_APP_ID
+VITE_MAPBOX_TOKEN
+```
+
+### Competencia local conocida
+- **Colex** — competidor en Falcón. También opera sin comprobante de pago obligatorio, pago efectivo/móvil directo.
+
+### Modelo de negocio actual
+- Conductores: **$5/semana fijo** (modelo piloto).
+- Tiendas: sin comisión por ahora. A futuro: **10–15% por pedido** al escalar, o tarifa mensual fija.
+- Negociación con inversores: vía **SAFE notes**. Pricing a validar con 10 tiendas piloto antes de comprometer modelo definitivo.
+
+### Esquema de estados (nombres exactos en Firestore)
+- **Pedidos:** `pendiente → confirmado → en_camino → entregado` (final: `entregado`). No existe `cancelado` todavía.
+- **Viajes:** `pendiente → confirmado → en_curso → completado` (final: `completado`).
+- Las etiquetas legibles viven centralizadas en `src/utils/pedidoLabels.js` (`ESTADO_BADGE_LABELS` para pedidos, `VIAJE_ESTADO_LABELS` para viajes). Al agregar un estado nuevo, actualizar ahí y revisar los componentes que marcan estados "finales" (`MisPedidosRecientes`).
+
+### Disponibilidad del conductor — campo `activo`
+- El campo que marca disponibilidad en `conductores/{uid}` se llama **`activo`** (boolean), NO `disponible`. Lo escriben `ConductorPage` (switch) vía `useDocToggle`, y lo lee `api/notificar-viaje.js` (`where('activo', '==', true)`). No renombrarlo sin tocar frontend + función + reglas a la vez.
+- El documento del conductor DEBE crearse en la consola con **ID = UID de Firebase Auth** del conductor. Si no coincide, el conductor ve "perfil no configurado" (la pantalla ahora muestra el UID exacto para facilitar la creación).
+- Reglas de Firestore: el propio conductor solo puede escribir `activo`, `ubicacion` y `fcmToken` en su doc; el admin solo `cuotaSemanalPagada`.
+
+### Seguimiento de pedidos/viajes del cliente (sin login)
+- Como no hay cuentas de cliente, la referencia a sus pedidos/viajes activos vive en **localStorage** del navegador: clave `medaner_pedidos_activos`, array de `{ id, tipo: 'pedido'|'viaje', createdAt }`. Helpers en `src/utils/seguimientoLocal.js`; UI en `src/components/MisPedidosRecientes.jsx` (Home). Entradas de más de 24 h o en estado final se limpian solas.
+- **Limitación conocida:** el historial es por dispositivo/navegador. Si el cliente borra caché o cambia de dispositivo, lo pierde. Aceptable para el alcance actual.
+- **Mejora futura:** si se agrega el teléfono como identificador persistente del cliente (sin login completo), migrar a una query `where('clienteTelefono', '==', telefono)` en `pedidos`/`viajes` para no depender del localStorage.
+
+### Ubicación en vivo del conductor durante el viaje
+- **Dos campos de ubicación con propósitos distintos (no confundirlos ni unificarlos):**
+  - `conductores/{uid}.ubicacion` = `{ lat, lng }` → matching de proximidad para FCM. Lo escribe `useTrackDriverLocation` mientras el conductor está `activo`; lo lee `api/notificar-viaje.js` para notificar solo a conductores cercanos. **El cliente NO puede leerlo** (reglas de `conductores`).
+  - `viajes/{viajeId}.ubicacionConductor` = `{ lat, lng, timestamp }` → seguimiento en vivo que ve el **cliente** en el mapa. Lo escribe el conductor asignado desde `useCompartirUbicacionViaje` mientras el viaje está en `confirmado`/`en_curso`.
+- **Por qué la ubicación del viaje vive en el doc del viaje y no en el del conductor:** el cliente no tiene login, y las reglas de `conductores` (`get: if isAdmin() || request.auth.uid == conductorId`) le impiden leer el doc del conductor. El viaje sí es legible por cualquiera (`allow get: if true`), así que la única forma de que el cliente vea al conductor moverse es replicar la posición en el viaje. Esa es la fuente de verdad para el seguimiento en vivo.
+- **Throttle de escritura:** `useCompartirUbicacionViaje` escribe como máximo cada **8 s** o cuando el conductor se desplaza más de **20 m** (lo que ocurra primero), para no agotar la cuota de Firestore (Spark) ni la batería. `watchPosition` se corta (`clearWatch`) al llegar a `completado` o al desmontar la pantalla del conductor (`ConductorViajeDetallePage`). Permiso de GPS denegado se muestra al conductor sin romper el flujo del viaje.
+- **Lado cliente:** `ViajeTrackingPage` monta `MapaSeguimientoViaje` (lazy, para no meter mapbox-gl ~1.5 MB en el bundle principal) solo en `confirmado`/`en_curso`; mueve el marcador con `setLngLat` sin recrear el mapa, encuadra origen+destino+conductor con `fitBounds` en la primera posición, y deja de renderizar el mapa (corta el seguimiento) al `completado`.
+- Coordenadas siempre `double`; `timestamp` es numérico (`Date.now()`).
+
+### Próximos pasos pendientes
+- Definir y construir flujos principales: cliente hace pedido → tienda lo recibe → conductor lo toma → entrega.
+- Panel de conductores (ver pedidos disponibles, aceptar, marcar entregado).
+- Panel de tiendas (gestionar productos, ver pedidos entrantes).
+- Panel admin básico (gestionar usuarios, conductores activos, tiendas).
+- Autenticación por rol (cliente / conductor / tienda / admin).
+- Notificaciones push vía FCM.
+- Testing con usuarios reales en Punto Fijo.
+
+
+# Agent Delegation Rules
+
+Before starting any task:
+
+- Always determine whether a specialized subagent should handle part of the work.
+- Prefer delegating frontend work to Frontend Expert.
+- Prefer delegating backend work to Backend Expert.
+- Prefer delegating validation and testing to QA Testing Expert.
+- For tasks spanning multiple domains, decompose the work and delegate each part to the appropriate subagent before producing the final result.
+- Do not perform specialized work directly if a matching subagent exists.
