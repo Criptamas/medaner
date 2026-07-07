@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { useViaje } from '../hooks/useViaje'
 import { useViajeActions, VIAJE_ALREADY_TAKEN } from '../hooks/useViajeActions'
+import { useCompartirUbicacionViaje, UBICACION_ESTADO } from '../hooks/useCompartirUbicacionViaje'
 import { VIAJE_ESTADO_BADGE_LABELS } from '../utils/pedidoLabels'
 import StatusMessage from '../components/StatusMessage'
 import './ConductorViajeDetallePage.css'
@@ -10,6 +11,17 @@ import './ConductorViajeDetallePage.css'
 const VEHICULO_LABELS = {
   moto: 'Moto',
   carro: 'Carro',
+}
+
+// Mensaje que ve el conductor según el estado del permiso de geolocalización
+// mientras comparte su ubicación con el cliente.
+const UBICACION_MENSAJE = {
+  [UBICACION_ESTADO.COMPARTIENDO]: '📍 Compartiendo tu ubicación con el cliente…',
+  [UBICACION_ESTADO.PERMISO_DENEGADO]:
+    '⚠️ Activá el permiso de ubicación para que el cliente te vea en el mapa.',
+  [UBICACION_ESTADO.SIN_SOPORTE]: '⚠️ Este dispositivo no permite compartir ubicación.',
+  [UBICACION_ESTADO.ERROR]:
+    '⚠️ No pudimos leer tu ubicación; el cliente no te verá moverte por ahora.',
 }
 
 function formatCoords(punto) {
@@ -71,6 +83,13 @@ export default function ConductorViajeDetallePage() {
 
   const esMio = viaje?.conductorId === user?.uid
 
+  // Transmitir ubicación al viaje solo si es MI viaje y está activo
+  // (confirmado/en_curso). El hook resuelve throttle, permisos y cleanup;
+  // se llama siempre (nunca condicionalmente) y se apaga con `activo=false`.
+  const compartiendoUbicacion =
+    esMio && (viaje?.estado === 'confirmado' || viaje?.estado === 'en_curso')
+  const ubicacionEstado = useCompartirUbicacionViaje(viajeId, compartiendoUbicacion)
+
   return (
     <div className="conductor-viaje-detalle-page">
       <header className="conductor-viaje-detalle-page__header">
@@ -99,6 +118,21 @@ export default function ConductorViajeDetallePage() {
           <p className="conductor-viaje-detalle-page__estado">
             {VIAJE_ESTADO_BADGE_LABELS[viaje.estado] ?? viaje.estado}
           </p>
+
+          {compartiendoUbicacion && (
+            <p
+              className={
+                ubicacionEstado === UBICACION_ESTADO.COMPARTIENDO ||
+                ubicacionEstado === UBICACION_ESTADO.INACTIVO
+                  ? 'conductor-viaje-detalle-page__ubicacion'
+                  : 'conductor-viaje-detalle-page__ubicacion conductor-viaje-detalle-page__ubicacion--alerta'
+              }
+              role="status"
+            >
+              {UBICACION_MENSAJE[ubicacionEstado] ??
+                UBICACION_MENSAJE[UBICACION_ESTADO.COMPARTIENDO]}
+            </p>
+          )}
 
           <section className="conductor-viaje-detalle-page__section">
             <h2>Vehículo</h2>
