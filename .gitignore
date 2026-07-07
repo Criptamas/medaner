@@ -28,3 +28,8 @@ dist-ssr
 *.sln
 *.sw?
 Claude.md
+.vercel
+
+# Claude Code: solo se versionan las definiciones de agentes (.claude/agents)
+.claude/settings.local.json
+.claude/worktrees/

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase'
+import { agregarPedidoActivo } from '../utils/seguimientoLocal'
 
 // Crea un documento en "viajes". total arranca en 0 y conductorId vacío:
 // la tarifa se acuerda con el conductor y este se asigna al aceptar el viaje.
@@ -31,6 +32,20 @@ export function useCreateViaje() {
         total: 0,
         fechaCreacion: serverTimestamp(),
       })
+
+      // Sin cuentas de cliente: este navegador queda como "dueño" del
+      // viaje para poder mostrarlo en "Mis pedidos recientes".
+      agregarPedidoActivo({ id: docRef.id, tipo: 'viaje' })
+
+      // Best-effort: si esta llamada falla (conexión inestable justo en ese
+      // instante), el viaje ya quedó creado en Firestore y sigue visible
+      // para los conductores en la lista de respaldo "Viajes disponibles".
+      fetch('/api/notificar-viaje', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ viajeId: docRef.id }),
+      }).catch(() => {})
+
       return docRef.id
     } catch (err) {
       setError(err)

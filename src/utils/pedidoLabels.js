@@ -32,3 +32,12 @@ export const VIAJE_ESTADO_LABELS = {
   en_curso: 'Viaje en curso',
   completado: 'Viaje completado',
 }
+
+// Mismas etiquetas que VIAJE_ESTADO_LABELS pero en primera persona del
+// conductor (no del cliente), para el detalle de viaje y "Mis viajes activos".
+export const VIAJE_ESTADO_BADGE_LABELS = {
+  pendiente: 'Pendiente',
+  confirmado: 'Confirmado',
+  en_curso: 'En curso',
+  completado: 'Completado',
+}

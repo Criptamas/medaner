@@ -8,6 +8,16 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      // injectManifest en vez de generateSW: necesitamos un service worker
+      // propio (src/sw.js) que además de precachear la PWA maneje FCM en
+      // background — dos service workers separados en la misma ruta raíz
+      // (uno de Workbox, otro de Firebase) compiten entre sí.
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
+      injectManifest: {
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+      },
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Medaner',
@@ -36,11 +46,6 @@ export default defineConfig({
             purpose: 'maskable',
           },
         ],
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
-        // mapbox-gl (chunk de /test-mapa) supera el límite default de 2 MiB.
-        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       },
     }),
   ],

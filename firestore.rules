@@ -22,10 +22,22 @@ service cloud.firestore {
     }
 
     match /conductores/{conductorId} {
-      allow read: if isAdmin();
-      // Solo el admin, y solo puede tocar "cuotaSemanalPagada".
-      allow update: if isAdmin()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cuotaSemanalPagada']);
+      // Un conductor puede leer su propio documento (para ver su switch
+      // "Disponible" al recargar la app); el admin puede leer cualquiera.
+      allow get: if isAdmin() || request.auth.uid == conductorId;
+      // Listar todos los conductores queda limitado al panel de admin.
+      allow list: if isAdmin();
+      allow update: if
+        // El admin solo puede tocar "cuotaSemanalPagada".
+        (isAdmin()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cuotaSemanalPagada']))
+        // El propio conductor solo puede tocar su disponibilidad, ubicación
+        // y su token de push (fcmToken): lo necesita escribir él mismo cada
+        // vez que se pone disponible o se loguea, ya que ese token identifica
+        // SU dispositivo y solo él puede generarlo/renovarlo (nunca su cuota,
+        // ni la de otro conductor).
+        || (request.auth.uid == conductorId
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activo', 'ubicacion', 'fcmToken']));
       allow create, delete: if false;
     }
 

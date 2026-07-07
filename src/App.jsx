@@ -5,6 +5,7 @@ import StoreCatalogPage from './pages/StoreCatalogPage'
 import LoginPage from './pages/LoginPage'
 import AdminPage from './pages/AdminPage'
 import ConductorPage from './pages/ConductorPage'
+import ConductorViajeDetallePage from './pages/ConductorViajeDetallePage'
 import OrderTrackingPage from './pages/OrderTrackingPage'
 import ViajeTrackingPage from './pages/ViajeTrackingPage'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -55,6 +56,14 @@ function App() {
         element={
           <ProtectedRoute>
             <ConductorPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/conductor/viaje/:viajeId"
+        element={
+          <ProtectedRoute>
+            <ConductorViajeDetallePage />
           </ProtectedRoute>
         }
       />

@@ -1,0 +1,63 @@
+.viaje-activo-card {
+  display: block;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.viaje-activo-card:hover,
+.viaje-activo-card:focus-visible {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow);
+}
+
+.viaje-activo-card__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.viaje-activo-card__header h2 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-h);
+}
+
+.viaje-activo-card__badge {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+.viaje-activo-card__cliente {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.viaje-activo-card__coords {
+  margin: 2px 0 0;
+  font-size: 13px;
+  font-family: var(--mono);
+  color: var(--text);
+}
+
+.viaje-activo-card__footer {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text-h);
+}

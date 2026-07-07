@@ -1,0 +1,101 @@
+.conductor-viaje-detalle-page {
+  max-width: 640px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.conductor-viaje-detalle-page__header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.conductor-viaje-detalle-page__back {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  font-size: 18px;
+  text-decoration: none;
+}
+
+.conductor-viaje-detalle-page__header h1 {
+  margin: 0;
+  font-size: 18px;
+  text-align: left;
+}
+
+.conductor-viaje-detalle-page__content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.conductor-viaje-detalle-page__estado {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-h);
+  text-align: left;
+}
+
+.conductor-viaje-detalle-page__section {
+  text-align: left;
+}
+
+.conductor-viaje-detalle-page__section h2 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text);
+}
+
+.conductor-viaje-detalle-page__section p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-h);
+}
+
+.conductor-viaje-detalle-page__coords {
+  font-family: var(--mono);
+}
+
+.conductor-viaje-detalle-page__feedback {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-size: 14px;
+}
+
+.conductor-viaje-detalle-page__content button {
+  font: inherit;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.conductor-viaje-detalle-page__content button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

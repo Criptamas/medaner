@@ -1,0 +1,30 @@
+.viaje-disponible-card {
+  display: block;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.viaje-disponible-card:hover,
+.viaje-disponible-card:focus-visible {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow);
+}
+
+.viaje-disponible-card__header h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: var(--text-h);
+}
+
+.viaje-disponible-card__coords {
+  margin: 2px 0 0;
+  font-size: 13px;
+  font-family: var(--mono);
+  color: var(--text);
+}
