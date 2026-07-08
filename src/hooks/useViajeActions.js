@@ -10,7 +10,12 @@ export const VIAJE_ALREADY_TAKEN = 'VIAJE_ALREADY_TAKEN'
 export function useViajeActions() {
   const [error, setError] = useState(null)
 
-  async function acceptViaje(viajeId, conductorId) {
+  // datosConductor = { nombre, telefono }: se copian al viaje porque el
+  // cliente no tiene login y las reglas de Firestore le impiden leer
+  // conductores/{uid} directamente (mismo motivo por el que la ubicación en
+  // vivo se replica en viajes/{id}.ubicacionConductor). El viaje, que sí es
+  // público, queda como única fuente de verdad que el cliente puede leer.
+  async function acceptViaje(viajeId, conductorId, datosConductor = {}) {
     setError(null)
     const viajeRef = doc(db, 'viajes', viajeId)
     try {
@@ -19,7 +24,12 @@ export function useViajeActions() {
         if (!snap.exists() || snap.data().estado !== 'pendiente') {
           throw new Error(VIAJE_ALREADY_TAKEN)
         }
-        transaction.update(viajeRef, { estado: 'confirmado', conductorId })
+        transaction.update(viajeRef, {
+          estado: 'confirmado',
+          conductorId,
+          conductorNombre: datosConductor.nombre ?? '',
+          conductorTelefono: datosConductor.telefono ?? '',
+        })
       })
     } catch (err) {
       setError(err)

@@ -4,6 +4,7 @@ import { useViaje } from '../hooks/useViaje'
 import EstadoProgress from '../components/EstadoProgress'
 import StatusMessage from '../components/StatusMessage'
 import { PAYMENT_LABELS, VIAJE_ESTADO_LABELS } from '../utils/pedidoLabels'
+import { construirEnlaceWhatsApp } from '../utils/telefono'
 import './ViajeTrackingPage.css'
 
 // mapbox-gl es pesado (~1.5MB): se carga solo al abrir un viaje activo y no en
@@ -26,6 +27,10 @@ const VEHICULO_LABELS = {
   carro: 'Carro',
 }
 
+// Mensaje prellenado al abrir WhatsApp con el conductor: le ahorra al
+// cliente escribir el saludo inicial.
+const MENSAJE_WHATSAPP_CONDUCTOR = 'Hola, te escribo por mi viaje en Medaner.'
+
 function formatCoords(punto) {
   if (!punto) return '—'
   return `${punto.lat?.toFixed(5)}, ${punto.lng?.toFixed(5)}`
@@ -34,6 +39,10 @@ function formatCoords(punto) {
 export default function ViajeTrackingPage() {
   const { viajeId } = useParams()
   const { viaje, loading, error } = useViaje(viajeId)
+  // conductorTelefono solo existe una vez que un conductor aceptó el viaje
+  // (lo copia acceptViaje); construirEnlaceWhatsApp devuelve null tanto si
+  // no hay teléfono todavía como si el que hay no es válido.
+  const enlaceWhatsAppConductor = viaje ? construirEnlaceWhatsApp(viaje.conductorTelefono) : null
 
   return (
     <div className="viaje-tracking-page">
@@ -66,6 +75,30 @@ export default function ViajeTrackingPage() {
 
           <EstadoProgress estado={viaje.estado} steps={VIAJE_STEPS} />
 
+          {/* Solo aparece una vez que un conductor aceptó (conductorNombre
+              se copia al viaje recién en ese momento, ver acceptViaje). */}
+          {viaje.conductorNombre && (
+            <section className="viaje-tracking-page__conductor">
+              <p className="viaje-tracking-page__conductor-mensaje">
+                «{viaje.conductorNombre}» aceptó tu viaje
+              </p>
+              {enlaceWhatsAppConductor ? (
+                <a
+                  href={`${enlaceWhatsAppConductor}?text=${encodeURIComponent(MENSAJE_WHATSAPP_CONDUCTOR)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="viaje-tracking-page__whatsapp"
+                >
+                  💬 Escribir a tu conductor por WhatsApp
+                </a>
+              ) : (
+                viaje.conductorTelefono && (
+                  <p className="viaje-tracking-page__telefono-plano">{viaje.conductorTelefono}</p>
+                )
+              )}
+            </section>
+          )}
+
           {ESTADOS_CON_MAPA.has(viaje.estado) && (
             <section className="viaje-tracking-page__section">
               <h2>Tu conductor en el mapa</h2>
@@ -86,8 +119,12 @@ export default function ViajeTrackingPage() {
 
           <section className="viaje-tracking-page__section">
             <h2>Recorrido</h2>
-            <p className="viaje-tracking-page__coords">Origen: {formatCoords(viaje.origen)}</p>
-            <p className="viaje-tracking-page__coords">Destino: {formatCoords(viaje.destino)}</p>
+            <p className="viaje-tracking-page__coords">
+              Origen: {viaje.origenNombre || formatCoords(viaje.origen)}
+            </p>
+            <p className="viaje-tracking-page__coords">
+              Destino: {viaje.destinoNombre || formatCoords(viaje.destino)}
+            </p>
           </section>
 
           <section className="viaje-tracking-page__section">

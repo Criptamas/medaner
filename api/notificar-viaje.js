@@ -57,9 +57,19 @@ export default async function handler(req, res) {
     return
   }
 
+  // Preferimos el nombre legible que ya trae el viaje (geocoding hecho en
+  // el navegador al crearlo, ver src/utils/geocode.js) y solo llamamos a
+  // Mapbox acá si vino vacío (viaje viejo sin el campo, o el geocoding del
+  // cliente falló) — evita una llamada duplicada y latencia extra en cada
+  // notificación push. Promise.all conserva el paralelismo cuando sí hace
+  // falta geocodificar ambos puntos.
   const [direccionOrigen, direccionDestino] = await Promise.all([
-    reverseGeocode(viaje.origen.lat, viaje.origen.lng),
-    reverseGeocode(viaje.destino.lat, viaje.destino.lng),
+    viaje.origenNombre?.trim()
+      ? viaje.origenNombre
+      : reverseGeocode(viaje.origen.lat, viaje.origen.lng),
+    viaje.destinoNombre?.trim()
+      ? viaje.destinoNombre
+      : reverseGeocode(viaje.destino.lat, viaje.destino.lng),
   ])
 
   const tipoVehiculoLabel = VEHICULO_LABELS[viaje.tipoVehiculo] ?? viaje.tipoVehiculo

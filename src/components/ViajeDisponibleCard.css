@@ -25,6 +25,5 @@
 .viaje-disponible-card__coords {
   margin: 2px 0 0;
   font-size: 13px;
-  font-family: var(--mono);
   color: var(--text);
 }

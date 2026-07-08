@@ -43,14 +43,42 @@
 
 .viaje-activo-card__cliente {
   margin: 8px 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
   font-size: 14px;
   color: var(--text);
+}
+
+/* Botón de contacto (no <a>: ver comentario en ViajeActivoCard.jsx sobre por
+   qué no puede ser un link anidado dentro de la tarjeta). Verde de WhatsApp
+   fuera de la paleta de marca a propósito, solo para esta acción puntual. */
+.viaje-activo-card__whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: #25d366;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  cursor: pointer;
+}
+
+.viaje-activo-card__whatsapp:hover,
+.viaje-activo-card__whatsapp:focus-visible {
+  background: #1ebe5b;
 }
 
 .viaje-activo-card__coords {
   margin: 2px 0 0;
   font-size: 13px;
-  font-family: var(--mono);
   color: var(--text);
 }
 

@@ -33,3 +33,68 @@
   font-size: 14px;
   color: #dc2626;
 }
+
+/* Dirección resuelta del pin actual (o el estado "Buscando…" mientras se
+   resuelve). Fondo sutil para que se lea como confirmación, no como alerta. */
+.selector-ubicacion__direccion {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--text-h);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.selector-ubicacion__direccion--pendiente {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Agrupa la dirección resuelta con el input de referencia manual: un gap más
+   chico que el del resto del formulario (12px) refuerza que van juntos —
+   la referencia completa lo que la dirección geocodificada no puede dar
+   (nivel de calle), no es un campo suelto más. */
+.selector-ubicacion__referencia-bloque {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.selector-ubicacion__referencia {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.selector-ubicacion__referencia-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  text-align: left;
+}
+
+.selector-ubicacion__referencia-campo input {
+  font: inherit;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+.selector-ubicacion__referencia-campo input:focus {
+  outline: none;
+  border-color: var(--accent-border);
+}
+
+/* Texto de apoyo: explica por qué el campo es obligatorio (el conductor no
+   ve mapa). Secundario visualmente, pero legible — no es letra chica legal. */
+.selector-ubicacion__referencia-ayuda {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}

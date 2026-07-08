@@ -71,8 +71,28 @@
   color: var(--text-h);
 }
 
-.conductor-viaje-detalle-page__coords {
-  font-family: var(--mono);
+/* Verde oficial de WhatsApp: se usa solo en este botón de contacto, a
+   propósito fuera de la paleta de marca, para que se reconozca de un
+   vistazo como "abrir WhatsApp" (convención ya esperada por el usuario). */
+.conductor-viaje-detalle-page__whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: #25d366;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.conductor-viaje-detalle-page__whatsapp:hover,
+.conductor-viaje-detalle-page__whatsapp:focus-visible {
+  background: #1ebe5b;
 }
 
 .conductor-viaje-detalle-page__feedback {

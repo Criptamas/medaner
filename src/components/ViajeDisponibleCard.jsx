@@ -17,8 +17,12 @@ export default function ViajeDisponibleCard({ viaje }) {
       <div className="viaje-disponible-card__header">
         <h3>{VEHICULO_LABELS[viaje.tipoVehiculo] ?? viaje.tipoVehiculo}</h3>
       </div>
-      <p className="viaje-disponible-card__coords">Origen: {formatCoords(viaje.origen)}</p>
-      <p className="viaje-disponible-card__coords">Destino: {formatCoords(viaje.destino)}</p>
+      <p className="viaje-disponible-card__coords">
+        Origen: {viaje.origenNombre || formatCoords(viaje.origen)}
+      </p>
+      <p className="viaje-disponible-card__coords">
+        Destino: {viaje.destinoNombre || formatCoords(viaje.destino)}
+      </p>
     </Link>
   )
 }
