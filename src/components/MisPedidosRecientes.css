@@ -1,5 +1,12 @@
 .mis-pedidos-recientes {
-  margin: 0 0 16px;
+  margin: 0 0 20px;
+}
+
+.mis-pedidos-recientes__titulo {
+  margin: 0 0 10px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-h);
 }
 
 .mis-pedidos-recientes__list {
@@ -16,26 +23,30 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 10px 14px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--bg);
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  /* Barra azul a la izquierda: señala "en curso" con la nueva identidad */
+  border-left: 4px solid var(--blue);
+  border-radius: var(--radius);
+  background: var(--white);
   text-align: left;
   text-decoration: none;
   color: inherit;
-  box-sizing: border-box;
-  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 
 .mis-pedidos-recientes__card:hover,
 .mis-pedidos-recientes__card:focus-visible {
-  border-color: var(--accent-border);
-  box-shadow: var(--shadow);
+  border-color: var(--blue-400);
+  border-left-color: var(--blue);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 .mis-pedidos-recientes__tipo {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-h);
 }
 
@@ -43,9 +54,9 @@
   flex-shrink: 0;
   font-size: 12px;
   font-weight: 600;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border-radius: 999px;
-  padding: 4px 10px;
+  color: var(--blue-700);
+  background: var(--blue-100);
+  border-radius: var(--radius-pill);
+  padding: 5px 12px;
   text-align: center;
 }

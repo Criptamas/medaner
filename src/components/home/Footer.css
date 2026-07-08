@@ -1,0 +1,160 @@
+.home-footer {
+  margin-top: 40px;
+  background: var(--navy);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.home-footer__inner {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 32px 16px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.home-footer__logo {
+  font-family: var(--heading);
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.home-footer__logo-dot {
+  color: var(--blue-400);
+}
+
+.home-footer__tagline {
+  margin: 8px 0 0;
+  font-size: 14px;
+  max-width: 34ch;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.home-footer__cols {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px 16px;
+}
+
+.home-footer__col-titulo {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.home-footer__col-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.home-footer__link {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.home-footer__link:hover {
+  color: var(--blue-400);
+}
+
+/* --- Formas de pago --- */
+.home-footer__pagos {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 20px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.home-footer__pagos-label {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.home-footer__pagos-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.home-footer__pago {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.home-footer__copy {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 16px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* --- Botón flotante de soporte --- */
+.home-soporte-fab {
+  position: fixed;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-radius: var(--radius-pill);
+  background: var(--blue);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  box-shadow: var(--shadow-lg);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.home-soporte-fab:hover,
+.home-soporte-fab:focus-visible {
+  background: var(--blue-600);
+  transform: translateY(-2px);
+}
+
+@media (min-width: 768px) {
+  .home-footer__inner {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 40px 24px 8px;
+  }
+
+  .home-footer__cols {
+    grid-template-columns: repeat(3, minmax(120px, 1fr));
+    gap: 40px;
+    flex: 0 0 auto;
+  }
+
+  .home-footer__pagos,
+  .home-footer__copy {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}

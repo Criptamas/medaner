@@ -1,0 +1,88 @@
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hero__banners {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.promo-banner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-height: 72px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+.promo-banner__titulo {
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.15;
+}
+
+.promo-banner__texto {
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.promo-banner--pago {
+  background: var(--blue-100);
+  border-color: var(--line);
+}
+
+.promo-banner--pago .promo-banner__titulo {
+  color: var(--blue-700);
+}
+
+.promo-banner--pago .promo-banner__texto {
+  color: var(--blue);
+}
+
+.promo-banner--negocio {
+  background: var(--navy);
+}
+
+.promo-banner--negocio .promo-banner__titulo {
+  color: #fff;
+}
+
+.promo-banner--negocio .promo-banner__texto {
+  color: var(--yellow);
+}
+
+.promo-banner--negocio:hover,
+.promo-banner--negocio:focus-visible {
+  background: var(--navy-600);
+}
+
+/* ===== Desktop: carrusel (izq, grande) + banners apilados (der) ===== */
+@media (min-width: 900px) {
+  .hero {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .hero__carousel {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .hero__banners {
+    flex: 0 0 300px;
+    grid-template-columns: 1fr; /* apilados verticalmente */
+    grid-auto-rows: 1fr;
+  }
+
+  .promo-banner {
+    min-height: 0;
+  }
+}

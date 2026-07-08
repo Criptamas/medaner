@@ -1,0 +1,7 @@
+/* Contenedor del bloque de actividad reciente en la Home. El espaciado
+   interno lo manejan MisPedidosRecientes y RecuperarPedidos; acá solo se
+   agrupan. Si ambos se auto-ocultan, el div queda vacío (sin margen visible). */
+.mis-actividad {
+  display: flex;
+  flex-direction: column;
+}

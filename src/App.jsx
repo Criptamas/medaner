@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
-import StoreListPage from './pages/StoreListPage'
+import HomePage from './pages/HomePage'
 import StoreCatalogPage from './pages/StoreCatalogPage'
 import LoginPage from './pages/LoginPage'
 import AdminPage from './pages/AdminPage'
@@ -21,7 +21,7 @@ const TestMapaPage = lazy(() => import('./pages/TestMapaPage'))
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<StoreListPage />} />
+      <Route path="/" element={<HomePage />} />
       <Route path="/tienda/:storeId" element={<StoreCatalogPage />} />
       <Route path="/pedido/:pedidoId" element={<OrderTrackingPage />} />
       <Route

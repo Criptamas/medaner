@@ -85,6 +85,7 @@ export default function MisPedidosRecientes() {
 
   return (
     <section className="mis-pedidos-recientes" aria-label="Mis pedidos y viajes recientes">
+      <h2 className="mis-pedidos-recientes__titulo">Tus pedidos y viajes activos</h2>
       <ul className="mis-pedidos-recientes__list">
         {idsConDatos.map((id) => {
           const tarjeta = tarjetas[id]

@@ -1,0 +1,117 @@
+/* La Home es full-bleed: el header y el footer llegan a los bordes; el
+   contenido central se limita con --container y respira con padding lateral. */
+.home {
+  flex: 1;
+  width: 100%;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 16px 16px 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.home__section {
+  margin: 0;
+}
+
+/* El hero puede ir un poco más ancho visualmente; mantiene el padding del main */
+.home__hero-section {
+  margin-top: 4px;
+}
+
+.home__section-titulo {
+  margin: 0;
+  font-size: 20px;
+}
+
+/* --- Tiendas --- */
+.home__tiendas-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.home__limpiar-filtro {
+  flex-shrink: 0;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.home__limpiar-filtro:hover {
+  text-decoration: underline;
+}
+
+.home__tiendas-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+/* --- Búsqueda --- */
+.home__resultados {
+  min-height: 40vh;
+}
+
+.home__resultados-bloque {
+  margin-top: 20px;
+}
+
+.home__resultados-subtitulo {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.home__productos-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+/* Las cards de producto tienen ancho fijo para el riel; en la grilla de
+   resultados las dejamos estirarse a la celda. */
+.home__productos-grid .hp-card {
+  width: 100%;
+  flex-basis: auto;
+}
+
+@media (min-width: 640px) {
+  .home__tiendas-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .home__productos-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .home {
+    padding: 24px 24px 32px;
+    gap: 36px;
+  }
+  .home__section-titulo {
+    font-size: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .home__tiendas-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .home__productos-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

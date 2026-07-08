@@ -1,0 +1,210 @@
+.home-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+  /* Respeta el notch en móviles (viewport-fit=cover) */
+  padding-top: env(safe-area-inset-top);
+}
+
+.home-header__inner {
+  width: 100%;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 10px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.home-header__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* --- Logo --- */
+.home-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.home-logo__mark {
+  display: inline-flex;
+  color: var(--blue);
+}
+
+.home-logo__text {
+  font-family: var(--heading);
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+  line-height: 1;
+}
+
+.home-logo__dot {
+  color: var(--blue);
+}
+
+/* --- Acciones (sesión + pedir viaje) --- */
+.home-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* El chip de sesión se oculta en móvil muy angosto para no competir con el
+   CTA; reaparece desde 480px. Su lógica sigue intacta (solo visibilidad). */
+.home-header__actions .sesion-usuario {
+  display: none;
+  margin: 0;
+  max-width: 180px;
+}
+
+.home-header__viaje-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 9px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--blue);
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.home-header__viaje-btn:hover,
+.home-header__viaje-btn:focus-visible {
+  background: var(--blue-600);
+}
+
+.home-header__viaje-btn:active {
+  transform: translateY(1px);
+}
+
+/* En pantallas chicas el CTA muestra solo el emoji + texto corto; se mantiene
+   el texto pero se compacta. */
+.home-header__viaje-btn span:last-child {
+  display: inline;
+}
+
+/* --- Buscador --- */
+.home-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 0 12px;
+  height: 44px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.home-search:focus-within {
+  border-color: var(--blue-400);
+  background: var(--white);
+}
+
+.home-search__icon {
+  display: inline-flex;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.home-search__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  color: var(--text-h);
+  outline: none;
+  /* Quita la X nativa del type=search (usamos la nuestra) */
+  appearance: none;
+}
+
+.home-search__input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.home-search__input::placeholder {
+  color: var(--text-muted);
+}
+
+.home-search__clear {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: var(--line);
+  color: var(--navy);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-search__clear:hover {
+  background: var(--line-strong);
+}
+
+/* ===== Desktop / tablet ===== */
+@media (min-width: 480px) {
+  .home-header__actions .sesion-usuario {
+    display: flex;
+  }
+}
+
+@media (min-width: 768px) {
+  .home-header__inner {
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    padding: 14px 24px;
+  }
+
+  /* display:contents "disuelve" el bar en desktop: logo y acciones pasan a ser
+     hijos directos del inner (fila), y con `order` los ubicamos como
+     logo | buscador | acciones. En móvil el bar sigue siendo su propia fila. */
+  .home-header__bar {
+    display: contents;
+  }
+
+  .home-logo {
+    order: 0;
+  }
+
+  .home-search {
+    order: 1;
+    flex: 1;
+    max-width: 560px;
+  }
+
+  .home-header__actions {
+    order: 2;
+    flex-shrink: 0;
+  }
+
+  .home-logo__text {
+    font-size: 24px;
+  }
+}

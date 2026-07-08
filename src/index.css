@@ -1,98 +1,161 @@
+/* ============================================================================
+   MEDANER — SISTEMA DE DISEÑO GLOBAL
+   ----------------------------------------------------------------------------
+   Fuente de verdad de la identidad visual (paleta azul + blanco, estilo
+   Farmatodo). Estos tokens son la base reutilizable de TODA la app: al
+   rediseñar /conductor, /admin, /pedido/:id, etc. en próximas sesiones, se
+   consumen estas variables (var(--...)) en vez de hardcodear colores.
+
+   Convención de tokens:
+   - Tokens "legacy" (--accent, --text, --text-h, --bg, --border, --code-bg,
+     --shadow) los usan los componentes que ya existían. Se REMAPEAN acá al
+     nuevo azul para que toda la app adopte la paleta sin tocar cada archivo.
+   - Tokens nuevos (--navy, --blue-*, --yellow, --surface-*, radios, sombras)
+     son el vocabulario del rediseño; úsalos en componentes nuevos.
+
+   Paleta base:
+     Azul principal   #0052CC  botones/CTA, marca, links, estados activos
+     Azul claro       #4C9AFF  acentos suaves, hover, fondos de badges
+     Navy             #0A192F  header/footer, banners institucionales, títulos
+     Amarillo         #FFD700  SOLO acento: promos/alertas (usar con mesura)
+     Fondo            #FAFAFA / #FFFFFF  limpio, con aire
+   ============================================================================ */
+
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  /* --- Marca / paleta cruda --- */
+  --navy: #0a192f;
+  --navy-600: #12294a;
+  --navy-700: #0f2647;
+  --blue: #0052cc;
+  --blue-600: #0047b3;
+  --blue-700: #003d99;
+  --blue-400: #4c9aff;
+  --blue-100: #eaf2ff;
+  --blue-050: #f4f8ff;
+  --yellow: #ffd700;
+  --yellow-600: #e6c200;
+  --yellow-ink: #5c4700; /* texto accesible sobre amarillo */
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  /* --- Neutros --- */
+  --white: #ffffff;
+  --surface: #fafafa; /* fondo de página */
+  --surface-2: #f1f5fb; /* relleno azulado sutil (cards, imágenes) */
+  --ink: #0a192f; /* títulos */
+  --text-body: #4a5568; /* cuerpo */
+  --text-muted: #7b8794; /* secundario */
+  --line: #e4e9f0; /* bordes */
+  --line-strong: #d3dbe8;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
+  /* --- Tokens legacy remapeados (compat. con componentes existentes) --- */
+  --text: var(--text-body);
+  --text-h: var(--ink);
+  --bg: var(--white);
+  --border: var(--line);
+  --code-bg: var(--surface-2);
+  --accent: var(--blue);
+  --accent-bg: var(--blue-100);
+  --accent-border: rgba(0, 82, 204, 0.4);
+
+  /* --- Radios --- */
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  /* --- Sombras (tono azul-navy, no negro puro) --- */
+  --shadow-sm: 0 1px 2px rgba(10, 25, 47, 0.06), 0 1px 3px rgba(10, 25, 47, 0.08);
+  --shadow-md: 0 10px 15px -3px rgba(10, 25, 47, 0.1), 0 4px 6px -2px rgba(10, 25, 47, 0.05);
+  --shadow-lg: 0 20px 35px -8px rgba(10, 25, 47, 0.18), 0 8px 16px -8px rgba(10, 25, 47, 0.1);
+  --shadow: var(--shadow-md); /* legacy */
+
+  /* --- Layout --- */
+  --container: 1200px;
+
+  /* --- Tipografía ---
+     Sans moderna. Se prefiere 'Inter' si el sistema/usuario la tiene, pero NO
+     se descarga una webfont: la app es PWA offline-first y sus usuarios en
+     Falcón pueden tener conexión inestable, así que caemos a la fuente del
+     sistema (system-ui = Roboto en Android, SF en iOS) — limpia y sin costo
+     de red ni bloqueo de render. */
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --heading: var(--sans);
+  --mono: ui-monospace, Consolas, 'SF Mono', Menlo, monospace;
+
+  font: 16px/1.5 var(--sans);
+  color-scheme: light;
   color: var(--text);
-  background: var(--bg);
+  background: var(--surface);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  background: var(--surface);
 }
 
+/* App shell: columna full-width (mobile-first). Cada página maneja su propio
+   max-width interno. Se elimina el ancho fijo 1126px + border-inline + text
+   centrado que traía el template inicial de Vite. */
 #root {
-  width: 1126px;
-  max-width: 100%;
+  width: 100%;
   margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
+  text-align: left;
 }
 
 h1,
-h2 {
+h2,
+h3 {
   font-family: var(--heading);
-  font-weight: 500;
   color: var(--text-h);
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+  font-size: 30px;
+  line-height: 1.15;
+  margin: 24px 0;
 }
+
 h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
+  font-size: 22px;
+  line-height: 1.2;
   margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
+}
+
+@media (min-width: 768px) {
+  h1 {
+    font-size: 40px;
+  }
+  h2 {
+    font-size: 26px;
   }
 }
+
 p {
   margin: 0;
+}
+
+a {
+  color: var(--blue);
+}
+
+/* Reset básico de botones para no arrastrar estilos del user-agent */
+button {
+  font-family: inherit;
 }
 
 code,
@@ -104,8 +167,34 @@ code,
 }
 
 code {
-  font-size: 15px;
-  line-height: 135%;
+  font-size: 0.85em;
+  line-height: 1.35;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+/* Utilidad: texto solo para lectores de pantalla (SEO/accesibilidad).
+   Permite tener un <h1> con la frase clave sin recargar visualmente el UI. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Respeta la preferencia de menos movimiento (carrusel/animaciones) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
