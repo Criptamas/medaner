@@ -2,9 +2,10 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // Único admin habilitado hoy (no hay sistema de roles todavía).
-    // Para sumar otro admin, agregar su UID a esta lista.
+    // UID de criptamas@gmail.com (admin real). Para sumar otro admin,
+    // agregar su UID a esta lista.
     function isAdmin() {
-      return request.auth != null && request.auth.uid in ['vJVgS8PZpSOro7OmcRLtOxMowXy1'];
+      return request.auth != null && request.auth.uid in ['y1AyjaLn7xeL1mfAiDTNu7nNhfV2'];
     }
 
     match /tiendas/{tiendaId} {
