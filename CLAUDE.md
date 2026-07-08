@@ -109,6 +109,12 @@ VITE_MAPBOX_TOKEN
 - **Viajes:** `pendiente → confirmado → en_curso → completado` (final: `completado`).
 - Las etiquetas legibles viven centralizadas en `src/utils/pedidoLabels.js` (`ESTADO_BADGE_LABELS` para pedidos, `VIAJE_ESTADO_LABELS` para viajes). Al agregar un estado nuevo, actualizar ahí y revisar los componentes que marcan estados "finales" (`MisPedidosRecientes`).
 
+### Identidades, admin y sesión visible (sin sistema de roles todavía)
+- **Admin real:** criptamas@gmail.com → UID `y1AyjaLn7xeL1mfAiDTNu7nNhfV2` ("Juan Rojas"). Es el único UID en `isAdmin()` de `firestore.rules`. **Conductor de prueba:** conductor@prueba.com → UID `vJVgS8PZpSOro7OmcRLtOxMowXy1` ("Carlos Alejandro"); NO es admin.
+- No hay sistema de roles: `ProtectedRoute` solo verifica sesión, cualquier usuario logueado puede abrir `/admin` y `/conductor` en el frontend (las reglas de Firestore son las que limitan qué puede escribir cada uno). La autenticación por rol + redirección según quién entra quedó **pendiente a propósito** (decisión del 2026-07-08).
+- Los headers de `/admin` y `/conductor` muestran quién está logueado con `src/components/SesionUsuario.jsx`. Resolución del nombre: prop `nombre` (en ConductorPage viene de `conductores/{uid}.nombre`) → mapa UID→nombre de `src/utils/nombresUsuarios.js` (solo personal interno, hoy únicamente el admin) → email. Al implementar roles, reemplazar el mapa por perfiles reales.
+- Cambios a `firestore.rules` NO tienen efecto hasta publicarlas (consola de Firebase o `firebase deploy --only firestore:rules`).
+
 ### Disponibilidad del conductor — campo `activo`
 - El campo que marca disponibilidad en `conductores/{uid}` se llama **`activo`** (boolean), NO `disponible`. Lo escriben `ConductorPage` (switch) vía `useDocToggle`, y lo lee `api/notificar-viaje.js` (`where('activo', '==', true)`). No renombrarlo sin tocar frontend + función + reglas a la vez.
 - El documento del conductor DEBE crearse en la consola con **ID = UID de Firebase Auth** del conductor. Si no coincide, el conductor ve "perfil no configurado" (la pantalla ahora muestra el UID exacto para facilitar la creación).
@@ -116,8 +122,11 @@ VITE_MAPBOX_TOKEN
 
 ### Seguimiento de pedidos/viajes del cliente (sin login)
 - Como no hay cuentas de cliente, la referencia a sus pedidos/viajes activos vive en **localStorage** del navegador: clave `medaner_pedidos_activos`, array de `{ id, tipo: 'pedido'|'viaje', createdAt }`. Helpers en `src/utils/seguimientoLocal.js`; UI en `src/components/MisPedidosRecientes.jsx` (Home). Entradas de más de 24 h o en estado final se limpian solas.
-- **Limitación conocida:** el historial es por dispositivo/navegador. Si el cliente borra caché o cambia de dispositivo, lo pierde. Aceptable para el alcance actual.
-- **Mejora futura:** si se agrega el teléfono como identificador persistente del cliente (sin login completo), migrar a una query `where('clienteTelefono', '==', telefono)` en `pedidos`/`viajes` para no depender del localStorage.
+- **Recuperación por teléfono (sin login):** si el cliente pierde el localStorage (borró caché, cambió de dispositivo), puede recuperar sus pedidos/viajes activos con su número de teléfono desde la Home (`src/components/RecuperarPedidos.jsx`, sección discreta y colapsada bajo "Mis pedidos recientes"). Funciona así:
+  - Al crear pedido/viaje, `useCreateOrder`/`useCreateViaje` guardan `clienteTelefonoNormalizado` (10 dígitos nacionales, ej. `4121234567`) además del `clienteTelefono` tal como lo escribió el cliente. El normalizador compartido vive en `src/utils/telefono.js` (`normalizarTelefono`) — **no cambiar su lógica sin migrar datos**, es el contrato entre creación y búsqueda.
+  - `POST /api/recuperar-pedidos` (`api/recuperar-pedidos.js`, Admin SDK) recibe `{ telefono }`, normaliza, y busca por `clienteTelefonoNormalizado` en `pedidos` y `viajes`. Filtra en código (sin índice compuesto) estados finales y más de 24 h; tope 20 resultados. Devuelve **solo** `{ id, tipo, estado }` — es un endpoint público y no debe exponer nombre/dirección por teléfono. La lectura va por endpoint porque las reglas NO permiten `list` sin auth (y no hay que abrirlas).
+  - En éxito, el front reinyecta los resultados al localStorage (`agregarPedidoActivo`) y `StoreListPage` remonta `MisPedidosRecientes` vía `key` (ese componente lee localStorage solo al montar).
+  - Documentos anteriores a este cambio no tienen `clienteTelefonoNormalizado` y no aparecen en la búsqueda (aceptado, solo afecta datos de prueba).
 
 ### Ubicación en vivo del conductor durante el viaje
 - **Dos campos de ubicación con propósitos distintos (no confundirlos ni unificarlos):**
@@ -129,12 +138,13 @@ VITE_MAPBOX_TOKEN
 - Coordenadas siempre `double`; `timestamp` es numérico (`Date.now()`).
 
 ### Próximos pasos pendientes
-- Definir y construir flujos principales: cliente hace pedido → tienda lo recibe → conductor lo toma → entrega.
-- Panel de conductores (ver pedidos disponibles, aceptar, marcar entregado).
+- Definir y construir flujos principales: cliente hace pedido → tienda lo recibe → conductor lo toma → entrega (falta la parte de la tienda: hoy el pedido va directo al pool de conductores).
 - Panel de tiendas (gestionar productos, ver pedidos entrantes).
-- Panel admin básico (gestionar usuarios, conductores activos, tiendas).
-- Autenticación por rol (cliente / conductor / tienda / admin).
-- Notificaciones push vía FCM.
+- Autenticación por rol (cliente / conductor / tienda / admin) + redirección post-login según rol (hoy LoginPage manda a `/admin` por defecto).
+- Cancelación de pedidos por el cliente: **postergada a propósito** (decisión del 2026-07-08). Cuando se haga, requiere estado `cancelado` nuevo (ver "Esquema de estados"), regla de Firestore acotada o endpoint, y UI discreta.
+- Corregir moneda: `priceFormatter` en `src/utils/pedidoLabels.js` usa `es-AR`/`ARS` (Argentina) — debería ser USD o VES.
+- Borrar la ruta `/test-mapa` de `App.jsx` antes de producción.
+- A escala: restringir `allow list` de `pedidos` (hoy cualquier conductor autenticado puede listar todos los pedidos con datos de clientes).
 - Testing con usuarios reales en Punto Fijo.
 
 
