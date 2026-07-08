@@ -1,12 +1,20 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useActiveStores } from '../hooks/useActiveStores'
 import StoreCard from '../components/StoreCard'
 import MisPedidosRecientes from '../components/MisPedidosRecientes'
+import RecuperarPedidos from '../components/RecuperarPedidos'
 import StatusMessage from '../components/StatusMessage'
 import './StoreListPage.css'
 
 export default function StoreListPage() {
   const { stores, loading, error } = useActiveStores()
+
+  // MisPedidosRecientes lee localStorage una sola vez al montar (ver ese
+  // componente). Cuando RecuperarPedidos reinyecta pedidos/viajes ahí,
+  // subimos este contador para forzar su remount vía `key` y que los
+  // resultados nuevos aparezcan sin recargar la página.
+  const [refreshKey, setRefreshKey] = useState(0)
 
   return (
     <div className="store-list-page">
@@ -19,7 +27,9 @@ export default function StoreListPage() {
         🚕 Pedir un viaje
       </Link>
 
-      <MisPedidosRecientes />
+      <MisPedidosRecientes key={refreshKey} />
+
+      <RecuperarPedidos onRecuperados={() => setRefreshKey((key) => key + 1)} />
 
       {loading && <StatusMessage variant="loading" title="Cargando tiendas..." />}
 

@@ -1,0 +1,124 @@
+.recuperar-pedidos {
+  margin: 0 0 16px;
+}
+
+/* Estado colapsado: solo un link sutil, no compite con "Mis pedidos
+   recientes" ni con la lista de tiendas de abajo. */
+.recuperar-pedidos--colapsado {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.recuperar-pedidos__link {
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  background: none;
+  border: none;
+  padding: 4px 0;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.recuperar-pedidos__link:hover,
+.recuperar-pedidos__link:focus-visible {
+  color: var(--accent);
+}
+
+.recuperar-pedidos__exito {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+/* Estado expandido: form contenido en una card discreta, coherente con el
+   resto de los inputs de la app (ver DatosClienteViajeStep / CheckoutScreen). */
+form.recuperar-pedidos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+.recuperar-pedidos__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  text-align: left;
+  color: var(--text);
+}
+
+.recuperar-pedidos__field input {
+  font: inherit;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  box-sizing: border-box;
+}
+
+.recuperar-pedidos__field input:focus {
+  outline: none;
+  border-color: var(--accent-border);
+}
+
+.recuperar-pedidos__field input:disabled {
+  opacity: 0.6;
+}
+
+.recuperar-pedidos__acciones {
+  display: flex;
+  gap: 8px;
+}
+
+.recuperar-pedidos__submit {
+  font: inherit;
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.recuperar-pedidos__submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.recuperar-pedidos__cancelar {
+  font: inherit;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.recuperar-pedidos__cancelar:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.recuperar-pedidos__mensaje {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.recuperar-pedidos__mensaje--error {
+  color: #e5484d;
+}

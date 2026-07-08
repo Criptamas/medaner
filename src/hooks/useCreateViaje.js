@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase'
 import { agregarPedidoActivo } from '../utils/seguimientoLocal'
+import { normalizarTelefono } from '../utils/telefono'
 
 // Crea un documento en "viajes". total arranca en 0 y conductorId vacío:
 // la tarifa se acuerda con el conductor y este se asigna al aceptar el viaje.
@@ -23,6 +24,11 @@ export function useCreateViaje() {
       const docRef = await addDoc(collection(db, 'viajes'), {
         clienteNombre,
         clienteTelefono,
+        // Clave de búsqueda que usa /api/recuperar-pedidos para encontrar
+        // viajes por teléfono sin depender del formato en que lo escribió
+        // el cliente. Si no es un teléfono válido guardamos '' en vez de
+        // bloquear la creación del viaje (ver src/utils/telefono.js).
+        clienteTelefonoNormalizado: normalizarTelefono(clienteTelefono) ?? '',
         origen: { lat: origen.lat, lng: origen.lng },
         destino: { lat: destino.lat, lng: destino.lng },
         tipoVehiculo,

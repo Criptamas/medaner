@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase'
 import { agregarPedidoActivo } from '../utils/seguimientoLocal'
+import { normalizarTelefono } from '../utils/telefono'
 
 export function useCreateOrder() {
   const [submitting, setSubmitting] = useState(false)
@@ -23,6 +24,11 @@ export function useCreateOrder() {
         tiendaId: storeId,
         clienteNombre,
         clienteTelefono,
+        // Clave de búsqueda que usa /api/recuperar-pedidos para encontrar
+        // pedidos por teléfono sin depender del formato en que lo escribió
+        // el cliente. Si no es un teléfono válido guardamos '' en vez de
+        // bloquear la creación del pedido (ver src/utils/telefono.js).
+        clienteTelefonoNormalizado: normalizarTelefono(clienteTelefono) ?? '',
         direccion,
         metodoPago,
         estado: 'pendiente',
