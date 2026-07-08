@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import LogoutButton from '../components/LogoutButton'
+import SesionUsuario from '../components/SesionUsuario'
 import StatusMessage from '../components/StatusMessage'
 import AdminPedidoRow from '../components/AdminPedidoRow'
 import AdminTiendaRow from '../components/AdminTiendaRow'
@@ -57,7 +58,12 @@ export default function AdminPage() {
   return (
     <div className="admin-page">
       <header className="admin-page__header">
-        <h1>Panel de administración</h1>
+        <div className="admin-page__titulo">
+          <h1>Panel de administración</h1>
+          {/* Sin prop `nombre`: acá resuelve por el mapa de personal interno
+              (ver utils/nombresUsuarios), no hay doc de perfil para el admin. */}
+          <SesionUsuario />
+        </div>
         <LogoutButton />
       </header>
 

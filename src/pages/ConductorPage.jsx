@@ -15,6 +15,7 @@ import ViajeActivoCard from '../components/ViajeActivoCard'
 import ToggleSwitch from '../components/ToggleSwitch'
 import StatusMessage from '../components/StatusMessage'
 import LogoutButton from '../components/LogoutButton'
+import SesionUsuario from '../components/SesionUsuario'
 import './ConductorPage.css'
 
 const SIGUIENTE_ESTADO = {
@@ -117,7 +118,10 @@ export default function ConductorPage() {
   return (
     <div className="conductor-page">
       <header className="conductor-page__header">
-        <h1>Vista del conductor</h1>
+        <div className="conductor-page__titulo">
+          <h1>Vista del conductor</h1>
+          <SesionUsuario nombre={conductor?.nombre} />
+        </div>
         <LogoutButton />
       </header>
 
