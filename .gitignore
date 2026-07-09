@@ -32,3 +32,5 @@ dist-ssr
 # Claude Code: solo se versionan las definiciones de agentes (.claude/agents)
 .claude/settings.local.json
 .claude/worktrees/
+
+.env*.local

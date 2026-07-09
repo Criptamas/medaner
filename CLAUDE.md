@@ -82,6 +82,15 @@ tiendas/                        ← colección principal de tiendas
 conductores/                    ← colección de conductores
   {conductorId}/
     (campos a definir según avance)
+
+configuracion/                  ← colección de configuración global (1 solo doc por ahora)
+  tarifas/                      ← ID de documento fijo, exacto "tarifas"
+    tarifaBaseMoto: number
+    tarifaPorKmMoto: number
+    tarifaBaseCarro: number
+    tarifaPorKmCarro: number
+    tarifaMinima: number
+    incrementoAjuste: number
 ```
 
 ### Variables de entorno (.env)
@@ -121,6 +130,15 @@ VITE_MAPBOX_TOKEN
 - Reglas de Firestore: el propio conductor solo puede escribir `activo`, `ubicacion` y `fcmToken` en su doc; el admin solo `cuotaSemanalPagada`.
 - **Identidad del conductor (`nombre`, `telefono`):** son campos de solo lectura para el conductor, gestionados por el admin en la consola (no están en su `hasOnly`, igual que `cuotaSemanalPagada`). `nombre` ya se usaba en los headers; **`telefono` es nuevo** y se copia al viaje al aceptar para que el cliente lo contacte por WhatsApp (ver "Nombres legibles de ubicación y contacto por WhatsApp"). Si un conductor no tiene `telefono` cargado, el cliente simplemente no verá el botón de WhatsApp (degrada, no rompe).
 
+### Notificaciones push (FCM) — conductor y cliente
+- **Service worker único:** `src/sw.js` (no `public/firebase-messaging-sw.js` separado) fusiona el precacheo de la PWA (Workbox, modo `injectManifest` en `vite.config.js`) con `messaging.onBackgroundMessage()` y el handler de `notificationclick` que navega a la URL del `data.url`/`fcmOptions.link` de la notificación. Dos service workers registrados en la misma ruta raíz competirían entre sí — por eso están fusionados en uno solo, a propósito. El config de Firebase está hardcodeado ahí (son valores públicos, no secretos) porque un service worker estático no puede leer `import.meta.env`.
+- **`src/hooks/useFcmToken.js`:** pide permiso (`Notification.requestPermission()`) y obtiene el token con `getToken()` + `VITE_FIREBASE_VAPID_KEY`. Expone dos funciones: `registrarToken(conductorId)` (pide permiso+token y además hace `updateDoc` a `conductores/{id}.fcmToken` — la usa `ConductorPage` al activar "Disponible", best-effort, no rompe el toggle si falla) y `obtenerToken()` (solo permiso+token, sin escribir nada — la usa el cliente en `PedirViajePage.handleConfirmarViaje`, porque el viaje todavía no existe como documento cuando se pide el token). Ante cualquier fallo (permiso denegado, navegador sin soporte, error de red), ambas caen a `null`/error manejado, nunca rompen el flujo que las llama.
+- **`fcmTokenCliente` en `viajes`:** mismo patrón que `clienteTelefonoNormalizado` — no hay cuenta de cliente persistente, así que el token de push vive en el propio documento del viaje, escrito una sola vez al crearlo (`useCreateViaje`). Puede ser `null` sin bloquear la creación del viaje (verificado en vivo: negar/no resolver el permiso de notificaciones no impide crear el viaje).
+- **`src/components/Toast.jsx`:** primer componente de tipo toast/snackbar del proyecto (antes solo existía `StatusMessage`, que es de sección, no flotante). Se usa para mensajes de FCM en foreground vía `onMessage()` — el navegador NO dispara la notificación del sistema cuando la pestaña está en foreground, así que sin esto el usuario no se entera hasta refrescar. Montado en `ConductorPage` (viaje nuevo cerca) y `ViajeTrackingPage` (cambio de estado de su viaje), cada uno con su propio `useEffect`/`onMessage()` — no hay un provider global de toasts, no hizo falta.
+- **`api/notificar-viaje.js`** (conductor, viaje nuevo): ya envía vía `messaging.sendEachForMulticast()` a los conductores `activo` dentro de 5 km con `fcmToken`, con limpieza best-effort de tokens muertos. El body del push incluye la distancia aproximada (`viaje.distanciaKm`, cuando existe) además de origen/destino.
+- **`api/notificar-cambio-estado.js`** (cliente, cambio de estado): recibe `{ viajeId, nuevoEstado }`, relee el viaje con Admin SDK, y si `fcmTokenCliente` existe envía un push 1:1 (`messaging.send()`, no multicast) con el texto según `confirmado`/`en_curso`/`completado`. Si no hay token, responde `200 { enviado: false }` sin error — es el caso normal de un cliente que no dio permiso. Lo disparan (fire-and-forget, igual que `notificar-viaje.js`) `acceptViaje` y `advanceViajeStatus` en `src/hooks/useViajeActions.js`, justo después de que la escritura en Firestore resuelve OK.
+- **Env vars del Admin SDK:** el nombre real (ya en `.env`/`.env.example`/`api/_lib/firebaseAdmin.js`) es `FIREBASE_ADMIN_PROJECT_ID` / `FIREBASE_ADMIN_CLIENT_EMAIL` / `FIREBASE_ADMIN_PRIVATE_KEY` — con el infijo `_ADMIN_`. No usar nombres sin ese infijo para nada nuevo que use `getAdminDb()`/`getAdminMessaging()`.
+
 ### Seguimiento de pedidos/viajes del cliente (sin login)
 - Como no hay cuentas de cliente, la referencia a sus pedidos/viajes activos vive en **localStorage** del navegador: clave `medaner_pedidos_activos`, array de `{ id, tipo: 'pedido'|'viaje', createdAt }`. Helpers en `src/utils/seguimientoLocal.js`; UI en `src/components/MisPedidosRecientes.jsx` (Home). Entradas de más de 24 h o en estado final se limpian solas.
 - **Recuperación por teléfono (sin login):** si el cliente pierde el localStorage (borró caché, cambió de dispositivo), puede recuperar sus pedidos/viajes activos con su número de teléfono desde la Home (`src/components/RecuperarPedidos.jsx`, sección discreta y colapsada bajo "Mis pedidos recientes"). Funciona así:
@@ -147,6 +165,31 @@ VITE_MAPBOX_TOKEN
 - **Contacto por WhatsApp:** `construirEnlaceWhatsApp(telefono)` (`src/utils/telefono.js`) arma `https://wa.me/58<10 dígitos>` reutilizando `normalizarTelefono`; devuelve `null` si el teléfono no es válido, y en ese caso la UI cae a texto plano (nunca un link roto). El **cliente** ve "«{conductorNombre}» aceptó tu viaje" + botón a WhatsApp del conductor en `ViajeTrackingPage` (aparece cuando `conductorNombre` existe). El **conductor** ve el botón a WhatsApp del cliente en `ConductorViajeDetallePage`. En tarjetas envueltas en `<Link>` (`ViajeActivoCard`) el contacto es un `<button>` con `preventDefault`+`stopPropagation`+`window.open` para no anidar `<a>` ni navegar la tarjeta.
 - **Decisión de producto (revisable):** el conductor ve el teléfono del cliente **solo después de aceptar** el viaje (condición `esMio` en `ConductorViajeDetallePage`), consistente con `ViajeActivoCard` (viajes míos, muestra teléfono) vs `ViajeDisponibleCard` (pool sin asignar, no lo muestra). Para que el conductor pueda contactar al cliente **antes** de aceptar (viaje aún `pendiente`), quitar el gate `esMio` de esa sección.
 
+### Configuración de tarifas para cotizar viajes (`configuracion/tarifas`)
+- **Por qué es de lectura pública y escritura bloqueada:** el cliente no tiene login y necesita leer las tarifas en el navegador para mostrar un precio estimado **antes** de crear el viaje, así que `firestore.rules` da `allow read: if true` a toda la colección `configuracion`. `allow write: if false` porque el valor no lo toca ni el cliente ni ninguna función — se carga y ajusta a mano desde la consola de Firebase, mismo patrón que ya se usa para `nombre`/`telefono` en `conductores/{uid}` (campos que tampoco están en el `hasOnly` de ningún rol).
+- **Documento semilla pendiente de crear a mano** (no se creó desde este cambio — escribir a la base de datos de producción es una decisión del usuario, no algo para automatizar sin supervisión). Pasos en la consola de Firebase:
+  1. Firestore Database → Iniciar colección (o "+ Agregar colección" si `configuracion` no existe todavía).
+  2. ID de la colección: `configuracion`.
+  3. ID del documento: `tarifas` (exacto, en minúsculas, sin espacios — el código lo busca por ese ID literal).
+  4. Agregar estos 6 campos, todos tipo **number** (no string):
+
+     | Campo | Valor |
+     |---|---|
+     | `tarifaBaseMoto` | `0.50` |
+     | `tarifaPorKmMoto` | `0.30` |
+     | `tarifaBaseCarro` | `0.80` |
+     | `tarifaPorKmCarro` | `0.70` |
+     | `tarifaMinima` | `1.00` |
+     | `incrementoAjuste` | `0.50` |
+  5. Guardar. No hace falta ninguna subcolección.
+- Si más adelante se agregan más documentos de configuración global (ej. horarios, zonas de cobertura), van como documentos adicionales dentro de la misma colección `configuracion` — la regla ya cubre cualquier `docId` dentro de ella.
+
+### Cotización de precio antes de crear el viaje
+- **Dónde se engancha en el wizard:** el botón "Confirmar viaje" del paso 4 (`MetodoPagoViajeStep`, dentro de `PedirViajePage`) ya no crea el viaje directamente — abre `CotizacionViajeSheet` (bottom sheet sin librerías, mismo patrón visual que `CartDrawer`). El botón "Confirmar viaje" **del sheet** es el que efectivamente llama a `createViaje` y navega a `/viaje/:id`; si el sheet se cierra sin confirmar, el wizard queda intacto en el paso 4. Se eligió este punto de enganche (y no justo después de elegir destino) porque nombre/teléfono/método de pago —campos que van en el mismo documento— ya están completos ahí.
+- **Cálculo:** al abrir el sheet se piden en paralelo las tarifas (`useTarifas`, lectura única de `configuracion/tarifas`) y la distancia real de manejo (`getRouteDistance` en `src/utils/directions.js`, Mapbox Directions API — a diferencia del reverse geocoding, acá un fallo SÍ bloquea con un botón "Reintentar", nunca inventa una distancia). `calcularPrecioBase` (`src/utils/tarifas.js`) aplica tarifa base + tarifa/km según `tipoVehiculo`, aplica el piso `tarifaMinima`, y redondea hacia arriba al múltiplo de `incrementoAjuste` más cercano (con corrección de punto flotante — sin ella, casos como 7.8km en moto podían subir un escalón de más). El stepper del sheet solo permite subir el precio desde ese `precioBase`, nunca bajarlo.
+- **Campos nuevos en `viajes`:** `distanciaKm`, `duracionEstimadaMin` (puede ser `null`), `precioBase`, `precioFinal` (el que efectivamente aceptó el cliente, con el stepper). El campo `total` (existente, siempre en `0`) queda intacto a propósito — no se usa en ningún componente hoy, es una decisión ya tomada de no tocarlo en este cambio.
+- **Dónde se muestra `precioFinal`:** `ViajeDisponibleCard` (pool), `ViajeActivoCard`, `ConductorViajeDetallePage` (para que el conductor pueda priorizar viajes mejor pagados — es el motivo de que el cliente pueda subir el precio) y `ViajeTrackingPage` (lado cliente). Los cuatro chequean `viaje.precioFinal != null` porque viajes creados antes de este cambio no tienen el campo. `formatUSD` (`src/utils/tarifas.js`) es un formateador propio — NO reusa `priceFormatter` de `pedidoLabels.js`, que está en ARS/es-AR (bug ya listado abajo).
+
 ### Próximos pasos pendientes
 - Definir y construir flujos principales: cliente hace pedido → tienda lo recibe → conductor lo toma → entrega (falta la parte de la tienda: hoy el pedido va directo al pool de conductores).
 - Panel de tiendas (gestionar productos, ver pedidos entrantes).
@@ -155,6 +198,7 @@ VITE_MAPBOX_TOKEN
 - Corregir moneda: `priceFormatter` en `src/utils/pedidoLabels.js` usa `es-AR`/`ARS` (Argentina) — debería ser USD o VES.
 - Borrar la ruta `/test-mapa` de `App.jsx` antes de producción.
 - A escala: restringir `allow list` de `pedidos` (hoy cualquier conductor autenticado puede listar todos los pedidos con datos de clientes).
+- Publicar la regla de `configuracion` (`firebase deploy --only firestore:rules` o consola) y crear a mano el documento `configuracion/tarifas` (ver sección arriba) — la cotización de precio en el frontend no puede leer nada hasta que se hagan ambas cosas.
 - Testing con usuarios reales en Punto Fijo.
 
 

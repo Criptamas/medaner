@@ -16,10 +16,24 @@
   box-shadow: var(--shadow);
 }
 
+.viaje-disponible-card__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .viaje-disponible-card__header h3 {
   margin: 0 0 8px;
   font-size: 16px;
   color: var(--text-h);
+}
+
+.viaje-disponible-card__precio {
+  flex-shrink: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
 }
 
 .viaje-disponible-card__coords {

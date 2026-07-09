@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { formatUSD } from '../utils/tarifas'
 import './ViajeDisponibleCard.css'
 
 const VEHICULO_LABELS = {
@@ -16,6 +17,11 @@ export default function ViajeDisponibleCard({ viaje }) {
     <Link to={`/conductor/viaje/${viaje.id}`} className="viaje-disponible-card">
       <div className="viaje-disponible-card__header">
         <h3>{VEHICULO_LABELS[viaje.tipoVehiculo] ?? viaje.tipoVehiculo}</h3>
+        {/* precioFinal puede faltar en viajes creados antes de esta feature
+            (ver CLAUDE.md): se omite en vez de mostrar $undefined/$NaN. */}
+        {viaje.precioFinal != null && (
+          <span className="viaje-disponible-card__precio">{formatUSD(viaje.precioFinal)}</span>
+        )}
       </div>
       <p className="viaje-disponible-card__coords">
         Origen: {viaje.origenNombre || formatCoords(viaje.origen)}

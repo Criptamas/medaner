@@ -9,29 +9,39 @@ import { db, getFcmMessaging } from '../firebase'
 export function useFcmToken() {
   const [error, setError] = useState(null)
 
+  // Parte reusable de "pedir permiso + obtener token", sin el updateDoc: el
+  // cliente (que no tiene doc en Firestore hasta crear el viaje) también la
+  // necesita para adjuntar el token al crear su viaje (ver useCreateViaje).
+  async function pedirPermisoYToken() {
+    const messaging = await getFcmMessaging()
+    if (!messaging) {
+      setError('Este navegador no soporta notificaciones push.')
+      return null
+    }
+
+    const permiso = await Notification.requestPermission()
+    if (permiso !== 'granted') {
+      setError('No diste permiso de notificaciones — no vas a recibir avisos de viajes nuevos.')
+      return null
+    }
+
+    const token = await getToken(messaging, {
+      vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+    })
+
+    if (!token) {
+      setError('No pudimos generar el token de notificaciones.')
+      return null
+    }
+
+    return token
+  }
+
   async function registrarToken(conductorId) {
     setError(null)
     try {
-      const messaging = await getFcmMessaging()
-      if (!messaging) {
-        setError('Este navegador no soporta notificaciones push.')
-        return null
-      }
-
-      const permiso = await Notification.requestPermission()
-      if (permiso !== 'granted') {
-        setError('No diste permiso de notificaciones — no vas a recibir avisos de viajes nuevos.')
-        return null
-      }
-
-      const token = await getToken(messaging, {
-        vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
-      })
-
-      if (!token) {
-        setError('No pudimos generar el token de notificaciones.')
-        return null
-      }
+      const token = await pedirPermisoYToken()
+      if (!token) return null
 
       await updateDoc(doc(db, 'conductores', conductorId), { fcmToken: token })
       return token
@@ -41,5 +51,5 @@ export function useFcmToken() {
     }
   }
 
-  return { registrarToken, error }
+  return { registrarToken, obtenerToken: pedirPermisoYToken, error }
 }

@@ -71,6 +71,12 @@
   color: var(--text-h);
 }
 
+.viaje-tracking-page__section p.viaje-tracking-page__precio {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
 /* Aviso de que un conductor aceptó: fondo destacado con los tokens de acento
    porque es una buena noticia dentro del seguimiento, no un simple dato más. */
 .viaje-tracking-page__conductor {

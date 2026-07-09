@@ -75,10 +75,16 @@ export default async function handler(req, res) {
   const tipoVehiculoLabel = VEHICULO_LABELS[viaje.tipoVehiculo] ?? viaje.tipoVehiculo
   const link = `${process.env.APP_BASE_URL}/conductor/viaje/${viajeId}`
 
+  // distanciaKm solo existe en viajes creados con la cotización de precio
+  // (feature reciente); viajes legacy no lo tienen. Si falta, no anteponemos
+  // nada al body en vez de arriesgarnos a mostrar "NaN km".
+  const distanciaPrefix =
+    typeof viaje.distanciaKm === 'number' ? `~${Math.round(viaje.distanciaKm)} km — ` : ''
+
   const message = {
     notification: {
       title: `Nuevo viaje en ${tipoVehiculoLabel} cerca tuyo`,
-      body: `Desde ${direccionOrigen} hasta ${direccionDestino}`,
+      body: `${distanciaPrefix}Desde ${direccionOrigen} hasta ${direccionDestino}`,
     },
     data: {
       viajeId,

@@ -29,6 +29,11 @@ export function useCreateViaje() {
     clienteNombre,
     clienteTelefono,
     metodoPago,
+    distanciaKm,
+    duracionEstimadaMin,
+    precioBase,
+    precioFinal,
+    fcmTokenCliente,
   }) {
     setSubmitting(true)
     setError(null)
@@ -65,9 +70,25 @@ export function useCreateViaje() {
         destinoReferencia: (destino.referencia ?? '').trim(),
         tipoVehiculo,
         metodoPago,
+        // Cotización acordada con el cliente en CotizacionViajeSheet antes de
+        // crear el viaje: distancia real de manejo (Mapbox Directions, no
+        // línea recta) y precio final, que puede ser igual o mayor al precio
+        // base sugerido (el cliente puede subirlo, nunca bajarlo). Firestore
+        // rechaza `undefined`, así que duracionEstimadaMin cae a null en el
+        // raro caso de que Mapbox no la devuelva.
+        distanciaKm,
+        duracionEstimadaMin: duracionEstimadaMin ?? null,
+        precioBase,
+        precioFinal,
         estado: 'pendiente',
         conductorId: '',
         total: 0,
+        // Token de push de este dispositivo, guardado en el propio viaje (no
+        // hay cuenta de cliente persistente donde guardarlo — mismo patrón
+        // que clienteTelefonoNormalizado más arriba). Puede ser null si el
+        // cliente negó el permiso o el navegador no soporta notificaciones;
+        // eso nunca bloquea la creación del viaje.
+        fcmTokenCliente: fcmTokenCliente ?? null,
         fechaCreacion: serverTimestamp(),
       })
 

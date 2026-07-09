@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { PAYMENT_LABELS, VIAJE_ESTADO_BADGE_LABELS } from '../utils/pedidoLabels'
 import { construirEnlaceWhatsApp } from '../utils/telefono'
+import { formatUSD } from '../utils/tarifas'
 import './ViajeActivoCard.css'
 
 const VEHICULO_LABELS = {
@@ -62,6 +63,11 @@ export default function ViajeActivoCard({ viaje }) {
 
       <div className="viaje-activo-card__footer">
         <span>{PAYMENT_LABELS[viaje.metodoPago] ?? viaje.metodoPago}</span>
+        {/* precioFinal puede faltar en viajes creados antes de esta feature
+            (ver CLAUDE.md): se omite en vez de mostrar $undefined/$NaN. */}
+        {viaje.precioFinal != null && (
+          <span className="viaje-activo-card__precio">{formatUSD(viaje.precioFinal)}</span>
+        )}
       </div>
     </Link>
   )

@@ -4,7 +4,9 @@ import TipoVehiculoStep from '../components/TipoVehiculoStep'
 import UbicacionViajeStep from '../components/UbicacionViajeStep'
 import DatosClienteViajeStep from '../components/DatosClienteViajeStep'
 import MetodoPagoViajeStep from '../components/MetodoPagoViajeStep'
+import CotizacionViajeSheet from '../components/CotizacionViajeSheet'
 import { useCreateViaje } from '../hooks/useCreateViaje'
+import { useFcmToken } from '../hooks/useFcmToken'
 import './PedirViajePage.css'
 
 const TOTAL_PASOS = 5
@@ -14,6 +16,7 @@ const TOTAL_PASOS = 5
 export default function PedirViajePage() {
   const navigate = useNavigate()
   const { createViaje, submitting, error } = useCreateViaje()
+  const { obtenerToken } = useFcmToken()
 
   const [paso, setPaso] = useState(0)
   const [tipoVehiculo, setTipoVehiculo] = useState(null)
@@ -22,6 +25,11 @@ export default function PedirViajePage() {
   const [nombre, setNombre] = useState('')
   const [telefono, setTelefono] = useState('')
   const [metodoPago, setMetodoPago] = useState('efectivo')
+  // El paso 4 ya no crea el viaje directamente: abre este sheet, que muestra
+  // el precio estimado y es quien efectivamente llama a createViaje al
+  // confirmar. Si se cierra sin confirmar, el wizard se queda en el paso 4
+  // tal cual estaba (nada de lo ya ingresado se pierde).
+  const [mostrarCotizacion, setMostrarCotizacion] = useState(false)
 
   function avanzar() {
     setPaso((actual) => actual + 1)
@@ -36,7 +44,22 @@ export default function PedirViajePage() {
     setPaso((actual) => actual - 1)
   }
 
-  async function handleConfirmar() {
+  // Llamado desde el botón "Confirmar viaje" DENTRO del sheet de cotización,
+  // con el precio ya acordado (datosPrecio = distanciaKm, duracionEstimadaMin,
+  // precioBase, precioFinal). Si falla, el sheet se queda abierto mostrando
+  // el error (useCreateViaje.error) para poder reintentar sin perder la
+  // cotización ya calculada.
+  async function handleConfirmarViaje(datosPrecio) {
+    // Push para el cliente es un plus, nunca un bloqueante: si el navegador
+    // no soporta notificaciones, el permiso se niega o falla por cualquier
+    // motivo, el viaje se crea igual con fcmTokenCliente: null.
+    let fcmTokenCliente = null
+    try {
+      fcmTokenCliente = await obtenerToken()
+    } catch {
+      fcmTokenCliente = null
+    }
+
     try {
       const id = await createViaje({
         tipoVehiculo,
@@ -45,10 +68,12 @@ export default function PedirViajePage() {
         clienteNombre: nombre.trim(),
         clienteTelefono: telefono.trim(),
         metodoPago,
+        fcmTokenCliente,
+        ...datosPrecio,
       })
       navigate(`/viaje/${id}`)
     } catch {
-      // el error queda expuesto por useCreateViaje y se muestra en el paso de pago
+      // el error queda expuesto por useCreateViaje y se muestra en el sheet de cotización
     }
   }
 
@@ -119,12 +144,22 @@ export default function PedirViajePage() {
           <MetodoPagoViajeStep
             metodoPago={metodoPago}
             onMetodoPagoChange={setMetodoPago}
-            onConfirmar={handleConfirmar}
-            submitting={submitting}
-            error={error}
+            onConfirmar={() => setMostrarCotizacion(true)}
           />
         )}
       </div>
+
+      {mostrarCotizacion && (
+        <CotizacionViajeSheet
+          origen={origen}
+          destino={destino}
+          tipoVehiculo={tipoVehiculo}
+          onConfirmar={handleConfirmarViaje}
+          onCerrar={() => setMostrarCotizacion(false)}
+          submitting={submitting}
+          error={error}
+        />
+      )}
     </div>
   )
 }

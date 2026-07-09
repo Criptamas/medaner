@@ -31,6 +31,16 @@ export function useViajeActions() {
           conductorTelefono: datosConductor.telefono ?? '',
         })
       })
+
+      // Fire-and-forget (mismo patrón que useCreateViaje.js): el viaje ya
+      // quedó confirmado en Firestore, que es lo que importa. Si la
+      // notificación al cliente falla por una conexión inestable, no vale
+      // la pena romper el aceptar del conductor por eso.
+      fetch('/api/notificar-cambio-estado', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ viajeId, nuevoEstado: 'confirmado' }),
+      }).catch(() => {})
     } catch (err) {
       setError(err)
       throw err
@@ -41,6 +51,14 @@ export function useViajeActions() {
     setError(null)
     try {
       await updateDoc(doc(db, 'viajes', viajeId), { estado: nuevoEstado })
+
+      // Fire-and-forget, mismo motivo que en acceptViaje: el estado ya
+      // quedó actualizado en Firestore, la notificación push es best-effort.
+      fetch('/api/notificar-cambio-estado', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ viajeId, nuevoEstado }),
+      }).catch(() => {})
     } catch (err) {
       setError(err)
       throw err

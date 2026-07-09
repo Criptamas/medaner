@@ -7,6 +7,7 @@ import { useCompartirUbicacionViaje, UBICACION_ESTADO } from '../hooks/useCompar
 import { useConductorPropio } from '../hooks/useConductorPropio'
 import { construirEnlaceWhatsApp } from '../utils/telefono'
 import { VIAJE_ESTADO_BADGE_LABELS } from '../utils/pedidoLabels'
+import { formatUSD } from '../utils/tarifas'
 import StatusMessage from '../components/StatusMessage'
 import './ConductorViajeDetallePage.css'
 
@@ -191,6 +192,16 @@ export default function ConductorViajeDetallePage() {
               Destino: {viaje.destinoNombre || formatCoords(viaje.destino)}
             </p>
           </section>
+
+          {/* precioFinal puede faltar en viajes creados antes de esta
+              feature (ver CLAUDE.md): la sección directamente no se muestra
+              en vez de mostrar $undefined/$NaN. */}
+          {viaje.precioFinal != null && (
+            <section className="conductor-viaje-detalle-page__section">
+              <h2>Precio acordado</h2>
+              <p className="conductor-viaje-detalle-page__precio">{formatUSD(viaje.precioFinal)}</p>
+            </section>
+          )}
 
           {feedback && (
             <p className="conductor-viaje-detalle-page__feedback" role="alert">

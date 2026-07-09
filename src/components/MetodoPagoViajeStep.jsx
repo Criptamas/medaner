@@ -1,13 +1,12 @@
 import { PAYMENT_METHODS } from '../utils/pedidoLabels'
 import './MetodoPagoViajeStep.css'
 
-export default function MetodoPagoViajeStep({
-  metodoPago,
-  onMetodoPagoChange,
-  onConfirmar,
-  submitting,
-  error,
-}) {
+// El botón "Confirmar viaje" de este paso ya no crea el viaje: abre el sheet
+// de cotización (CotizacionViajeSheet, ver PedirViajePage), que muestra el
+// precio estimado y es quien efectivamente llama a createViaje. Por eso este
+// paso no maneja submitting/error de la creación — ese feedback vive ahora
+// en el sheet, más cerca de la acción real.
+export default function MetodoPagoViajeStep({ metodoPago, onMetodoPagoChange, onConfirmar }) {
   return (
     <div className="metodo-pago-step">
       <p className="metodo-pago-step__prompt">¿Cómo vas a pagar?</p>
@@ -23,19 +22,8 @@ export default function MetodoPagoViajeStep({
         </select>
       </label>
 
-      {error && (
-        <p className="metodo-pago-step__error" role="alert">
-          No pudimos crear tu viaje. Revisá tu conexión e intentá de nuevo.
-        </p>
-      )}
-
-      <button
-        type="button"
-        className="metodo-pago-step__confirmar"
-        onClick={onConfirmar}
-        disabled={submitting}
-      >
-        {submitting ? 'Creando tu viaje...' : 'Confirmar viaje'}
+      <button type="button" className="metodo-pago-step__confirmar" onClick={onConfirmar}>
+        Confirmar viaje
       </button>
     </div>
   )

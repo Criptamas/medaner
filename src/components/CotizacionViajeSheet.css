@@ -1,0 +1,155 @@
+.cotizacion-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+}
+
+.cotizacion-sheet__backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  padding: 0;
+  background: rgba(10, 25, 47, 0.45);
+  cursor: pointer;
+}
+
+.cotizacion-sheet__sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: 640px;
+  margin: 0 auto;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--white);
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cotizacion-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cotizacion-sheet__header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.cotizacion-sheet__close {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.cotizacion-sheet__reintentar {
+  align-self: center;
+  font: inherit;
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--ink);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cotizacion-sheet__resumen {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.cotizacion-sheet__vehiculo {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.cotizacion-sheet__precio {
+  text-align: center;
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+
+.cotizacion-sheet__stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.cotizacion-sheet__stepper button {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: var(--blue);
+  color: var(--white);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cotizacion-sheet__stepper button:disabled {
+  background: var(--surface-2);
+  color: var(--text-muted);
+  cursor: default;
+}
+
+.cotizacion-sheet__stepper span {
+  min-width: 88px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.cotizacion-sheet__hint {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Rojo (no --blue/--accent-bg) para que se lea como error real y no como
+   aviso neutro — mismo color que usan SelectorUbicacion/LoginPage/CheckoutScreen. */
+.cotizacion-sheet__error {
+  margin: 0;
+  font-size: 13px;
+  text-align: center;
+  color: #dc2626;
+}
+
+.cotizacion-sheet__confirmar {
+  font: inherit;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--blue);
+  color: var(--white);
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.cotizacion-sheet__confirmar:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

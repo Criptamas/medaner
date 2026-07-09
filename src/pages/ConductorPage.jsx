@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { onMessage } from 'firebase/messaging'
 import { useAuth } from '../hooks/useAuth'
 import { usePedidosDisponibles } from '../hooks/usePedidosDisponibles'
 import { useMisPedidosActivos } from '../hooks/useMisPedidosActivos'
@@ -9,6 +10,7 @@ import { useFcmToken } from '../hooks/useFcmToken'
 import { useTrackDriverLocation } from '../hooks/useTrackDriverLocation'
 import { useViajesDisponibles } from '../hooks/useViajesDisponibles'
 import { useMisViajesActivos } from '../hooks/useMisViajesActivos'
+import { getFcmMessaging } from '../firebase'
 import ConductorPedidoCard from '../components/ConductorPedidoCard'
 import ViajeDisponibleCard from '../components/ViajeDisponibleCard'
 import ViajeActivoCard from '../components/ViajeActivoCard'
@@ -16,6 +18,7 @@ import ToggleSwitch from '../components/ToggleSwitch'
 import StatusMessage from '../components/StatusMessage'
 import LogoutButton from '../components/LogoutButton'
 import SesionUsuario from '../components/SesionUsuario'
+import Toast from '../components/Toast'
 import './ConductorPage.css'
 
 const SIGUIENTE_ESTADO = {
@@ -53,6 +56,32 @@ export default function ConductorPage() {
 
   const [pendingId, setPendingId] = useState(null)
   const [feedback, setFeedback] = useState(null)
+  const [toastMensaje, setToastMensaje] = useState(null)
+
+  // Aviso in-app de un mensaje push que llega mientras el conductor tiene
+  // esta pantalla abierta (foreground): el navegador no muestra la
+  // notificación del sistema en ese caso, así que sin esto el conductor no
+  // se entera de un viaje nuevo hasta refrescar. No depende del toggle
+  // "Disponible": si no hay token registrado, simplemente no llegan mensajes.
+  useEffect(() => {
+    let unsubscribe
+    let cancelado = false
+
+    getFcmMessaging().then((messaging) => {
+      if (!messaging || cancelado) return
+      unsubscribe = onMessage(messaging, (payload) => {
+        const texto = [payload.notification?.title, payload.notification?.body]
+          .filter(Boolean)
+          .join(' — ')
+        if (texto) setToastMensaje(texto)
+      })
+    })
+
+    return () => {
+      cancelado = true
+      unsubscribe?.()
+    }
+  }, [])
   // Valor optimista del switch mientras la escritura está en curso: null
   // significa "sin toggle pendiente", y en ese caso se muestra el valor real
   // de Firestore. Se vuelve a null tanto si la escritura resuelve OK (ya
@@ -117,6 +146,8 @@ export default function ConductorPage() {
 
   return (
     <div className="conductor-page">
+      <Toast mensaje={toastMensaje} onCerrar={() => setToastMensaje(null)} />
+
       <header className="conductor-page__header">
         <div className="conductor-page__titulo">
           <h1>Vista del conductor</h1>

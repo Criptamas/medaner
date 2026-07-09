@@ -1,10 +1,14 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { onMessage } from 'firebase/messaging'
 import { useViaje } from '../hooks/useViaje'
 import EstadoProgress from '../components/EstadoProgress'
 import StatusMessage from '../components/StatusMessage'
+import Toast from '../components/Toast'
+import { getFcmMessaging } from '../firebase'
 import { PAYMENT_LABELS, VIAJE_ESTADO_LABELS } from '../utils/pedidoLabels'
 import { construirEnlaceWhatsApp } from '../utils/telefono'
+import { formatUSD } from '../utils/tarifas'
 import './ViajeTrackingPage.css'
 
 // mapbox-gl es pesado (~1.5MB): se carga solo al abrir un viaje activo y no en
@@ -44,8 +48,35 @@ export default function ViajeTrackingPage() {
   // no hay teléfono todavía como si el que hay no es válido.
   const enlaceWhatsAppConductor = viaje ? construirEnlaceWhatsApp(viaje.conductorTelefono) : null
 
+  const [toastMensaje, setToastMensaje] = useState(null)
+
+  // Aviso in-app de cambios de estado del viaje mientras el cliente tiene
+  // esta pantalla de seguimiento abierta (foreground): sin esto, se entera
+  // recién si refresca. Mismo patrón que ConductorPage.
+  useEffect(() => {
+    let unsubscribe
+    let cancelado = false
+
+    getFcmMessaging().then((messaging) => {
+      if (!messaging || cancelado) return
+      unsubscribe = onMessage(messaging, (payload) => {
+        const texto = [payload.notification?.title, payload.notification?.body]
+          .filter(Boolean)
+          .join(' — ')
+        if (texto) setToastMensaje(texto)
+      })
+    })
+
+    return () => {
+      cancelado = true
+      unsubscribe?.()
+    }
+  }, [])
+
   return (
     <div className="viaje-tracking-page">
+      <Toast mensaje={toastMensaje} onCerrar={() => setToastMensaje(null)} />
+
       <header className="viaje-tracking-page__header">
         <Link to="/" className="viaje-tracking-page__back" aria-label="Volver al inicio">
           ←
@@ -131,6 +162,19 @@ export default function ViajeTrackingPage() {
             <h2>Método de pago</h2>
             <p>{PAYMENT_LABELS[viaje.metodoPago] ?? viaje.metodoPago}</p>
           </section>
+
+          {/* precioFinal puede faltar en viajes creados antes de esta
+              feature (ver CLAUDE.md): la sección directamente no se muestra
+              en vez de mostrar $undefined/$NaN. Se agrega esta sección más
+              allá de lo pedido explícitamente: el cliente ya vio este precio
+              en el sheet de cotización, pero conviene que siga visible si
+              vuelve a esta pantalla de seguimiento. */}
+          {viaje.precioFinal != null && (
+            <section className="viaje-tracking-page__section">
+              <h2>Precio acordado</h2>
+              <p className="viaje-tracking-page__precio">{formatUSD(viaje.precioFinal)}</p>
+            </section>
+          )}
         </div>
       )}
     </div>
