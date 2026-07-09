@@ -23,12 +23,18 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging()
 
+// Los push de este proyecto son data-only (ver api/notificar-viaje.js y
+// api/notificar-cambio-estado.js): el título y el cuerpo viajan en payload.data,
+// no en payload.notification. Es a propósito — con un payload "notification",
+// el SDK de FCM muestra la notificación por su cuenta y ADEMÁS invoca este
+// handler, con lo que el usuario la vería duplicada. Al ser data-only, esta es
+// la única notificación que se muestra.
 messaging.onBackgroundMessage((payload) => {
-  const { title, body, icon } = payload.notification ?? {}
-  self.registration.showNotification(title ?? 'Medaner', {
+  const { title, body, icon, url } = payload.data ?? {}
+  self.registration.showNotification(title || 'Medaner', {
     body,
-    icon: icon ?? '/pwa-192x192.png',
-    data: { url: payload.fcmOptions?.link ?? payload.data?.url },
+    icon: icon || '/pwa-192x192.png',
+    data: { url },
   })
 })
 

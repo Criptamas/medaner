@@ -60,9 +60,9 @@ export default function ViajeTrackingPage() {
     getFcmMessaging().then((messaging) => {
       if (!messaging || cancelado) return
       unsubscribe = onMessage(messaging, (payload) => {
-        const texto = [payload.notification?.title, payload.notification?.body]
-          .filter(Boolean)
-          .join(' — ')
+        // Los push son data-only (ver api/notificar-cambio-estado.js): título y
+        // cuerpo viajan en payload.data, no en payload.notification.
+        const texto = [payload.data?.title, payload.data?.body].filter(Boolean).join(' — ')
         if (texto) setToastMensaje(texto)
       })
     })

@@ -1,4 +1,5 @@
 import { getAdminDb, getAdminMessaging } from './_lib/firebaseAdmin.js'
+import { construirUrlApp } from './_lib/appUrl.js'
 import { haversineKm } from './_lib/geo.js'
 import { reverseGeocode } from './_lib/mapbox.js'
 
@@ -73,7 +74,7 @@ export default async function handler(req, res) {
   ])
 
   const tipoVehiculoLabel = VEHICULO_LABELS[viaje.tipoVehiculo] ?? viaje.tipoVehiculo
-  const link = `${process.env.APP_BASE_URL}/conductor/viaje/${viajeId}`
+  const url = construirUrlApp(`/conductor/viaje/${viajeId}`)
 
   // distanciaKm solo existe en viajes creados con la cotización de precio
   // (feature reciente); viajes legacy no lo tienen. Si falta, no anteponemos
@@ -82,23 +83,34 @@ export default async function handler(req, res) {
     typeof viaje.distanciaKm === 'number' ? `~${Math.round(viaje.distanciaKm)} km — ` : ''
 
   const message = {
-    notification: {
+    // Payload data-only a propósito (sin la clave "notification"), mismo
+    // motivo que en notificar-cambio-estado.js: con "notification" el SDK de
+    // FCM muestra la notificación por su cuenta y ADEMÁS llama a
+    // onBackgroundMessage() en src/sw.js, que la vuelve a mostrar → duplicada.
+    data: {
       title: `Nuevo viaje en ${tipoVehiculoLabel} cerca tuyo`,
       body: `${distanciaPrefix}Desde ${direccionOrigen} hasta ${direccionDestino}`,
-    },
-    data: {
       viajeId,
       tipoVehiculo: viaje.tipoVehiculo,
-      url: link,
-    },
-    webpush: {
-      fcmOptions: { link },
+      // Los valores de "data" deben ser strings; si no pudimos armar la URL,
+      // omitimos la clave en vez de mandar null (FCM rechaza el mensaje).
+      ...(url ? { url } : {}),
     },
     tokens: cercanos.map((conductor) => conductor.fcmToken),
   }
 
   const messaging = getAdminMessaging()
   const resultado = await messaging.sendEachForMulticast(message)
+
+  // sendEachForMulticast no lanza: los fallos vienen dentro de responses. Sin
+  // este log, un mensaje mal formado (o credenciales malas) se veía como
+  // "notificados: 0" y nada más, sin pista del motivo.
+  if (resultado.failureCount > 0) {
+    const motivos = resultado.responses
+      .filter((response) => !response.success)
+      .map((response) => response.error?.code ?? 'desconocido')
+    console.error('[FCM] fallos al notificar el viaje', viajeId, motivos)
+  }
 
   // Limpieza best-effort de tokens muertos (app desinstalada, permiso
   // revocado, etc.) para no seguir intentando enviarles en el futuro.

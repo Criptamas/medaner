@@ -1,4 +1,5 @@
 import { getAdminDb, getAdminMessaging } from './_lib/firebaseAdmin.js'
+import { construirUrlApp } from './_lib/appUrl.js'
 
 // Códigos de error de FCM que indican que el token ya no sirve (app
 // desinstalada, permiso revocado, etc.) — mismos que usa notificar-viaje.js.
@@ -81,17 +82,23 @@ export default async function handler(req, res) {
     return
   }
 
-  const link = `${process.env.APP_BASE_URL}/viaje/${viajeId}`
+  const url = construirUrlApp(`/viaje/${viajeId}`)
 
   const message = {
-    notification: notificacion,
+    // Payload data-only a propósito (sin la clave "notification"). Si mandamos
+    // "notification", el SDK de FCM muestra la notificación por su cuenta Y
+    // ADEMÁS llama a onBackgroundMessage() en src/sw.js, que la vuelve a
+    // mostrar: el usuario la ve duplicada (ver onPush en @firebase/messaging).
+    // Con data-only, el único que la muestra es nuestro service worker, y de
+    // paso controlamos el ícono y la URL de destino.
     data: {
+      title: notificacion.title,
+      body: notificacion.body,
       viajeId,
       estado: nuevoEstado,
-      url: link,
-    },
-    webpush: {
-      fcmOptions: { link },
+      // Los valores de "data" deben ser strings; si no pudimos armar la URL,
+      // omitimos la clave en vez de mandar null (FCM rechaza el mensaje).
+      ...(url ? { url } : {}),
     },
     token: fcmTokenCliente,
   }
@@ -106,6 +113,10 @@ export default async function handler(req, res) {
     await messaging.send(message)
     res.status(200).json({ enviado: true })
   } catch (err) {
+    // El envío es best-effort y el cliente ignora la respuesta, así que sin
+    // este log el motivo real del fallo no queda registrado en ningún lado.
+    console.error('[FCM] send() falló para el viaje', viajeId, err.code, err.message)
+
     if (TOKEN_ERRORS_INVALIDOS.includes(err.code)) {
       // Limpieza best-effort: si falla, no bloquea la respuesta al cliente.
       await db.collection('viajes').doc(viajeId).update({ fcmTokenCliente: '' }).catch(() => {})
