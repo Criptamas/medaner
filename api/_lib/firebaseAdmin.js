@@ -1,6 +1,7 @@
 import { cert, getApps, initializeApp } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 import { getMessaging } from 'firebase-admin/messaging'
+import { getAuth } from 'firebase-admin/auth'
 
 // Vercel puede reutilizar la misma instancia de función entre invocaciones
 // ("warm start"); sin este guard, cada invocación intentaría reinicializar
@@ -24,4 +25,8 @@ export function getAdminDb() {
 
 export function getAdminMessaging() {
   return getMessaging(getAdminApp())
+}
+
+export function getAdminAuth() {
+  return getAuth(getAdminApp())
 }

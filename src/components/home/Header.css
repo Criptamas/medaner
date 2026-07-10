@@ -22,6 +22,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  row-gap: 8px;
   gap: 12px;
   min-width: 0;
 }
@@ -53,10 +55,19 @@
   color: var(--blue);
 }
 
-/* --- Acciones (sesión + pedir viaje) --- */
+/* --- Acciones (sesión + pedir viaje) ---
+   flex-wrap: en móviles angostos (< ~430px) TasaCambioWidget + ClienteAuthWidget
+   + el CTA "Pedir un viaje" no entran en una sola fila (se probó en vivo a
+   375px: sin wrap, el header desbordaba horizontalmente ~155px). Con wrap,
+   el CTA cae a una segunda línea alineada a la derecha en vez de forzar
+   scroll horizontal de toda la página. En >=768px .home-header__bar pasa a
+   display:contents y esto deja de aplicar (layout de una sola fila). */
 .home-header__actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  row-gap: 8px;
   gap: 10px;
   min-width: 0;
 }

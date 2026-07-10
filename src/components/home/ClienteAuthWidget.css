@@ -1,0 +1,71 @@
+.cliente-auth-widget {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: 0;
+  gap: 6px;
+}
+
+.cliente-auth-widget__saludo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.cliente-auth-widget__logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.cliente-auth-widget__logout:hover,
+.cliente-auth-widget__logout:focus-visible {
+  background: var(--blue-050);
+  border-color: var(--blue-400);
+  color: var(--blue);
+}
+
+.cliente-auth-widget__login-btn {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text-h);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.cliente-auth-widget__login-btn:hover,
+.cliente-auth-widget__login-btn:focus-visible {
+  background: var(--blue-050);
+  border-color: var(--blue-400);
+}
+
+/* Mobile muy angosto: mismo patrón de recorte que TasaCambioWidget/SesionUsuario. */
+@media (max-width: 479px) {
+  .cliente-auth-widget__saludo {
+    max-width: 72px;
+  }
+
+  .cliente-auth-widget__login-btn {
+    padding: 7px 9px;
+    font-size: 12px;
+  }
+}

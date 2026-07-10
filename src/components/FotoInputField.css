@@ -1,0 +1,61 @@
+.foto-input-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.foto-input-field__label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.foto-input-field__input {
+  font: inherit;
+  font-size: 14px;
+  color: var(--text-h);
+  padding: 10px 0;
+}
+
+.foto-input-field__preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.foto-input-field__preview img {
+  width: 88px;
+  height: 88px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+  background: var(--surface-2);
+}
+
+.foto-input-field__quitar {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.foto-input-field__quitar:hover:not(:disabled),
+.foto-input-field__quitar:focus-visible:not(:disabled) {
+  background: var(--blue-050);
+  border-color: var(--blue-400);
+  color: var(--blue);
+}
+
+.foto-input-field__quitar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

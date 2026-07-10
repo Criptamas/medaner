@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import StoreCatalogPage from './pages/StoreCatalogPage'
+import SerConductorPage from './pages/SerConductorPage'
 import LoginPage from './pages/LoginPage'
 import AdminPage from './pages/AdminPage'
 import ConductorPage from './pages/ConductorPage'
@@ -33,6 +34,9 @@ function App() {
         }
       />
       <Route path="/viaje/:viajeId" element={<ViajeTrackingPage />} />
+      {/* Sin lazy: a diferencia de /pedir-viaje, esta página no trae mapbox
+          ni ninguna dependencia pesada — solo formulario + Supabase. */}
+      <Route path="/ser-conductor" element={<SerConductorPage />} />
       <Route path="/login" element={<LoginPage />} />
       {/* TODO: borrar esta ruta antes de mergear a producción — es solo para probar SelectorUbicacion */}
       <Route

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import SesionUsuario from '../SesionUsuario'
 import TasaCambioWidget from './TasaCambioWidget'
+import ClienteAuthWidget from './ClienteAuthWidget'
 import './Header.css'
 
 // Header sticky de la Home.
@@ -10,6 +11,9 @@ import './Header.css'
 // - TasaCambioWidget: bloque tappable con la tasa de cambio del BCV + sheet
 //   con conversor USD<->Bs. Self-contained (como SesionUsuario): maneja su
 //   propio fetch y su propio estado de sheet abierto/cerrado internamente.
+// - ClienteAuthWidget: sesión de CLIENTES sobre Supabase Auth, paralela e
+//   independiente de SesionUsuario (Firebase, solo admin/conductor).
+//   Self-contained igual que TasaCambioWidget.
 // - CTA "Pedir un viaje" -> /pedir-viaje (esa ruta y su hook useCreateViaje
 //   ya existen; acá SOLO se enlaza, no se recrea lógica). Reemplaza al clásico
 //   saludo "Hola, Juan".
@@ -39,6 +43,7 @@ export default function Header({ query, onQueryChange }) {
           <div className="home-header__actions">
             <SesionUsuario />
             <TasaCambioWidget />
+            <ClienteAuthWidget />
             <Link to="/pedir-viaje" className="home-header__viaje-btn">
               <span aria-hidden="true">🚕</span>
               <span>Pedir un viaje</span>

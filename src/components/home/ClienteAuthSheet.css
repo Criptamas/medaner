@@ -1,0 +1,210 @@
+.cliente-auth-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+}
+
+.cliente-auth-sheet__backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  padding: 0;
+  background: rgba(10, 25, 47, 0.45);
+  cursor: pointer;
+}
+
+.cliente-auth-sheet__sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: 640px;
+  margin: 0 auto;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--white);
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: 10px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cliente-auth-sheet__handle {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--line-strong);
+  margin: 0 auto;
+}
+
+.cliente-auth-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cliente-auth-sheet__header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--text-h);
+}
+
+.cliente-auth-sheet__close {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--text-h);
+  cursor: pointer;
+}
+
+.cliente-auth-sheet__tabs {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  background: var(--surface-2);
+  border-radius: var(--radius-pill);
+}
+
+.cliente-auth-sheet__tab {
+  flex: 1;
+  padding: 9px 12px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.cliente-auth-sheet__tab--activo {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.cliente-auth-sheet__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cliente-auth-sheet__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.cliente-auth-sheet__campo input {
+  height: 46px;
+  padding: 0 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-h);
+  outline: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.cliente-auth-sheet__campo input:focus {
+  border-color: var(--blue-400);
+  background: var(--white);
+}
+
+.cliente-auth-sheet__file-input {
+  height: auto;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.cliente-auth-sheet__avatar-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cliente-auth-sheet__avatar-preview img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.cliente-auth-sheet__avatar-quitar {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.cliente-auth-sheet__avatar-quitar:hover,
+.cliente-auth-sheet__avatar-quitar:focus-visible {
+  background: var(--blue-050);
+  border-color: var(--blue-400);
+  color: var(--blue);
+}
+
+.cliente-auth-sheet__aviso-avatar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cliente-auth-sheet__error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: #fdecea;
+  color: #b3261e;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.cliente-auth-sheet__submit {
+  height: 48px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--blue);
+  color: var(--white);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.cliente-auth-sheet__submit:hover:not(:disabled),
+.cliente-auth-sheet__submit:focus-visible:not(:disabled) {
+  background: var(--blue-600);
+}
+
+.cliente-auth-sheet__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

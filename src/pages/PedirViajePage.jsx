@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TipoVehiculoStep from '../components/TipoVehiculoStep'
 import UbicacionViajeStep from '../components/UbicacionViajeStep'
+import DestinoViajeStep from '../components/DestinoViajeStep'
 import DatosClienteViajeStep from '../components/DatosClienteViajeStep'
 import MetodoPagoViajeStep from '../components/MetodoPagoViajeStep'
 import CotizacionViajeSheet from '../components/CotizacionViajeSheet'
@@ -118,8 +119,11 @@ export default function PedirViajePage() {
           />
         )}
 
+        {/* Solo el paso de destino usa DestinoViajeStep (favoritas Hogar/
+            Trabajo/Universidad/Personalizado + mapa libre). El paso de
+            origen (arriba) sigue con UbicacionViajeStep tal cual — no se toca. */}
         {paso === 2 && (
-          <UbicacionViajeStep
+          <DestinoViajeStep
             key="ubicacion-destino"
             titulo="¿A dónde vas?"
             value={destino}

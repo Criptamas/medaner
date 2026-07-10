@@ -1,13 +1,15 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import LogoutButton from '../components/LogoutButton'
 import SesionUsuario from '../components/SesionUsuario'
 import StatusMessage from '../components/StatusMessage'
 import AdminPedidoRow from '../components/AdminPedidoRow'
 import AdminTiendaRow from '../components/AdminTiendaRow'
 import AdminConductorRow from '../components/AdminConductorRow'
+import AdminSolicitudRow from '../components/AdminSolicitudRow'
 import { useAllPedidos } from '../hooks/useAllPedidos'
 import { useAllTiendas } from '../hooks/useAllTiendas'
 import { useAllConductores } from '../hooks/useAllConductores'
+import { useSolicitudesConductor } from '../hooks/useSolicitudesConductor'
 import { useDocToggle } from '../hooks/useDocToggle'
 import './AdminPage.css'
 
@@ -15,6 +17,7 @@ const TABS = [
   { key: 'pedidos', label: 'Pedidos' },
   { key: 'tiendas', label: 'Tiendas' },
   { key: 'conductores', label: 'Conductores' },
+  { key: 'solicitudes', label: 'Solicitudes' },
 ]
 
 export default function AdminPage() {
@@ -34,7 +37,31 @@ export default function AdminPage() {
     loading: loadingConductores,
     error: errorConductores,
   } = useAllConductores()
+  const {
+    solicitudes,
+    loading: loadingSolicitudes,
+    error: errorSolicitudes,
+    refetch: refetchSolicitudes,
+  } = useSolicitudesConductor()
   const { toggle } = useDocToggle()
+
+  // Credenciales temporales del conductor recién aprobado (email + password
+  // generada por el endpoint). Se muestran UNA sola vez en un cuadro fijo en
+  // pantalla — no un alert() bloqueante que se pueda cerrar sin querer antes
+  // de copiarlas — y quedan ahí hasta que el admin las cierra a mano.
+  const [credencialesConductor, setCredencialesConductor] = useState(null)
+
+  // Separa pendientes (con acciones) de ya procesadas (historial colapsado),
+  // priorizando simplicidad: un solo array recorrido dos veces, sin ordenar
+  // ni paginar — el volumen de solicitudes de conductor es bajo.
+  const solicitudesPendientes = useMemo(
+    () => solicitudes.filter((s) => s.estado === 'pendiente'),
+    [solicitudes],
+  )
+  const solicitudesProcesadas = useMemo(
+    () => solicitudes.filter((s) => s.estado !== 'pendiente'),
+    [solicitudes],
+  )
 
   async function handleToggleTienda(tiendaId, nextValue) {
     setPendingId(tiendaId)
@@ -75,6 +102,69 @@ export default function AdminPage() {
     }
   }
 
+  async function handleAprobarSolicitud(solicitudId) {
+    setPendingId(solicitudId)
+    setFeedback(null)
+    try {
+      const response = await fetch('/api/admin-aprobar-conductor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ solicitudId }),
+      })
+      const data = await response.json().catch(() => null)
+      if (!response.ok || !data?.ok) {
+        throw new Error(data?.error || `POST /api/admin-aprobar-conductor respondió ${response.status}`)
+      }
+      // Única vez que se muestra la contraseña temporal: queda en pantalla
+      // hasta que el admin la copie y cierre el cuadro a propósito.
+      setCredencialesConductor({
+        email: data.email,
+        passwordTemporal: data.passwordTemporal,
+        conductorUid: data.conductorUid,
+      })
+      await refetchSolicitudes()
+    } catch {
+      setFeedback('No pudimos aprobar la solicitud. Revisá tu conexión e intentá de nuevo.')
+    } finally {
+      setPendingId(null)
+    }
+  }
+
+  async function handleRechazarSolicitud(solicitudId) {
+    const motivo = window.prompt('Motivo del rechazo (opcional):')
+    if (motivo === null) return // el admin canceló el prompt, no se envía nada
+
+    setPendingId(solicitudId)
+    setFeedback(null)
+    try {
+      const response = await fetch('/api/admin-rechazar-conductor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ solicitudId, motivo: motivo.trim() || null }),
+      })
+      if (!response.ok) {
+        throw new Error(`POST /api/admin-rechazar-conductor respondió ${response.status}`)
+      }
+      await refetchSolicitudes()
+    } catch {
+      setFeedback('No pudimos rechazar la solicitud. Revisá tu conexión e intentá de nuevo.')
+    } finally {
+      setPendingId(null)
+    }
+  }
+
+  async function handleCopiarCredenciales() {
+    if (!credencialesConductor) return
+    const texto = `Email: ${credencialesConductor.email}\nContraseña temporal: ${credencialesConductor.passwordTemporal}`
+    try {
+      await navigator.clipboard.writeText(texto)
+      setFeedback('Credenciales copiadas al portapapeles.')
+    } catch {
+      // Clipboard API puede fallar (permiso, contexto no seguro); no rompe
+      // nada, las credenciales siguen visibles en el cuadro para copiar a mano.
+    }
+  }
+
   return (
     <div className="admin-page">
       <header className="admin-page__header">
@@ -104,6 +194,28 @@ export default function AdminPage() {
         <p className="admin-page__feedback" role="alert">
           {feedback}
         </p>
+      )}
+
+      {credencialesConductor && (
+        <div className="admin-page__credenciales" role="alert">
+          <p className="admin-page__credenciales-titulo">
+            Conductor aprobado — pasale estos datos por WhatsApp. Es la única vez que se muestran.
+          </p>
+          <p>
+            Email: <code>{credencialesConductor.email}</code>
+          </p>
+          <p>
+            Contraseña temporal: <code>{credencialesConductor.passwordTemporal}</code>
+          </p>
+          <div className="admin-page__credenciales-acciones">
+            <button type="button" onClick={handleCopiarCredenciales}>
+              Copiar
+            </button>
+            <button type="button" onClick={() => setCredencialesConductor(null)}>
+              Cerrar
+            </button>
+          </div>
+        </div>
       )}
 
       {tab === 'pedidos' && (
@@ -192,6 +304,55 @@ export default function AdminPage() {
                 />
               ))}
             </ul>
+          )}
+        </section>
+      )}
+
+      {tab === 'solicitudes' && (
+        <section className="admin-page__section">
+          {loadingSolicitudes && (
+            <StatusMessage variant="loading" title="Cargando solicitudes..." />
+          )}
+
+          {!loadingSolicitudes && errorSolicitudes && (
+            <StatusMessage
+              variant="error"
+              title="No pudimos cargar las solicitudes"
+              description="Revisá tu conexión e intentá de nuevo."
+            />
+          )}
+
+          {!loadingSolicitudes && !errorSolicitudes && solicitudes.length === 0 && (
+            <StatusMessage variant="empty" title="Todavía no hay solicitudes de conductor" />
+          )}
+
+          {!loadingSolicitudes && !errorSolicitudes && solicitudes.length > 0 && solicitudesPendientes.length === 0 && (
+            <StatusMessage variant="empty" title="No hay solicitudes pendientes" />
+          )}
+
+          {!loadingSolicitudes && !errorSolicitudes && solicitudesPendientes.length > 0 && (
+            <ul className="admin-page__list">
+              {solicitudesPendientes.map((solicitud) => (
+                <AdminSolicitudRow
+                  key={solicitud.id}
+                  solicitud={solicitud}
+                  updating={pendingId === solicitud.id}
+                  onAprobar={() => handleAprobarSolicitud(solicitud.id)}
+                  onRechazar={() => handleRechazarSolicitud(solicitud.id)}
+                />
+              ))}
+            </ul>
+          )}
+
+          {!loadingSolicitudes && !errorSolicitudes && solicitudesProcesadas.length > 0 && (
+            <details className="admin-page__historial">
+              <summary>Solicitudes procesadas ({solicitudesProcesadas.length})</summary>
+              <ul className="admin-page__list">
+                {solicitudesProcesadas.map((solicitud) => (
+                  <AdminSolicitudRow key={solicitud.id} solicitud={solicitud} updating={false} />
+                ))}
+              </ul>
+            </details>
           )}
         </section>
       )}

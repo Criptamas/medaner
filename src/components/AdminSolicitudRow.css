@@ -1,0 +1,134 @@
+.admin-solicitud-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  text-align: left;
+}
+
+.admin-solicitud-row__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-solicitud-row__cabecera h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-h);
+}
+
+.admin-solicitud-row__estado {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.admin-solicitud-row__estado--pendiente {
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.admin-solicitud-row__estado--aprobada {
+  color: #1e7e34;
+  background: #e6f4ea;
+}
+
+.admin-solicitud-row__estado--rechazada {
+  color: #b3261e;
+  background: #fdecea;
+}
+
+.admin-solicitud-row__datos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 0;
+}
+
+.admin-solicitud-row__dato {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-solicitud-row__dato dt {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+.admin-solicitud-row__dato dd {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-h);
+}
+
+.admin-solicitud-row__fotos {
+  display: flex;
+  gap: 12px;
+}
+
+.admin-solicitud-row__foto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+}
+
+.admin-solicitud-row__foto img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--code-bg);
+}
+
+.admin-solicitud-row__foto span {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.admin-solicitud-row__acciones {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-solicitud-row__acciones button {
+  flex: 1;
+  font: inherit;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-solicitud-row__acciones button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.admin-solicitud-row__aprobar {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.admin-solicitud-row__rechazar {
+  border: 1px solid #f3c6c1;
+  background: transparent;
+  color: #b3261e;
+}
