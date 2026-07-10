@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { doc, getDoc } from 'firebase/firestore'
-import { db } from '../firebase'
+import { supabase } from '../lib/supabaseClient'
 
 export function useStore(storeId) {
   const [store, setStore] = useState(null)
@@ -14,9 +13,18 @@ export function useStore(storeId) {
       setLoading(true)
       setError(null)
       try {
-        const snap = await getDoc(doc(db, 'tiendas', storeId))
+        const { data, error: supabaseError } = await supabase
+          .from('tiendas')
+          .select('*')
+          .eq('id', storeId)
+          .single()
         if (cancelled) return
-        setStore(snap.exists() ? { id: snap.id, ...snap.data() } : null)
+        // PGRST116 = .single() no encontró ninguna fila — equivalente a
+        // snap.exists() === false en Firestore (tienda inexistente, no un
+        // error real). Cualquier otro código (ej. storeId con formato
+        // inválido, red) sí se trata como error genuino, igual que antes.
+        if (supabaseError && supabaseError.code !== 'PGRST116') throw supabaseError
+        setStore(supabaseError ? null : data)
       } catch (err) {
         if (!cancelled) setError(err)
       } finally {

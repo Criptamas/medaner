@@ -23,7 +23,12 @@ export default function AdminPage() {
   const [feedback, setFeedback] = useState(null)
 
   const { pedidos, loading: loadingPedidos, error: errorPedidos } = useAllPedidos()
-  const { tiendas, loading: loadingTiendas, error: errorTiendas } = useAllTiendas()
+  const {
+    tiendas,
+    loading: loadingTiendas,
+    error: errorTiendas,
+    refetch: refetchTiendas,
+  } = useAllTiendas()
   const {
     conductores,
     loading: loadingConductores,
@@ -35,7 +40,22 @@ export default function AdminPage() {
     setPendingId(tiendaId)
     setFeedback(null)
     try {
-      await toggle('tiendas', tiendaId, 'activa', nextValue)
+      // tiendas vive en Supabase: el catálogo no tiene policy de update para
+      // el cliente (es de solo lectura desde el navegador), así que la
+      // escritura pasa por un endpoint serverless con service_role.
+      const response = await fetch('/api/admin-toggle-tienda', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tiendaId, activa: nextValue }),
+      })
+      if (!response.ok) {
+        throw new Error(`POST /api/admin-toggle-tienda respondió ${response.status}`)
+      }
+      // useAllTiendas ya no es tiempo real (antes onSnapshot de Firestore
+      // empujaba el cambio solo; ahora es un fetch al montar), así que hay
+      // que refrescar a mano para que el switch no quede visualmente
+      // pegado al valor viejo hasta recargar la página.
+      await refetchTiendas()
     } catch {
       setFeedback('No pudimos actualizar la tienda. Revisá tu conexión e intentá de nuevo.')
     } finally {

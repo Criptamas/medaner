@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { collection, getDocs, query, where } from 'firebase/firestore'
-import { db } from '../firebase'
+import { supabase } from '../lib/supabaseClient'
 
 export function useStoreProducts(storeId) {
   const [products, setProducts] = useState([])
@@ -14,13 +13,14 @@ export function useStoreProducts(storeId) {
       setLoading(true)
       setError(null)
       try {
-        const q = query(
-          collection(db, 'tiendas', storeId, 'productos'),
-          where('disponible', '==', true),
-        )
-        const snapshot = await getDocs(q)
+        const { data, error: supabaseError } = await supabase
+          .from('productos')
+          .select('*')
+          .eq('tienda_id', storeId)
+          .eq('disponible', true)
         if (cancelled) return
-        setProducts(snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() })))
+        if (supabaseError) throw supabaseError
+        setProducts(data ?? [])
       } catch (err) {
         if (!cancelled) setError(err)
       } finally {

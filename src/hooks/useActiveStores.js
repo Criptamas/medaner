@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { collection, getDocs, query, where } from 'firebase/firestore'
-import { db } from '../firebase'
+import { supabase } from '../lib/supabaseClient'
 
 export function useActiveStores() {
   const [stores, setStores] = useState([])
@@ -14,10 +13,15 @@ export function useActiveStores() {
       setLoading(true)
       setError(null)
       try {
-        const q = query(collection(db, 'tiendas'), where('activa', '==', true))
-        const snapshot = await getDocs(q)
+        const { data, error: supabaseError } = await supabase
+          .from('tiendas')
+          .select('*')
+          .eq('activa', true)
         if (cancelled) return
-        setStores(snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() })))
+        if (supabaseError) throw supabaseError
+        // Cada fila ya trae `id` (PK de Supabase) — a diferencia de Firestore
+        // no hace falta remapear snap.id + data() por separado.
+        setStores(data ?? [])
       } catch (err) {
         if (!cancelled) setError(err)
       } finally {

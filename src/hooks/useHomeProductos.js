@@ -1,21 +1,19 @@
 import { useEffect, useState } from 'react'
-import { collection, getDocs, query, where } from 'firebase/firestore'
-import { db } from '../firebase'
+import { supabase } from '../lib/supabaseClient'
 
 // Trae productos disponibles de varias tiendas para los carruseles de la Home
 // ("Te puede interesar", "Productos en tendencia").
 //
-// Por qué fan-out (una query por tienda) y no collectionGroup('productos'):
-// las reglas actuales permiten leer productos SOLO por la ruta anidada
-// tiendas/{id}/productos (allow read). Un collectionGroup necesitaría una
-// regla nueva (match /{path=**}/productos) + un índice compuesto. Para el
-// piloto (pocas tiendas) el fan-out reutiliza el permiso que ya existe y no
-// obliga a abrir reglas ni crear índices. Se acota con `maxTiendas` para no
-// disparar lecturas en Firestore (plan Spark).
-//
-// Escala: cuando haya muchas tiendas, migrar a una colección curada de
-// "destacados"/"tendencia" (o collectionGroup con su índice y regla) en vez
-// de leer todas las subcolecciones. Ver TODO en la Home.
+// Con Supabase esto se resuelve con UN solo select usando el join embebido
+// tiendas -> productos, filtrando el lado embebido con
+// `productos.disponible = eq.true` (PostgREST) — a diferencia del fan-out
+// manual que hacía falta con Firestore (una query por tienda, porque las
+// reglas de seguridad solo permitían leer la subcolección anidada, no un
+// collectionGroup). La query pide `tiendas` directo (acotada por
+// `maxTiendas` + `activa = true`) en vez de depender del array `stores` que
+// recibe el hook. El parámetro `stores` se mantiene solo por compatibilidad
+// de firma (HomePage ya lo pasa) — esta implementación no lo necesita para
+// construir la query, así que no está en las dependencias del efecto.
 //
 // A cada producto se le adjunta tiendaId y tiendaNombre para poder navegar al
 // catálogo correcto desde la card (el carrito es POR tienda, ver HomePage).
@@ -24,50 +22,30 @@ export function useHomeProductos(stores, { maxTiendas = 8, maxProductos = 24 } =
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // Clave estable de las tiendas a consultar: evita re-fetch si el array
-  // `stores` cambia de referencia pero no de contenido relevante.
-  const tiendasKey = stores
-    .slice(0, maxTiendas)
-    .map((t) => t.id)
-    .join(',')
-
   useEffect(() => {
     let cancelled = false
 
     async function load() {
-      const tiendas = stores.slice(0, maxTiendas)
-      if (tiendas.length === 0) {
-        setProductos([])
-        setLoading(false)
-        return
-      }
-
       setLoading(true)
       setError(null)
       try {
-        const porTienda = await Promise.all(
-          tiendas.map(async (tienda) => {
-            try {
-              const q = query(
-                collection(db, 'tiendas', tienda.id, 'productos'),
-                where('disponible', '==', true),
-              )
-              const snap = await getDocs(q)
-              return snap.docs.map((docSnap) => ({
-                id: docSnap.id,
-                tiendaId: tienda.id,
-                tiendaNombre: tienda.nombre ?? '',
-                ...docSnap.data(),
-              }))
-            } catch {
-              // Una tienda que falle (permiso puntual, red) no debe tumbar
-              // toda la Home: se ignora y seguimos con las demás.
-              return []
-            }
-          }),
-        )
+        const { data, error: supabaseError } = await supabase
+          .from('tiendas')
+          .select('id, nombre, productos(*)')
+          .eq('activa', true)
+          .eq('productos.disponible', true)
+          .limit(maxTiendas)
 
         if (cancelled) return
+        if (supabaseError) throw supabaseError
+
+        const porTienda = (data ?? []).map((tienda) =>
+          (tienda.productos ?? []).map((producto) => ({
+            ...producto,
+            tiendaId: tienda.id,
+            tiendaNombre: tienda.nombre ?? '',
+          })),
+        )
 
         // Intercala productos de distintas tiendas para que los carruseles no
         // queden dominados por una sola tienda (round-robin sobre las listas).
@@ -84,10 +62,7 @@ export function useHomeProductos(stores, { maxTiendas = 8, maxProductos = 24 } =
     return () => {
       cancelled = true
     }
-    // tiendasKey resume el contenido relevante de `stores`; maxProductos y
-    // maxTiendas son estables entre renders.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tiendasKey, maxProductos, maxTiendas])
+  }, [maxProductos, maxTiendas])
 
   return { productos, loading, error }
 }
