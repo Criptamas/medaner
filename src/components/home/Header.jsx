@@ -1,11 +1,15 @@
 import { Link } from 'react-router-dom'
 import SesionUsuario from '../SesionUsuario'
+import TasaCambioWidget from './TasaCambioWidget'
 import './Header.css'
 
 // Header sticky de la Home.
 // - Logo Medaner (marca).
 // - Buscador funcional: es controlado desde HomePage (levanta el estado
 //   `query`) para poder filtrar tiendas/productos en la misma pantalla.
+// - TasaCambioWidget: bloque tappable con la tasa de cambio del BCV + sheet
+//   con conversor USD<->Bs. Self-contained (como SesionUsuario): maneja su
+//   propio fetch y su propio estado de sheet abierto/cerrado internamente.
 // - CTA "Pedir un viaje" -> /pedir-viaje (esa ruta y su hook useCreateViaje
 //   ya existen; acá SOLO se enlaza, no se recrea lógica). Reemplaza al clásico
 //   saludo "Hola, Juan".
@@ -34,6 +38,7 @@ export default function Header({ query, onQueryChange }) {
 
           <div className="home-header__actions">
             <SesionUsuario />
+            <TasaCambioWidget />
             <Link to="/pedir-viaje" className="home-header__viaje-btn">
               <span aria-hidden="true">🚕</span>
               <span>Pedir un viaje</span>

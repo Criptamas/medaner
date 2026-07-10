@@ -1,0 +1,100 @@
+.tasa-cambio-widget {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: 0;
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.tasa-cambio-widget:hover,
+.tasa-cambio-widget:focus-visible {
+  background: var(--blue-050);
+  border-color: var(--blue-400);
+}
+
+.tasa-cambio-widget__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  min-width: 0;
+}
+
+.tasa-cambio-widget__eyebrow {
+  font-size: 10px;
+  line-height: 1.2;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.tasa-cambio-widget__row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.tasa-cambio-widget__valor {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--navy);
+  white-space: nowrap;
+}
+
+.tasa-cambio-widget__chevron {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+/* Estado sin dato (error total, sin cache): solo el label, con el mismo peso
+   visual que el valor normal para que siga leyéndose como tappable. */
+.tasa-cambio-widget__empty {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+  white-space: nowrap;
+}
+
+/* Skeleton de carga: dos "líneas" simuladas con shimmer, mismo alto que el
+   contenido real (eyebrow + valor) para que no haya salto de layout al
+   resolver el fetch. */
+.tasa-cambio-widget__skeleton {
+  display: block;
+  width: 64px;
+  height: 26px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--line) 25%, var(--line-strong) 37%, var(--line) 63%);
+  background-size: 400% 100%;
+  animation: tasa-cambio-shimmer 1.4s ease infinite;
+}
+
+@keyframes tasa-cambio-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+/* Mobile muy angosto: se cae el label "Tasa de cambio" y queda solo el
+   valor + chevron, mismo patrón que .home-header__actions .sesion-usuario. */
+@media (max-width: 479px) {
+  .tasa-cambio-widget {
+    padding: 6px 8px;
+  }
+
+  .tasa-cambio-widget__eyebrow {
+    display: none;
+  }
+
+  .tasa-cambio-widget__skeleton {
+    width: 52px;
+    height: 16px;
+  }
+}
