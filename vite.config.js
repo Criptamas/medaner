@@ -18,7 +18,7 @@ export default defineConfig({
       injectManifest: {
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       },
-      includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
+      includeAssets: ['logoprototipo.png', 'logoprototipo.png'],
       manifest: {
         name: 'Medaner',
         short_name: 'Medaner',
@@ -40,7 +40,7 @@ export default defineConfig({
             type: 'image/png',
           },
           {
-            src: 'maskable-icon-512x512.png',
+            src: 'logoprototipo.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',
