@@ -1,26 +1,32 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import SesionUsuario from '../SesionUsuario'
+import { useClienteAuth } from '../../hooks/useClienteAuth'
 import TasaCambioWidget from './TasaCambioWidget'
-import ClienteAuthWidget from './ClienteAuthWidget'
+import ProfileChip from './ProfileChip'
+import HeaderMenu from './HeaderMenu'
+import ClienteAuthSheet from './ClienteAuthSheet'
 import './Header.css'
 
-// Header sticky de la Home.
-// - Logo Medaner (marca).
-// - Buscador funcional: es controlado desde HomePage (levanta el estado
-//   `query`) para poder filtrar tiendas/productos en la misma pantalla.
-// - TasaCambioWidget: bloque tappable con la tasa de cambio del BCV + sheet
-//   con conversor USD<->Bs. Self-contained (como SesionUsuario): maneja su
-//   propio fetch y su propio estado de sheet abierto/cerrado internamente.
-// - ClienteAuthWidget: sesión de CLIENTES sobre Supabase Auth, paralela e
-//   independiente de SesionUsuario (Firebase, solo admin/conductor).
-//   Self-contained igual que TasaCambioWidget.
-// - CTA "Pedir un viaje" -> /pedir-viaje (esa ruta y su hook useCreateViaje
-//   ya existen; acá SOLO se enlaza, no se recrea lógica). Reemplaza al clásico
-//   saludo "Hola, Juan".
-// - SesionUsuario: chip existente que muestra quién está logueado. Se auto-
-//   oculta si no hay sesión (return null), así el cliente anónimo no ve nada
-//   y el personal interno (admin/conductor) sí. No se duplica su lógica.
+// Header sticky de la Home. Tiene DOS estados según la sesión de cliente
+// (Supabase Auth), en vez del viejo cluster de botones amontonados:
+//
+// - SIN sesión: logo Medaner + menú hamburguesa (Iniciar sesión · Crear
+//   cuenta · Tasa de cambio). Nada más — la app se usa registrado, así que el
+//   header anónimo es una invitación a entrar, no un panel de acciones.
+// - CON sesión: logo + buscador + tasa del día + chip de perfil (foto +
+//   nombre → /perfil). El buscador solo aparece logueado: buscar/pedir es
+//   "usar la app".
+//
+// El CTA "Pedir un viaje" se quitó del header a propósito: ya vive como banner
+// gigante en el hero (HeroCarousel, slide /pedir-viaje).
 export default function Header({ query, onQueryChange }) {
+  const { user, loading } = useClienteAuth()
+  // null | 'login' | 'signup' — controla el bottom sheet de auth que abre el
+  // menú hamburguesa. El sheet es único; el modo decide en qué pestaña abre.
+  const [authMode, setAuthMode] = useState(null)
+
+  const logueado = !loading && !!user
+
   return (
     <header className="home-header">
       <div className="home-header__inner">
@@ -41,44 +47,57 @@ export default function Header({ query, onQueryChange }) {
           </Link>
 
           <div className="home-header__actions">
-            <SesionUsuario />
-            <TasaCambioWidget />
-            <ClienteAuthWidget />
-            <Link to="/pedir-viaje" className="home-header__viaje-btn">
-              <span aria-hidden="true">🚕</span>
-              <span>Pedir un viaje</span>
-            </Link>
+            {/* Mientras se resuelve la sesión no renderizamos ni hamburguesa ni
+                perfil: evita el flash hamburguesa -> perfil en cada carga. */}
+            {loading ? null : logueado ? (
+              <>
+                <TasaCambioWidget />
+                <ProfileChip />
+              </>
+            ) : (
+              <HeaderMenu
+                onIniciarSesion={() => setAuthMode('login')}
+                onCrearCuenta={() => setAuthMode('signup')}
+              />
+            )}
           </div>
         </div>
 
-        <form className="home-search" role="search" onSubmit={(e) => e.preventDefault()}>
-          <span className="home-search__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor">
-              <circle cx="11" cy="11" r="7" strokeWidth="2" />
-              <line x1="16.5" y1="16.5" x2="21" y2="21" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </span>
-          <input
-            type="search"
-            className="home-search__input"
-            placeholder="Buscar tiendas o productos..."
-            aria-label="Buscar tiendas o productos"
-            value={query}
-            onChange={(e) => onQueryChange(e.target.value)}
-            enterKeyHint="search"
-          />
-          {query && (
-            <button
-              type="button"
-              className="home-search__clear"
-              aria-label="Limpiar búsqueda"
-              onClick={() => onQueryChange('')}
-            >
-              ×
-            </button>
-          )}
-        </form>
+        {/* Buscador: solo con sesión (buscar es "usar la app"). */}
+        {logueado && (
+          <form className="home-search" role="search" onSubmit={(e) => e.preventDefault()}>
+            <span className="home-search__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor">
+                <circle cx="11" cy="11" r="7" strokeWidth="2" />
+                <line x1="16.5" y1="16.5" x2="21" y2="21" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </span>
+            <input
+              type="search"
+              className="home-search__input"
+              placeholder="Buscar tiendas o productos..."
+              aria-label="Buscar tiendas o productos"
+              value={query}
+              onChange={(e) => onQueryChange(e.target.value)}
+              enterKeyHint="search"
+            />
+            {query && (
+              <button
+                type="button"
+                className="home-search__clear"
+                aria-label="Limpiar búsqueda"
+                onClick={() => onQueryChange('')}
+              >
+                ×
+              </button>
+            )}
+          </form>
+        )}
       </div>
+
+      {authMode && (
+        <ClienteAuthSheet modoInicial={authMode} onCerrar={() => setAuthMode(null)} />
+      )}
     </header>
   )
 }

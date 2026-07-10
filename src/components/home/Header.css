@@ -55,13 +55,11 @@
   color: var(--blue);
 }
 
-/* --- Acciones (sesión + pedir viaje) ---
-   flex-wrap: en móviles angostos (< ~430px) TasaCambioWidget + ClienteAuthWidget
-   + el CTA "Pedir un viaje" no entran en una sola fila (se probó en vivo a
-   375px: sin wrap, el header desbordaba horizontalmente ~155px). Con wrap,
-   el CTA cae a una segunda línea alineada a la derecha en vez de forzar
-   scroll horizontal de toda la página. En >=768px .home-header__bar pasa a
-   display:contents y esto deja de aplicar (layout de una sola fila). */
+/* --- Acciones del header ---
+   Con sesión: tasa + chip de perfil (2 ítems compactos, entran en una fila
+   incluso a 360px). Sin sesión: solo la hamburguesa. Ya no hay cluster de
+   botones que se amontone, así que flex-wrap queda como red de seguridad
+   por si algún ítem futuro no entra, sin efecto visible hoy. */
 .home-header__actions {
   display: flex;
   align-items: center;
@@ -70,46 +68,6 @@
   row-gap: 8px;
   gap: 10px;
   min-width: 0;
-}
-
-/* El chip de sesión se oculta en móvil muy angosto para no competir con el
-   CTA; reaparece desde 480px. Su lógica sigue intacta (solo visibilidad). */
-.home-header__actions .sesion-usuario {
-  display: none;
-  margin: 0;
-  max-width: 180px;
-}
-
-.home-header__viaje-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-  padding: 9px 14px;
-  border-radius: var(--radius-pill);
-  background: var(--blue);
-  color: #fff;
-  font-weight: 600;
-  font-size: 14px;
-  text-decoration: none;
-  white-space: nowrap;
-  box-shadow: var(--shadow-sm);
-  transition: background 0.15s ease, transform 0.15s ease;
-}
-
-.home-header__viaje-btn:hover,
-.home-header__viaje-btn:focus-visible {
-  background: var(--blue-600);
-}
-
-.home-header__viaje-btn:active {
-  transform: translateY(1px);
-}
-
-/* En pantallas chicas el CTA muestra solo el emoji + texto corto; se mantiene
-   el texto pero se compacta. */
-.home-header__viaje-btn span:last-child {
-  display: inline;
 }
 
 /* --- Buscador --- */
@@ -179,12 +137,6 @@
 }
 
 /* ===== Desktop / tablet ===== */
-@media (min-width: 480px) {
-  .home-header__actions .sesion-usuario {
-    display: flex;
-  }
-}
-
 @media (min-width: 768px) {
   .home-header__inner {
     flex-direction: row;
@@ -213,6 +165,11 @@
   .home-header__actions {
     order: 2;
     flex-shrink: 0;
+    /* Sin sesión no hay buscador (flex:1) que empuje las acciones a la
+       derecha, así que el margin-left:auto las mantiene alineadas a la derecha
+       igual. Con buscador presente, el auto colapsa (el buscador toma el
+       espacio) — no molesta en ese caso. */
+    margin-left: auto;
   }
 
   .home-logo__text {

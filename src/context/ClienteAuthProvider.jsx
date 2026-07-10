@@ -10,29 +10,35 @@ import { ClienteAuthContext } from './cliente-auth-context'
 // que hacer su propia query. Esa lectura es best-effort: si falla, la sesión
 // de Supabase Auth sigue siendo válida igual — el perfil es un complemento,
 // nunca debe tumbar el login.
+const PERFIL_VACIO = { nombre: null, telefono: null, avatarUrl: null }
+
 export function ClienteAuthProvider({ children }) {
   const [user, setUser] = useState(null)
-  const [perfil, setPerfil] = useState({ nombre: null, telefono: null })
+  const [perfil, setPerfil] = useState(PERFIL_VACIO)
   const [loading, setLoading] = useState(true)
 
   const cargarPerfil = useCallback(async (usuarioId) => {
     if (!usuarioId) {
-      setPerfil({ nombre: null, telefono: null })
+      setPerfil(PERFIL_VACIO)
       return
     }
     try {
       const { data, error } = await supabase
         .from('usuarios')
-        .select('nombre, telefono')
+        .select('nombre, telefono, avatar_url')
         .eq('id', usuarioId)
         .single()
       if (error) throw error
-      setPerfil({ nombre: data?.nombre ?? null, telefono: data?.telefono ?? null })
+      setPerfil({
+        nombre: data?.nombre ?? null,
+        telefono: data?.telefono ?? null,
+        avatarUrl: data?.avatar_url ?? null,
+      })
     } catch (error) {
       // No relanzar: el usuario ya está autenticado igual, esto es solo el
-      // complemento de perfil (nombre/telefono) para mostrar en la UI.
+      // complemento de perfil (nombre/telefono/foto) para mostrar en la UI.
       console.error('No se pudo cargar el perfil del cliente:', error)
-      setPerfil({ nombre: null, telefono: null })
+      setPerfil(PERFIL_VACIO)
     }
   }, [])
 
@@ -64,7 +70,7 @@ export function ClienteAuthProvider({ children }) {
       if (usuarioActual) {
         cargarPerfil(usuarioActual.id)
       } else {
-        setPerfil({ nombre: null, telefono: null })
+        setPerfil(PERFIL_VACIO)
       }
     })
 
@@ -76,7 +82,14 @@ export function ClienteAuthProvider({ children }) {
 
   return (
     <ClienteAuthContext.Provider
-      value={{ user, nombre: perfil.nombre, telefono: perfil.telefono, loading, refetchPerfil }}
+      value={{
+        user,
+        nombre: perfil.nombre,
+        telefono: perfil.telefono,
+        avatarUrl: perfil.avatarUrl,
+        loading,
+        refetchPerfil,
+      }}
     >
       {children}
     </ClienteAuthContext.Provider>

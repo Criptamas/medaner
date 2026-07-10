@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/logoprototipo.png" />
     <link rel="apple-touch-icon" href="/logoprototipo.png" />
+    <!-- Un ÚNICO viewport. viewport-fit=cover respeta el notch; NO se usa
+         maximum-scale/user-scalable=no (rompería el pinch-zoom accesible): el
+         auto-zoom molesto de iOS se evita subiendo los inputs a 16px en CSS
+         (ver index.css), no capando el zoom del usuario. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0052CC" />
 
@@ -35,10 +39,6 @@
       content="Delivery de tiendas locales y viajes en Punto Fijo, estado Falcón."
     />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0EA5A5" />
-    <meta name="description" content="Medaner" />
-    <title>Medaner</title>
   </head>
   <body>
     <div id="root"></div>

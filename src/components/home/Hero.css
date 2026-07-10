@@ -33,17 +33,23 @@
   line-height: 1.2;
 }
 
-.promo-banner--pago {
+.promo-banner--conductor {
   background: var(--blue-100);
-  border-color: var(--line);
+  border-color: var(--blue-400);
 }
 
-.promo-banner--pago .promo-banner__titulo {
+.promo-banner--conductor .promo-banner__titulo {
   color: var(--blue-700);
 }
 
-.promo-banner--pago .promo-banner__texto {
+.promo-banner--conductor .promo-banner__texto {
   color: var(--blue);
+}
+
+.promo-banner--conductor:hover,
+.promo-banner--conductor:focus-visible {
+  background: var(--blue-050);
+  border-color: var(--blue);
 }
 
 .promo-banner--negocio {

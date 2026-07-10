@@ -1,0 +1,30 @@
+.ruta-protegida {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--surface);
+}
+
+.ruta-protegida__aviso {
+  max-width: 340px;
+  text-align: center;
+}
+
+.ruta-protegida__icono {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.ruta-protegida__aviso h1 {
+  margin: 12px 0 8px;
+  font-size: 22px;
+  color: var(--navy);
+}
+
+.ruta-protegida__aviso p {
+  color: var(--text-muted);
+  line-height: 1.5;
+}

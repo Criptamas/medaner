@@ -44,16 +44,26 @@ export default async function handler(req, res) {
 
   const conductoresSnap = await db.collection('conductores').where('activo', '==', true).get()
 
-  const cercanos = conductoresSnap.docs
+  // Un conductor solo puede recibir push si tiene token; sin eso no hay a
+  // dónde mandar nada.
+  const activosConToken = conductoresSnap.docs
     .map((doc) => ({ id: doc.id, ...doc.data() }))
-    .filter((conductor) => conductor.ubicacion && conductor.fcmToken)
-    .map((conductor) => ({
-      ...conductor,
-      distanciaKm: haversineKm(conductor.ubicacion, viaje.origen),
-    }))
-    .filter((conductor) => conductor.distanciaKm <= RADIO_NOTIFICACION_KM)
+    .filter((conductor) => conductor.fcmToken)
 
-  if (cercanos.length === 0) {
+  // Destinatarios:
+  //  - Con ubicación conocida → filtramos por distancia real (radio).
+  //  - SIN ubicación (el GPS no se escribió todavía: permiso recién dado,
+  //    useTrackDriverLocation aún sin primer fix, etc.) → NO podemos medir la
+  //    distancia, pero preferimos notificar igual. Excluirlos en silencio era
+  //    la causa de conductores "activos y con permiso de push" que no recibían
+  //    NADA. Mejor sobre-notificar que perder un viaje. (Revisable a escala:
+  //    cuando haya muchos conductores, restringir este fallback por ciudad.)
+  const destinatarios = activosConToken.filter((conductor) => {
+    if (!conductor.ubicacion) return true
+    return haversineKm(conductor.ubicacion, viaje.origen) <= RADIO_NOTIFICACION_KM
+  })
+
+  if (destinatarios.length === 0) {
     res.status(200).json({ notificados: 0 })
     return
   }
@@ -96,7 +106,7 @@ export default async function handler(req, res) {
       // omitimos la clave en vez de mandar null (FCM rechaza el mensaje).
       ...(url ? { url } : {}),
     },
-    tokens: cercanos.map((conductor) => conductor.fcmToken),
+    tokens: destinatarios.map((conductor) => conductor.fcmToken),
   }
 
   const messaging = getAdminMessaging()
@@ -120,7 +130,7 @@ export default async function handler(req, res) {
   ]
 
   const conductoresConTokenInvalido = resultado.responses
-    .map((response, index) => ({ response, conductor: cercanos[index] }))
+    .map((response, index) => ({ response, conductor: destinatarios[index] }))
     .filter(({ response }) => !response.success && TOKEN_ERRORS_INVALIDOS.includes(response.error?.code))
     .map(({ conductor }) => conductor)
 

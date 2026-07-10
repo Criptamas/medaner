@@ -1,0 +1,99 @@
+.header-menu {
+  position: relative;
+  display: inline-flex;
+}
+
+.header-menu__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--navy);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.header-menu__toggle:hover,
+.header-menu__toggle[aria-expanded='true'] {
+  background: var(--surface-2);
+  border-color: var(--line-strong);
+}
+
+/* Backdrop invisible que cubre toda la pantalla: un tap fuera del panel lo
+   cierra. z-index por debajo del panel pero por encima del resto. */
+.header-menu__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  border: none;
+  background: transparent;
+  cursor: default;
+  padding: 0;
+}
+
+.header-menu__panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 61;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+}
+
+.header-menu__item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 11px 12px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--navy);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.header-menu__item:hover,
+.header-menu__item:focus-visible {
+  background: var(--surface-2);
+}
+
+.header-menu__item--primary {
+  background: var(--blue);
+  color: #fff;
+}
+
+.header-menu__item--primary:hover,
+.header-menu__item--primary:focus-visible {
+  background: var(--blue-600);
+}
+
+.header-menu__sep {
+  height: 1px;
+  background: var(--line);
+  margin: 2px 4px;
+}
+
+/* La tasa reusa TasaCambioWidget; acá solo la hacemos ocupar todo el ancho de
+   la fila del menú (el widget por defecto es un chip compacto). */
+.header-menu__tasa {
+  display: flex;
+}
+
+.header-menu__tasa .tasa-cambio-widget {
+  width: 100%;
+  justify-content: flex-start;
+}

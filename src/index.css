@@ -101,6 +101,24 @@
 body {
   margin: 0;
   background: var(--surface);
+  /* Guarda contra scroll horizontal accidental (un banner/carrusel/input que
+     se pase de ancho hacía que el Home se pudiera arrastrar a la derecha).
+     `clip` (no `hidden`) NO crea contenedor de scroll, así el header sticky
+     sigue funcionando. */
+  overflow-x: clip;
+}
+
+/* iOS Safari hace auto-zoom al enfocar cualquier campo con font-size < 16px, y
+   NO revierte ese zoom al salir del campo — era la causa de que la Home y el
+   selector de ubicación quedaran "trabados" en grande obligando a hacer scroll
+   horizontal. 16px es el piso que evita ese comportamiento. Se define global
+   (mobile-first) para cubrir todos los campos actuales y futuros de un solo
+   lugar; gana en especificidad a las reglas de componente que ponían 13-15px.
+   Se excluyen checkbox/radio/range porque no disparan el zoom y no son texto. */
+input:not([type='checkbox']):not([type='radio']):not([type='range']),
+textarea,
+select {
+  font-size: 16px;
 }
 
 /* App shell: columna full-width (mobile-first). Cada página maneja su propio

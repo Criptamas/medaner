@@ -35,6 +35,54 @@
   font-size: 14px;
 }
 
+/* Aviso de push inactivo: alto contraste (ámbar/alerta), es información
+   crítica para el conductor — sin push no recibe viajes. */
+.conductor-page__push-aviso {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: var(--radius);
+  background: #fff8e6;
+  border: 1px solid var(--yellow-600);
+  color: var(--yellow-ink);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.conductor-page__push-aviso p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.conductor-page__push-aviso .conductor-page__push-aviso-titulo {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.conductor-page__push-aviso-btn {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--blue);
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.conductor-page__push-aviso-btn:hover:not(:disabled) {
+  background: var(--blue-600);
+}
+
+.conductor-page__push-aviso-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
 .conductor-page__section {
   margin-bottom: 32px;
 }

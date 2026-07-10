@@ -11,8 +11,8 @@ const MIN_PASSWORD_LENGTH = 6
 // togglables (login/signup) en vez de dos sheets separados, porque comparten
 // estructura visual y el usuario puede querer cambiar de uno a otro sin
 // cerrar y reabrir.
-export default function ClienteAuthSheet({ onCerrar, onAutenticado }) {
-  const [modo, setModo] = useState('login') // 'login' | 'signup'
+export default function ClienteAuthSheet({ onCerrar, onAutenticado, modoInicial = 'login' }) {
+  const [modo, setModo] = useState(modoInicial) // 'login' | 'signup'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [nombre, setNombre] = useState('')

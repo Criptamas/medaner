@@ -39,7 +39,7 @@ export default function ConductorPage() {
     user?.uid,
   )
   const { toggle } = useDocToggle()
-  const { registrarToken } = useFcmToken()
+  const { registrarToken, error: errorFcm } = useFcmToken()
   const {
     viajes: viajesDisponibles,
     loading: loadingViajes,
@@ -57,6 +57,10 @@ export default function ConductorPage() {
   const [pendingId, setPendingId] = useState(null)
   const [feedback, setFeedback] = useState(null)
   const [toastMensaje, setToastMensaje] = useState(null)
+  // True mientras se pide permiso + token de push, para no mostrar el aviso de
+  // "sin notificaciones" en el parpadeo entre activarse y que el token quede
+  // escrito en Firestore.
+  const [registrandoPush, setRegistrandoPush] = useState(false)
 
   // Aviso in-app de un mensaje push que llega mientras el conductor tiene
   // esta pantalla abierta (foreground): el navegador no muestra la
@@ -88,6 +92,25 @@ export default function ConductorPage() {
   // llegó por onSnapshot) como si falla (se revierte al valor real).
   const [optimisticActivo, setOptimisticActivo] = useState(null)
 
+  // Pide permiso + token de push y lo guarda en conductores/{uid}. Devuelve
+  // true si quedó un token válido registrado. `registrarToken` degrada a null
+  // (sin lanzar) cuando NO hay soporte, permiso o SW listo — por eso chequeamos
+  // el valor de retorno, no solo el throw: antes, ese null pasaba inadvertido y
+  // el conductor quedaba "Disponible" sin token, sin enterarse de que no le iban
+  // a llegar avisos. El aviso persistente de abajo (activo && sin fcmToken)
+  // cubre además el caso de un token invalidado más tarde.
+  async function registrarPush() {
+    setRegistrandoPush(true)
+    try {
+      const token = await registrarToken(user.uid)
+      return Boolean(token)
+    } catch {
+      return false
+    } finally {
+      setRegistrandoPush(false)
+    }
+  }
+
   async function handleToggleDisponible(nextValue) {
     setPendingId('disponible')
     setFeedback(null)
@@ -103,14 +126,14 @@ export default function ConductorPage() {
     setOptimisticActivo(null)
     setPendingId(null)
 
-    // Registrar el token de push es best-effort: si falla, el conductor
-    // igual queda disponible y puede usar la lista de respaldo.
+    // Registrar el token de push es best-effort: si falla, el conductor igual
+    // queda disponible y puede usar la lista de respaldo. Pero ahora se le
+    // avisa explícitamente (antes fallaba en silencio).
     if (nextValue) {
-      try {
-        await registrarToken(user.uid)
-      } catch {
+      const ok = await registrarPush()
+      if (!ok) {
         setFeedback(
-          'Quedaste disponible, pero no pudimos activar las notificaciones push en este dispositivo.',
+          'Quedaste disponible, pero este dispositivo no activó las notificaciones. No te van a llegar avisos de viajes nuevos — mirá el aviso de abajo.',
         )
       }
     }
@@ -189,6 +212,34 @@ export default function ConductorPage() {
             label={(optimisticActivo ?? !!conductor.activo) ? 'Disponible' : 'No disponible'}
           />
         )}
+
+        {/* Aviso clave: estás disponible pero SIN token de push registrado, así
+            que no te va a llegar ningún viaje aunque el switch diga "Disponible".
+            Es el estado que causaba el "tengo todo activado y no me llega nada"
+            (típico en iPhone sin la app instalada, o token invalidado). Se
+            muestra el motivo real (errorFcm) y un botón para reintentar. */}
+        {!loadingConductor && !errorConductor && conductor?.activo && !conductor?.fcmToken &&
+          !registrandoPush && (
+            <div className="conductor-page__push-aviso" role="alert">
+              <p className="conductor-page__push-aviso-titulo">
+                ⚠️ No vas a recibir avisos de viajes en este dispositivo
+              </p>
+              <p>
+                {errorFcm ||
+                  'Las notificaciones push no están activas.'}{' '}
+                En iPhone tenés que instalar la app (Compartir → “Agregar a pantalla de inicio”)
+                y volver a activar “Disponible”.
+              </p>
+              <button
+                type="button"
+                className="conductor-page__push-aviso-btn"
+                onClick={registrarPush}
+                disabled={registrandoPush}
+              >
+                {registrandoPush ? 'Activando...' : 'Activar notificaciones'}
+              </button>
+            </div>
+          )}
       </section>
 
       <section className="conductor-page__section">

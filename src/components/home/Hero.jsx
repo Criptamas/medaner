@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import HeroCarousel from './HeroCarousel'
 import './Hero.css'
 
@@ -13,11 +14,13 @@ export default function Hero() {
       </div>
 
       <div className="hero__banners">
-        {/* Banner estático 1: refuerza el modelo de pago real de Medaner. */}
-        <div className="promo-banner promo-banner--pago">
-          <span className="promo-banner__titulo">Paga fácil</span>
-          <span className="promo-banner__texto">Efectivo · Pago móvil · Zelle</span>
-        </div>
+        {/* Banner estático 1: captación de conductores (modelo de negocio —
+            los conductores pagan la cuota semanal). Lleva al formulario de
+            postulación /ser-conductor. */}
+        <Link to="/ser-conductor" className="promo-banner promo-banner--conductor">
+          <span className="promo-banner__titulo">🛵 Hazte conductor</span>
+          <span className="promo-banner__texto">Genera ingresos con Medaner →</span>
+        </Link>
 
         {/* Banner estático 2: captación de tiendas (modelo de negocio). Enlaza
             a la sección de soporte del footer (ancla interna, no URL externa). */}
