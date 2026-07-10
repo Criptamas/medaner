@@ -33,7 +33,7 @@ messaging.onBackgroundMessage((payload) => {
   const { title, body, icon, url } = payload.data ?? {}
   self.registration.showNotification(title || 'Medaner', {
     body,
-    icon: icon || '/pwa-192x192.png',
+    icon: icon || '/logoprototipo.png',
     data: { url },
   })
 })
