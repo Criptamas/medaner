@@ -75,7 +75,9 @@ export function useFirebaseBridge() {
           if (!response.ok || !data?.token) {
             console.error('[DIAG auth] /api/firebase-token falló', {
               status: response.status,
-              error: data?.error,
+              // data completo incluye `_diag` (paso, code, detalle) del endpoint
+              // instrumentado — muestra la causa real del 500 sin ir a Vercel.
+              respuesta: data,
             })
             return
           }

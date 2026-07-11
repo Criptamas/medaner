@@ -26,12 +26,28 @@ export default async function handler(req, res) {
     return
   }
 
+  // TEMP DIAGNÓSTICO (quitar tras resolver el 500): `paso` registra hasta
+  // dónde llegó la ejecución. Si la función se cuelga (timeout de red), el
+  // último `console.log('[firebase-token] paso: ...')` en los logs de Vercel
+  // muestra en qué await quedó colgada; si tira un error atrapable, el cuerpo
+  // 500 devuelve el mensaje real para verlo directo en DevTools.
+  let paso = 'inicio'
   try {
+    paso = 'getSupabaseAdmin'
+    console.log('[firebase-token] paso:', paso, '| envs:', {
+      urlPresente: !!process.env.VITE_SUPABASE_URL,
+      serviceKeyPresente: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      fbProject: !!process.env.FIREBASE_ADMIN_PROJECT_ID,
+      fbEmail: !!process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+      fbKey: !!process.env.FIREBASE_ADMIN_PRIVATE_KEY,
+    })
     const supabase = getSupabaseAdmin()
 
+    paso = 'getUser'
+    console.log('[firebase-token] paso:', paso)
     const { data: { user }, error: errorUser } = await supabase.auth.getUser(accessToken)
     if (errorUser || !user) {
-      res.status(401).json({ error: 'No autorizado' })
+      res.status(401).json({ error: 'No autorizado', _diag: { paso, detalle: errorUser?.message } })
       return
     }
 
@@ -40,13 +56,15 @@ export default async function handler(req, res) {
     // escribir el propio usuario al hacer signup, así que confiar en él
     // permitiría que cualquiera se autoasigne 'admin' o 'conductor' y se
     // mintara un custom token de Firebase con ese rol.
+    paso = 'query-usuarios'
+    console.log('[firebase-token] paso:', paso, '| uid:', user.id)
     const { data: perfil, error: errorPerfil } = await supabase
       .from('usuarios')
       .select('tipo_usuario')
       .eq('id', user.id)
       .single()
     if (errorPerfil || !perfil) {
-      res.status(403).json({ error: 'Perfil no encontrado' })
+      res.status(403).json({ error: 'Perfil no encontrado', _diag: { paso, detalle: errorPerfil?.message } })
       return
     }
 
@@ -54,7 +72,7 @@ export default async function handler(req, res) {
     if (!['conductor', 'admin'].includes(tipoUsuario)) {
       // Los clientes no tienen dashboard en Firebase/Firestore con este
       // esquema de reglas: no hace falta (ni conviene) mintarles un token.
-      res.status(403).json({ error: 'Rol sin acceso a dashboard' })
+      res.status(403).json({ error: 'Rol sin acceso a dashboard', _diag: { paso, tipoUsuario } })
       return
     }
 
@@ -63,11 +81,14 @@ export default async function handler(req, res) {
     // uid queda fijado al uid de Supabase a propósito (ver comentario de
     // arriba). El claim `tipo_usuario` viaja disponible en el ID token
     // resultante por si en el futuro hace falta en reglas o en el cliente.
+    paso = 'createCustomToken'
+    console.log('[firebase-token] paso:', paso)
     const token = await getAdminAuth().createCustomToken(user.id, { tipo_usuario: tipoUsuario })
 
+    console.log('[firebase-token] paso: OK')
     res.status(200).json({ token, tipoUsuario })
   } catch (err) {
-    console.error('[firebase-token] falló la generación del custom token:', err.message)
-    res.status(500).json({ error: 'No se pudo generar el token' })
+    console.error(`[firebase-token] falló en paso "${paso}":`, err?.code, err?.message)
+    res.status(500).json({ error: 'No se pudo generar el token', _diag: { paso, code: err?.code, detalle: err?.message } })
   }
 }
