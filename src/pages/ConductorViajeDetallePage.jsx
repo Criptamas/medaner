@@ -60,6 +60,8 @@ export default function ConductorViajeDetallePage() {
       await acceptViaje(viajeId, user.uid, {
         nombre: conductor?.nombre,
         telefono: conductor?.telefono,
+        placa: conductor?.placa,
+        vehiculo: conductor?.vehiculo,
       })
     } catch (err) {
       setFeedback(

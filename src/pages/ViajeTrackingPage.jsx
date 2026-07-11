@@ -2,57 +2,150 @@ import { lazy, Suspense, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { onMessage } from 'firebase/messaging'
 import { useViaje } from '../hooks/useViaje'
-import EstadoProgress from '../components/EstadoProgress'
 import StatusMessage from '../components/StatusMessage'
 import Toast from '../components/Toast'
+import BuscandoConductorPanel from '../components/BuscandoConductorPanel'
+import ConductorAsignadoPanel from '../components/ConductorAsignadoPanel'
+import ViajeResumenDetalle from '../components/ViajeResumenDetalle'
 import { getFcmMessaging } from '../firebase'
-import { PAYMENT_LABELS, VIAJE_ESTADO_LABELS } from '../utils/pedidoLabels'
-import { construirEnlaceWhatsApp } from '../utils/telefono'
-import { formatUSD } from '../utils/tarifas'
+import { VIAJE_ESTADO_LABELS, VIAJE_ESTADO_CANCELADO_LABEL } from '../utils/pedidoLabels'
 import './ViajeTrackingPage.css'
 
 // mapbox-gl es pesado (~1.5MB): se carga solo al abrir un viaje activo y no en
 // el bundle principal (mismo criterio que las rutas de mapa en App.jsx).
 const MapaSeguimientoViaje = lazy(() => import('../components/MapaSeguimientoViaje'))
 
-// Estados con conductor asignado en los que tiene sentido el mapa en vivo. Al
-// llegar a "completado" deja de renderizarse: así se corta el seguimiento de
-// ubicación del lado del cliente.
-const ESTADOS_CON_MAPA = new Set(['confirmado', 'en_curso'])
+// Estados que muestran el mapa a pantalla completa detrás del panel (estilo
+// Uber). "pendiente" también lo muestra (encuadra origen+destino aunque no
+// haya conductor). Al llegar a "completado"/"cancelado" el mapa deja de
+// renderizarse: así se corta el seguimiento de ubicación del lado del cliente.
+const ESTADOS_CON_MAPA = new Set(['pendiente', 'confirmado', 'en_curso'])
 
-// Pasos del progreso derivados de VIAJE_ESTADO_LABELS para que este orden y
-// sus textos no puedan divergir de los que usa "Mis pedidos recientes".
-const VIAJE_STEPS = Object.entries(VIAJE_ESTADO_LABELS).map(([key, label]) => ({ key, label }))
-
-const STATUS_LABELS = VIAJE_ESTADO_LABELS
-
-const VEHICULO_LABELS = {
-  moto: 'Moto',
-  carro: 'Carro',
+// Layout compartido por los estados sin mapa que reusan el header de siempre
+// (carga/error/no encontrado): se mantiene idéntico a como se veía antes para
+// no cambiar esos estados (offline-first: la carga/el error no deben mutar).
+function PaginaSimple({ children }) {
+  return (
+    <div className="viaje-tracking-page">
+      <header className="viaje-tracking-page__header">
+        <Link to="/" className="viaje-tracking-page__back" aria-label="Volver al inicio">
+          ←
+        </Link>
+        <h1>Seguimiento del viaje</h1>
+      </header>
+      {children}
+    </div>
+  )
 }
 
-// Mensaje prellenado al abrir WhatsApp con el conductor: le ahorra al
-// cliente escribir el saludo inicial.
-const MENSAJE_WHATSAPP_CONDUCTOR = 'Hola, te escribo por mi viaje en Medaner.'
+// Contenido según el estado del viaje. No usa hooks: recibe el viaje ya
+// cargado. El cambio de estado (onSnapshot de useViaje) hace que este switch
+// re-renderice solo hacia la pantalla que corresponda, sin lógica extra.
+function ContenidoViaje({ viaje }) {
+  const { estado } = viaje
 
-function formatCoords(punto) {
-  if (!punto) return '—'
-  return `${punto.lat?.toFixed(5)}, ${punto.lng?.toFixed(5)}`
+  if (ESTADOS_CON_MAPA.has(estado)) {
+    return (
+      <div className="viaje-track viaje-track--mapa">
+        <Suspense
+          fallback={
+            <div className="viaje-track__mapa-fallback">
+              <StatusMessage variant="loading" title="Cargando mapa..." />
+            </div>
+          }
+        >
+          <MapaSeguimientoViaje
+            className="mapa-seguimiento--fondo"
+            origen={viaje.origen}
+            destino={viaje.destino}
+            ubicacionConductor={viaje.ubicacionConductor}
+            // En "pendiente" todavía no hay conductor asignado: no tiene sentido
+            // "esperar su ubicación".
+            mostrarEsperandoUbicacion={estado !== 'pendiente'}
+          />
+        </Suspense>
+
+        <Link to="/" className="viaje-track__volver" aria-label="Volver al inicio">
+          ←
+        </Link>
+
+        {estado === 'pendiente' ? (
+          <BuscandoConductorPanel viajeId={viaje.id} viaje={viaje} />
+        ) : (
+          <ConductorAsignadoPanel viaje={viaje} />
+        )}
+      </div>
+    )
+  }
+
+  // Estados terminales (completado/cancelado) y cualquier estado desconocido:
+  // página oscura con scroll, sin mapa. El header vuelve porque acá no hay
+  // mapa de fondo sobre el que flotar.
+  return (
+    <div className="viaje-track viaje-track--terminal">
+      <header className="viaje-track__header">
+        <Link to="/" className="viaje-track__back" aria-label="Volver al inicio">
+          ←
+        </Link>
+        <h1>Seguimiento del viaje</h1>
+      </header>
+
+      <div className="viaje-track__cierre">
+        {estado === 'cancelado' ? (
+          <>
+            <span
+              className="viaje-track__icono viaje-track__icono--cancelado"
+              aria-hidden="true"
+            >
+              ✕
+            </span>
+            <h2 className="viaje-track__cierre-titulo">{VIAJE_ESTADO_CANCELADO_LABEL}</h2>
+            <p className="viaje-track__cierre-texto">
+              Cancelaste este viaje. Podés pedir uno nuevo cuando quieras.
+            </p>
+            <Link to="/" className="viaje-track__cta">
+              Volver al inicio
+            </Link>
+          </>
+        ) : (
+          <>
+            <span
+              className="viaje-track__icono viaje-track__icono--completado"
+              aria-hidden="true"
+            >
+              ✓
+            </span>
+            <h2 className="viaje-track__cierre-titulo">
+              {VIAJE_ESTADO_LABELS[estado] ?? 'Viaje finalizado'}
+            </h2>
+            {viaje.conductorNombre && (
+              <p className="viaje-track__cierre-texto">
+                Viajaste con {viaje.conductorNombre}. ¡Gracias por elegir Medaner!
+              </p>
+            )}
+            <div className="viaje-track__resumen-wrap">
+              <ViajeResumenDetalle viaje={viaje} />
+            </div>
+            <Link to="/" className="viaje-track__cta">
+              Volver al inicio
+            </Link>
+          </>
+        )}
+      </div>
+    </div>
+  )
 }
 
 export default function ViajeTrackingPage() {
   const { viajeId } = useParams()
   const { viaje, loading, error } = useViaje(viajeId)
-  // conductorTelefono solo existe una vez que un conductor aceptó el viaje
-  // (lo copia acceptViaje); construirEnlaceWhatsApp devuelve null tanto si
-  // no hay teléfono todavía como si el que hay no es válido.
-  const enlaceWhatsAppConductor = viaje ? construirEnlaceWhatsApp(viaje.conductorTelefono) : null
 
   const [toastMensaje, setToastMensaje] = useState(null)
 
   // Aviso in-app de cambios de estado del viaje mientras el cliente tiene
   // esta pantalla de seguimiento abierta (foreground): sin esto, se entera
-  // recién si refresca. Mismo patrón que ConductorPage.
+  // recién si refresca. Debe seguir funcionando en TODOS los estados, por eso
+  // se monta a nivel de página (fuera del switch de ContenidoViaje).
   useEffect(() => {
     let unsubscribe
     let cancelado = false
@@ -74,109 +167,33 @@ export default function ViajeTrackingPage() {
   }, [])
 
   return (
-    <div className="viaje-tracking-page">
+    <>
+      {/* Toast siempre montado, en cualquier estado (checklist de la feature). */}
       <Toast mensaje={toastMensaje} onCerrar={() => setToastMensaje(null)} />
 
-      <header className="viaje-tracking-page__header">
-        <Link to="/" className="viaje-tracking-page__back" aria-label="Volver al inicio">
-          ←
-        </Link>
-        <h1>Seguimiento del viaje</h1>
-      </header>
-
-      {loading && <StatusMessage variant="loading" title="Buscando tu viaje..." />}
+      {loading && (
+        <PaginaSimple>
+          <StatusMessage variant="loading" title="Buscando tu viaje..." />
+        </PaginaSimple>
+      )}
 
       {!loading && error && (
-        <StatusMessage
-          variant="error"
-          title="No pudimos cargar tu viaje"
-          description="Revisá tu conexión e intentá de nuevo."
-        />
+        <PaginaSimple>
+          <StatusMessage
+            variant="error"
+            title="No pudimos cargar tu viaje"
+            description="Revisá tu conexión e intentá de nuevo."
+          />
+        </PaginaSimple>
       )}
 
       {!loading && !error && !viaje && (
-        <StatusMessage variant="empty" title="No encontramos este viaje" />
+        <PaginaSimple>
+          <StatusMessage variant="empty" title="No encontramos este viaje" />
+        </PaginaSimple>
       )}
 
-      {!loading && !error && viaje && (
-        <div className="viaje-tracking-page__content">
-          <p className="viaje-tracking-page__status">
-            {STATUS_LABELS[viaje.estado] ?? viaje.estado}
-          </p>
-
-          <EstadoProgress estado={viaje.estado} steps={VIAJE_STEPS} />
-
-          {/* Solo aparece una vez que un conductor aceptó (conductorNombre
-              se copia al viaje recién en ese momento, ver acceptViaje). */}
-          {viaje.conductorNombre && (
-            <section className="viaje-tracking-page__conductor">
-              <p className="viaje-tracking-page__conductor-mensaje">
-                «{viaje.conductorNombre}» aceptó tu viaje
-              </p>
-              {enlaceWhatsAppConductor ? (
-                <a
-                  href={`${enlaceWhatsAppConductor}?text=${encodeURIComponent(MENSAJE_WHATSAPP_CONDUCTOR)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="viaje-tracking-page__whatsapp"
-                >
-                  💬 Escribir a tu conductor por WhatsApp
-                </a>
-              ) : (
-                viaje.conductorTelefono && (
-                  <p className="viaje-tracking-page__telefono-plano">{viaje.conductorTelefono}</p>
-                )
-              )}
-            </section>
-          )}
-
-          {ESTADOS_CON_MAPA.has(viaje.estado) && (
-            <section className="viaje-tracking-page__section">
-              <h2>Tu conductor en el mapa</h2>
-              <Suspense fallback={<StatusMessage variant="loading" title="Cargando mapa..." />}>
-                <MapaSeguimientoViaje
-                  origen={viaje.origen}
-                  destino={viaje.destino}
-                  ubicacionConductor={viaje.ubicacionConductor}
-                />
-              </Suspense>
-            </section>
-          )}
-
-          <section className="viaje-tracking-page__section">
-            <h2>Vehículo</h2>
-            <p>{VEHICULO_LABELS[viaje.tipoVehiculo] ?? viaje.tipoVehiculo}</p>
-          </section>
-
-          <section className="viaje-tracking-page__section">
-            <h2>Recorrido</h2>
-            <p className="viaje-tracking-page__coords">
-              Origen: {viaje.origenNombre || formatCoords(viaje.origen)}
-            </p>
-            <p className="viaje-tracking-page__coords">
-              Destino: {viaje.destinoNombre || formatCoords(viaje.destino)}
-            </p>
-          </section>
-
-          <section className="viaje-tracking-page__section">
-            <h2>Método de pago</h2>
-            <p>{PAYMENT_LABELS[viaje.metodoPago] ?? viaje.metodoPago}</p>
-          </section>
-
-          {/* precioFinal puede faltar en viajes creados antes de esta
-              feature (ver CLAUDE.md): la sección directamente no se muestra
-              en vez de mostrar $undefined/$NaN. Se agrega esta sección más
-              allá de lo pedido explícitamente: el cliente ya vio este precio
-              en el sheet de cotización, pero conviene que siga visible si
-              vuelve a esta pantalla de seguimiento. */}
-          {viaje.precioFinal != null && (
-            <section className="viaje-tracking-page__section">
-              <h2>Precio acordado</h2>
-              <p className="viaje-tracking-page__precio">{formatUSD(viaje.precioFinal)}</p>
-            </section>
-          )}
-        </div>
-      )}
-    </div>
+      {!loading && !error && viaje && <ContenidoViaje viaje={viaje} />}
+    </>
   )
 }

@@ -13,7 +13,20 @@ const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN
 // se mueve en vivo a medida que llega `ubicacionConductor` por onSnapshot desde
 // el documento del viaje. El mapa se crea UNA sola vez; en cada actualización
 // solo movemos el marcador con setLngLat (nunca recreamos el mapa ni el marker).
-export default function MapaSeguimientoViaje({ origen, destino, ubicacionConductor }) {
+//
+// - `className`: modificador opcional (ej. "mapa-seguimiento--fondo") para que
+//   el mapa llene su contenedor como fondo de pantalla en vez de ser una
+//   tarjeta de alto fijo.
+// - `mostrarEsperandoUbicacion`: en estados sin conductor asignado (ej.
+//   "pendiente", buscando conductores) NO hay a quién esperar todavía, así que
+//   el aviso "Esperando ubicación del conductor…" se puede apagar.
+export default function MapaSeguimientoViaje({
+  origen,
+  destino,
+  ubicacionConductor,
+  className = '',
+  mostrarEsperandoUbicacion = true,
+}) {
   const containerRef = useRef(null)
   const mapRef = useRef(null)
   const conductorMarkerRef = useRef(null)
@@ -36,17 +49,33 @@ export default function MapaSeguimientoViaje({ origen, destino, ubicacionConduct
     mapRef.current = map
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
 
+    // Convención estándar de mapas (y de la paleta de esta feature): origen en
+    // azul, destino en verde. El conductor (marcador que se mueve) va en el
+    // amarillo de acento, más abajo.
     if (origen) {
-      new mapboxgl.Marker({ color: '#2e7d32' }) // verde = origen
+      new mapboxgl.Marker({ color: '#4C9AFF' }) // azul = origen
         .setLngLat([origen.lng, origen.lat])
         .setPopup(new mapboxgl.Popup({ offset: 24 }).setText('Origen'))
         .addTo(map)
     }
     if (destino) {
-      new mapboxgl.Marker({ color: '#c62828' }) // rojo = destino
+      new mapboxgl.Marker({ color: '#22C55E' }) // verde = destino
         .setLngLat([destino.lng, destino.lat])
         .setPopup(new mapboxgl.Popup({ offset: 24 }).setText('Destino'))
         .addTo(map)
+    }
+
+    // Encuadre inicial de origen + destino, apenas se crea el mapa. Es
+    // independiente del encuadre "con conductor" (efecto 2, que sigue
+    // ocurriendo su primera vez): así, aun cuando el viaje todavía no tiene
+    // conductor (estado "pendiente", buscando), el mapa muestra ambos puntos
+    // en vez de quedar centrado solo en el origen a zoom fijo. Sin animación
+    // (duration 0) porque es el encuadre de arranque, no una transición.
+    if (origen && destino) {
+      const bounds = new mapboxgl.LngLatBounds()
+        .extend([origen.lng, origen.lat])
+        .extend([destino.lng, destino.lat])
+      map.fitBounds(bounds, { padding: 64, maxZoom: 15, duration: 0 })
     }
 
     return () => {
@@ -68,10 +97,11 @@ export default function MapaSeguimientoViaje({ origen, destino, ubicacionConduct
     if (typeof lat !== 'number' || typeof lng !== 'number') return
 
     if (!conductorMarkerRef.current) {
-      const accent = getComputedStyle(document.documentElement)
-        .getPropertyValue('--accent')
-        .trim()
-      conductorMarkerRef.current = new mapboxgl.Marker({ color: accent || '#aa3bff' })
+      // Amarillo de acento de las pantallas de seguimiento (paleta oscura de
+      // esta feature). Antes leía --accent de :root, pero ese token es el azul
+      // global de la marca, no el amarillo de estas pantallas: se hardcodea
+      // para no depender de un token que fuera de acá significa otra cosa.
+      conductorMarkerRef.current = new mapboxgl.Marker({ color: '#FFC70A' })
         .setLngLat([lng, lat])
         .setPopup(new mapboxgl.Popup({ offset: 24 }).setText('Conductor'))
         .addTo(map)
@@ -104,9 +134,9 @@ export default function MapaSeguimientoViaje({ origen, destino, ubicacionConduct
   }
 
   return (
-    <div className="mapa-seguimiento">
+    <div className={`mapa-seguimiento ${className}`.trim()}>
       <div ref={containerRef} className="mapa-seguimiento__mapa" />
-      {!ubicacionConductor && (
+      {!ubicacionConductor && mostrarEsperandoUbicacion && (
         <p className="mapa-seguimiento__esperando" role="status">
           Esperando ubicación del conductor…
         </p>

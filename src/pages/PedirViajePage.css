@@ -1,20 +1,39 @@
+/* ============================================================================
+   PEDIR VIAJE — TEMA OSCURO LOCAL
+   ----------------------------------------------------------------------------
+   Paleta propia de esta pantalla, deliberadamente distinta del sistema de
+   diseño global azul+blanco (src/index.css). Declarada UNA sola vez acá, en
+   el selector raíz .pedir-viaje-page: todos los componentes hijos nuevos
+   (SolicitudViajeView, DireccionesFavoritasList, FavoritaForm,
+   SeleccionarUbicacionView, MapaConductoresView, VehiculoSeleccionSheet) la
+   heredan vía var(--color-...) porque siempre se renderizan dentro de este
+   árbol. No dupliques esta declaración en sus .css.
+   ============================================================================ */
 .pedir-viaje-page {
+  --color-bg-primary: #0c141b;
+  --color-bg-secondary: #1a222a;
+  --color-text-light: #f8f8f8;
+  --color-accent: #ffc70a;
+  --color-accent-light: #ffd43b;
+
+  min-height: 100svh;
   max-width: 640px;
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
+  background: var(--color-bg-primary);
+  color: var(--color-text-light);
 }
 
 .pedir-viaje-page__header {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
+  background: var(--color-bg-primary);
 }
 
 .pedir-viaje-page__back {
@@ -22,18 +41,18 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text-h);
+  border: none;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-light);
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
 }
 
-.pedir-viaje-page__progreso {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
+.pedir-viaje-page__titulo {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-light);
 }
 
 .pedir-viaje-page__body {

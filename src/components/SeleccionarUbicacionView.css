@@ -1,0 +1,37 @@
+.seleccionar-ubicacion-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.seleccionar-ubicacion-view__prompt {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-light);
+  text-align: left;
+}
+
+/* SelectorUbicacion (mapa + controles) se reusa tal cual, con su estilo claro
+   original — no lo reskineamos a oscuro a propósito: el spec de esta pantalla
+   solo pide mapa oscuro para la vista 'conductores' (mapbox/dark-v11), y
+   SelectorUbicacion también lo usa /test-mapa (fuera de esta pantalla) con su
+   paleta clara habitual. Queda un contraste visible entre este bloque (claro)
+   y el resto de la pantalla (oscuro) — decisión consciente, ver resumen final. */
+
+.seleccionar-ubicacion-view__confirmar {
+  font: inherit;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: none;
+  background: var(--color-accent);
+  color: var(--color-bg-primary);
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.seleccionar-ubicacion-view__confirmar:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

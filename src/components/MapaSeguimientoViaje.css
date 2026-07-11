@@ -10,6 +10,29 @@
   border: 1px solid var(--border);
 }
 
+/* Modo "fondo": el mapa llena su contenedor (pantalla completa detrás del
+   panel de seguimiento, estilo Uber) en vez de ser una tarjeta de alto fijo.
+   Lo activa ViajeTrackingPage en los estados con mapa (pendiente/confirmado/
+   en_curso). Retrocompatible: sin este modificador el mapa sigue siendo la
+   tarjeta de 320px de siempre. */
+.mapa-seguimiento--fondo {
+  position: absolute;
+  inset: 0;
+}
+
+.mapa-seguimiento--fondo .mapa-seguimiento__mapa {
+  height: 100%;
+  border-radius: 0;
+  border: none;
+}
+
+/* En modo fondo el borde inferior queda tapado por el panel de seguimiento:
+   subimos el aviso "esperando ubicación" al tope para que se vea sobre el mapa. */
+.mapa-seguimiento--fondo .mapa-seguimiento__esperando {
+  top: 12px;
+  bottom: auto;
+}
+
 /* Aviso flotante mientras el viaje está confirmado pero el conductor todavía
    no envió su primera posición. */
 .mapa-seguimiento__esperando {

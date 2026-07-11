@@ -1,0 +1,90 @@
+/* Detalles del viaje sobre la paleta oscura de la feature. Los tokens --vt-*
+   los define el contenedor .viaje-track (ver ViajeTrackingPage.css); este
+   componente siempre se renderiza dentro de él. */
+.viaje-resumen {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+}
+
+.viaje-resumen__recorrido {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Línea vertical que une el punto de origen con el de destino (estilo "ruta").
+   Va detrás de los dots (z-index) y arranca/termina en el centro de cada uno. */
+.viaje-resumen__recorrido::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background: var(--vt-border);
+}
+
+.viaje-resumen__punto {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--vt-text);
+}
+
+.viaje-resumen__dot {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  margin-top: 2px;
+  border-radius: 50%;
+}
+
+/* Mismos colores que los pines del mapa (MapaSeguimientoViaje). */
+.viaje-resumen__punto--origen .viaje-resumen__dot {
+  background: #4c9aff;
+}
+.viaje-resumen__punto--destino .viaje-resumen__dot {
+  background: #22c55e;
+}
+
+.viaje-resumen__filas {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--vt-border);
+}
+
+.viaje-resumen__fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.viaje-resumen__label {
+  font-size: 13px;
+  color: var(--vt-text-dim);
+}
+
+.viaje-resumen__valor {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--vt-text);
+  text-align: right;
+}
+
+.viaje-resumen__precio {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--vt-accent);
+}

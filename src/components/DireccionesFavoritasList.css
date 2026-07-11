@@ -1,0 +1,233 @@
+/* Tokens del tema oscuro (--color-bg-primary, --color-accent, etc.) se
+   declaran una sola vez en PedirViajePage.css (.pedir-viaje-page) y se
+   heredan acá — este componente siempre se renderiza dentro de ese árbol. */
+
+.direcciones-favoritas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.direcciones-favoritas-list__titulo {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #9aa5b1;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.direcciones-favoritas-list__sin-sesion {
+  margin: 0;
+  font-size: 14px;
+  color: #9aa5b1;
+  line-height: 1.4;
+}
+
+.direcciones-favoritas-list__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.direcciones-favoritas-list__skeleton-item {
+  height: 56px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--color-bg-secondary) 25%, #232d38 37%, var(--color-bg-secondary) 63%);
+  background-size: 400% 100%;
+  animation: favoritas-skeleton-pulso 1.4s ease infinite;
+}
+
+@keyframes favoritas-skeleton-pulso {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+.direcciones-favoritas-list__error-carga {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--color-bg-secondary);
+}
+
+.direcciones-favoritas-list__error-carga p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text-light);
+}
+
+.direcciones-favoritas-list__error-carga button {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  background: var(--color-accent);
+  color: var(--color-bg-primary);
+  cursor: pointer;
+}
+
+.direcciones-favoritas-list__error {
+  margin: 0;
+  font-size: 14px;
+  color: #f87171;
+}
+
+/* Tarjeta de favorita: relative para anclar el popover del menú de tres
+   puntos. role="button" propio (no <button>) porque adentro anida otro
+   <button> real (el menú) — un <button> dentro de <button> es HTML inválido. */
+.direcciones-favoritas-list__tarjeta {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--color-bg-secondary);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.direcciones-favoritas-list__tarjeta:hover,
+.direcciones-favoritas-list__tarjeta:focus-visible {
+  background: #232d38;
+  outline: none;
+}
+
+.direcciones-favoritas-list__tarjeta-icono {
+  flex-shrink: 0;
+  font-size: 20px;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-bg-primary);
+}
+
+.direcciones-favoritas-list__tarjeta-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.direcciones-favoritas-list__tarjeta-nombre {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-light);
+}
+
+.direcciones-favoritas-list__tarjeta-direccion {
+  font-size: 13px;
+  color: #9aa5b1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.direcciones-favoritas-list__tarjeta-menu-btn {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #9aa5b1;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.direcciones-favoritas-list__tarjeta-menu-btn:hover,
+.direcciones-favoritas-list__tarjeta-menu-btn:focus-visible {
+  background: var(--color-bg-primary);
+  color: var(--color-text-light);
+}
+
+.direcciones-favoritas-list__menu-popover {
+  position: absolute;
+  top: 42px;
+  right: 8px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  min-width: 130px;
+  padding: 6px;
+  border-radius: 10px;
+  background: #232d38;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+}
+
+.direcciones-favoritas-list__menu-popover button {
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--color-text-light);
+  cursor: pointer;
+}
+
+.direcciones-favoritas-list__menu-popover button:hover {
+  background: var(--color-bg-primary);
+}
+
+/* Backdrop invisible full-screen: cualquier click fuera del popover lo
+   cierra. Se monta solo mientras hay un menú abierto. */
+.direcciones-favoritas-list__menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  border: none;
+  padding: 0;
+  background: transparent;
+  cursor: default;
+}
+
+.direcciones-favoritas-list__agregar-nueva {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px dashed #3a4552;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.direcciones-favoritas-list__agregar-nueva:hover {
+  background: var(--color-bg-secondary);
+}
+
+.direcciones-favoritas-list__agregar-nueva-icono {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-bg-primary);
+  color: var(--color-accent);
+  font-size: 16px;
+}

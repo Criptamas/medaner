@@ -1,0 +1,107 @@
+/* Tokens --vt-* heredados de .viaje-track (ViajeTrackingPage.css). La base de
+   panel anclado (.viaje-panel) también vive ahí; acá solo van los internos. */
+
+.buscando-panel__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* Punto que pulsa: señala "búsqueda en curso" de un vistazo. El @media de
+   prefers-reduced-motion global (index.css) neutraliza la animación. */
+.buscando-panel__pulso {
+  position: relative;
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--vt-accent);
+}
+
+.buscando-panel__pulso::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--vt-accent);
+  animation: buscando-pulso 1.6s ease-out infinite;
+}
+
+@keyframes buscando-pulso {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+
+.buscando-panel__titulo {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--vt-text);
+}
+
+.buscando-panel__subtitulo {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--vt-text-dim);
+}
+
+.buscando-panel__ilustracion {
+  display: block;
+  width: 100%;
+  max-width: 260px;
+  height: auto;
+  margin: 0 auto;
+}
+
+/* Rojo real de error (no el acento amarillo) para que se lea como problema y
+   no como aviso neutro — mismo criterio que el resto de la app. */
+.buscando-panel__error {
+  margin: 0;
+  font-size: 13px;
+  color: #f87171;
+}
+
+.buscando-panel__acciones {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* CTA principal: fondo acento con texto oscuro (nunca texto claro sobre el
+   amarillo, por contraste). */
+.buscando-panel__cancelar {
+  font: inherit;
+  padding: 14px 16px;
+  border: none;
+  border-radius: var(--radius, 12px);
+  background: var(--vt-accent);
+  color: var(--vt-accent-ink);
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.buscando-panel__cancelar:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Secundario: contorno de acento sobre el panel, sin relleno. */
+.buscando-panel__detalles {
+  font: inherit;
+  padding: 12px 16px;
+  border: 1px solid var(--vt-accent);
+  border-radius: var(--radius, 12px);
+  background: transparent;
+  color: var(--vt-accent);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+}

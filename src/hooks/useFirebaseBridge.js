@@ -34,34 +34,13 @@ export function useFirebaseBridge() {
       if (esConductorOAdmin) {
         // Ya puenteado: la sesión de Firebase actual ya corresponde a este
         // usuario de Supabase, no hay nada que hacer.
-        if (firebaseUser?.uid === user.id) {
-          // TODO: quitar tras validar
-          // eslint-disable-next-line no-console
-          console.log('[DIAG auth] puente ya activo, uid coincide', {
-            uid: user.id,
-            tipoUsuario,
-          })
-          return
-        }
+        if (firebaseUser?.uid === user.id) return
 
         const {
           data: { session },
         } = await supabase.auth.getSession()
         const accessToken = session?.access_token
-
-        // TODO: quitar tras validar
-        // eslint-disable-next-line no-console
-        console.log('[DIAG auth] intentando puentear sesión', {
-          uid: user.id,
-          tipoUsuario,
-          teniaSesionFirebase: !!firebaseUser,
-          tieneAccessToken: !!accessToken,
-        })
-
-        if (!accessToken) {
-          console.error('[DIAG auth] no hay access_token de Supabase, no se puede puentear')
-          return
-        }
+        if (!accessToken) return
 
         try {
           const response = await fetch('/api/firebase-token', {
@@ -69,28 +48,17 @@ export function useFirebaseBridge() {
             headers: { Authorization: `Bearer ${accessToken}` },
           })
           const data = await response.json().catch(() => null)
-
           if (cancelado) return
 
           if (!response.ok || !data?.token) {
-            console.error('[DIAG auth] /api/firebase-token falló', {
-              status: response.status,
-              // data completo incluye `_diag` (paso, code, detalle) del endpoint
-              // instrumentado — muestra la causa real del 500 sin ir a Vercel.
-              respuesta: data,
-            })
+            console.error('No se pudo obtener el token de Firebase:', response.status, data?.error)
             return
           }
 
           await signInWithCustomToken(auth, data.token)
-          if (cancelado) return
-
-          // TODO: quitar tras validar
-          // eslint-disable-next-line no-console
-          console.log('[DIAG auth] puente OK, sesión Firebase creada', { uid: user.id })
         } catch (error) {
           if (cancelado) return
-          console.error('[DIAG auth] error al puentear sesión Firebase:', error)
+          console.error('Error al establecer la sesión de Firebase:', error)
         }
         return
       }
@@ -98,14 +66,11 @@ export function useFirebaseBridge() {
       // Sin sesión Supabase pero con sesión Firebase colgada (ej. el usuario
       // cerró sesión): cerrarla también para no dejar un estado inconsistente.
       if (user === null && firebaseUser) {
-        // TODO: quitar tras validar
-        // eslint-disable-next-line no-console
-        console.log('[DIAG auth] sin sesión Supabase, cerrando sesión Firebase colgada')
         try {
           await signOut(auth)
         } catch (error) {
           if (cancelado) return
-          console.error('[DIAG auth] error al cerrar sesión Firebase:', error)
+          console.error('Error al cerrar la sesión de Firebase:', error)
         }
       }
     }

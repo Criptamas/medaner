@@ -10,11 +10,13 @@ export const VIAJE_ALREADY_TAKEN = 'VIAJE_ALREADY_TAKEN'
 export function useViajeActions() {
   const [error, setError] = useState(null)
 
-  // datosConductor = { nombre, telefono }: se copian al viaje porque el
-  // cliente no tiene login y las reglas de Firestore le impiden leer
+  // datosConductor = { nombre, telefono, placa, vehiculo }: se copian al viaje
+  // porque el cliente no tiene login y las reglas de Firestore le impiden leer
   // conductores/{uid} directamente (mismo motivo por el que la ubicación en
   // vivo se replica en viajes/{id}.ubicacionConductor). El viaje, que sí es
   // público, queda como única fuente de verdad que el cliente puede leer.
+  // placa/vehiculo pueden no estar cargados aún en el perfil del conductor
+  // (los carga el admin a mano): degradan a '' sin romper, igual que nombre.
   async function acceptViaje(viajeId, conductorId, datosConductor = {}) {
     setError(null)
     const viajeRef = doc(db, 'viajes', viajeId)
@@ -29,6 +31,8 @@ export function useViajeActions() {
           conductorId,
           conductorNombre: datosConductor.nombre ?? '',
           conductorTelefono: datosConductor.telefono ?? '',
+          conductorPlaca: datosConductor.placa ?? '',
+          conductorVehiculo: datosConductor.vehiculo ?? '',
         })
       })
 

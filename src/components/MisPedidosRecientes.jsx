@@ -7,7 +7,14 @@ import { ESTADO_BADGE_LABELS, VIAJE_ESTADO_LABELS } from '../utils/pedidoLabels'
 import './MisPedidosRecientes.css'
 
 const COLECCION_POR_TIPO = { pedido: 'pedidos', viaje: 'viajes' }
-const ESTADO_FINAL_POR_TIPO = { pedido: 'entregado', viaje: 'completado' }
+// Estados terminales por tipo: al alcanzar cualquiera de ellos, la entrada se
+// autolimpia del localStorage. Es un Set (no un solo valor) porque un viaje
+// tiene DOS finales posibles: "completado" (recorrido cumplido) y "cancelado"
+// (cancelado por el cliente antes de que un conductor lo tomara).
+const ESTADOS_FINALES_POR_TIPO = {
+  pedido: new Set(['entregado']),
+  viaje: new Set(['completado', 'cancelado']),
+}
 const TIPO_INFO = {
   pedido: { icono: '🛵', label: 'Pedido' },
   viaje: { icono: '🚕', label: 'Viaje' },
@@ -35,7 +42,7 @@ export default function MisPedidosRecientes() {
         doc(db, COLECCION_POR_TIPO[tipo], id),
         (snap) => {
           const estado = snap.exists() ? snap.data().estado : null
-          const llegoAEstadoFinal = !snap.exists() || estado === ESTADO_FINAL_POR_TIPO[tipo]
+          const llegoAEstadoFinal = !snap.exists() || ESTADOS_FINALES_POR_TIPO[tipo].has(estado)
 
           if (llegoAEstadoFinal) {
             // Ya cumplió su ciclo (o el doc no existe): se saca del registro

@@ -1,0 +1,95 @@
+/* Tokens --vt-* heredados de .viaje-track. La base .viaje-panel (posición
+   anclada, fondo, radios) vive en ViajeTrackingPage.css. */
+
+.conductor-panel__estado {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--vt-text);
+}
+
+.conductor-panel__conductor {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Override local del círculo del Avatar (base .avatar--inicial usa --blue del
+   tema claro global): acá va acento amarillo con texto oscuro. Se hace por
+   descendencia para NO tocar los estilos base compartidos de Avatar. */
+.conductor-panel__avatar .avatar--inicial {
+  background: var(--vt-accent);
+  color: var(--vt-accent-ink);
+}
+
+.conductor-panel__identidad {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.conductor-panel__nombre {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--vt-text);
+}
+
+.conductor-panel__vehiculo {
+  margin: 0;
+  font-size: 14px;
+  color: var(--vt-text-dim);
+}
+
+/* Placa como "chip" monoespaciado, se lee como una matrícula. */
+.conductor-panel__placa {
+  align-self: flex-start;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--vt-surface-2);
+  border: 1px solid var(--vt-border);
+  color: var(--vt-text);
+  font-family: var(--mono, monospace);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+
+/* Verde oficial de WhatsApp, a propósito fuera de la paleta de la feature para
+   reconocerse de un vistazo (mismo criterio que el botón viejo). */
+.conductor-panel__whatsapp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 18px;
+  border-radius: var(--radius-pill, 999px);
+  background: #25d366;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+}
+
+.conductor-panel__whatsapp:hover,
+.conductor-panel__whatsapp:focus-visible {
+  background: #1ebe5b;
+}
+
+.conductor-panel__telefono {
+  margin: 0;
+  font-size: 14px;
+  color: var(--vt-text-dim);
+}
+
+.conductor-panel__detalles-toggle {
+  font: inherit;
+  align-self: flex-start;
+  padding: 8px 0;
+  border: none;
+  background: transparent;
+  color: var(--vt-accent);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}

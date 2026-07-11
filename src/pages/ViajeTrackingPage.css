@@ -1,3 +1,221 @@
+/* ============================================================================
+   SEGUIMIENTO DE VIAJE — PALETA OSCURA LOCAL (solo esta feature)
+   ----------------------------------------------------------------------------
+   Estas pantallas de mapa en vivo van en oscuro a propósito (contraste con el
+   mapa, estilo Uber). NO es la paleta global de la app (azul+blanco en
+   src/index.css): los tokens --vt-* viven acotados a .viaje-track y no se
+   filtran al resto de la app.
+
+   Además se remapean acá algunos tokens legacy (--text, --text-h, --border,
+   --bg, --accent) SOLO dentro de .viaje-track para que los componentes
+   compartidos que se renderizan adentro (StatusMessage, el aviso "esperando
+   ubicación" del mapa) se lean bien sobre fondo oscuro sin tocar su CSS base.
+   ============================================================================ */
+.viaje-track {
+  /* Paleta pedida para la feature */
+  --vt-bg: #0c141b; /* fondo */
+  --vt-surface: #1a222a; /* cards / panel */
+  --vt-surface-2: #243039; /* relleno sutil (chips, ilustración) */
+  --vt-text: #f8f8f8; /* texto principal */
+  --vt-text-dim: #9aa5b1; /* texto secundario */
+  --vt-accent: #ffc70a; /* acento */
+  --vt-accent-ink: #0c141b; /* texto SOBRE el acento (nunca claro) */
+  --vt-border: rgba(255, 255, 255, 0.1);
+
+  /* Remaps legacy acotados a este scope (ver cabecera) */
+  --text: var(--vt-text-dim);
+  --text-h: var(--vt-text);
+  --border: var(--vt-border);
+  --bg: var(--vt-surface);
+  --accent: var(--vt-accent);
+
+  color: var(--vt-text);
+}
+
+/* ---------- Modo mapa: mapa a pantalla completa + panel anclado ---------- */
+.viaje-track--mapa {
+  position: fixed;
+  inset: 0;
+  z-index: 1; /* debajo del Toast (z-index 30), que debe seguir arriba */
+  background: var(--vt-bg);
+  overflow: hidden;
+}
+
+/* Fallback mientras carga el bundle del mapa: llena el fondo (el panel y el
+   botón volver son hermanos fuera del Suspense, así que siguen usables). */
+.viaje-track__mapa-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--vt-bg);
+}
+
+/* Botón volver flotante sobre el mapa (en modo mapa no hay header sólido). */
+.viaje-track__volver {
+  position: absolute;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  left: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--vt-border);
+  background: rgba(12, 20, 27, 0.85);
+  color: var(--vt-text);
+  font-size: 20px;
+  text-decoration: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+/* Base del panel anclado abajo (la comparten BuscandoConductorPanel y
+   ConductorAsignadoPanel). No lleva backdrop: el mapa de fondo debe verse. */
+.viaje-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  max-width: 640px;
+  margin: 0 auto;
+  max-height: 72vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px 20px calc(22px + env(safe-area-inset-bottom, 0px));
+  background: var(--vt-surface);
+  color: var(--vt-text);
+  border-top-left-radius: 22px;
+  border-top-right-radius: 22px;
+  box-shadow: 0 -12px 30px rgba(0, 0, 0, 0.45);
+  text-align: left;
+}
+
+/* ---------- Modo terminal: página oscura con scroll, sin mapa ---------- */
+.viaje-track--terminal {
+  min-height: 100svh;
+  background: var(--vt-bg);
+  color: var(--vt-text);
+  max-width: 640px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.viaje-track__header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--vt-bg);
+  border-bottom: 1px solid var(--vt-border);
+}
+
+.viaje-track__header h1 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--vt-text);
+  text-align: left;
+}
+
+.viaje-track__back {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--vt-border);
+  background: var(--vt-surface);
+  color: var(--vt-text);
+  font-size: 18px;
+  text-decoration: none;
+}
+
+.viaje-track__cierre {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 40px 20px calc(40px + env(safe-area-inset-bottom, 0px));
+  text-align: center;
+}
+
+/* Ícono redondo del estado terminal: verde para completado, apagado para
+   cancelado (no rojo alarmante: cancelar es una acción normal del cliente). */
+.viaje-track__icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.viaje-track__icono--completado {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+
+.viaje-track__icono--cancelado {
+  background: var(--vt-surface-2);
+  color: var(--vt-text-dim);
+}
+
+.viaje-track__cierre-titulo {
+  margin: 0;
+  font-size: 22px;
+  color: var(--vt-text);
+}
+
+.viaje-track__cierre-texto {
+  margin: 0;
+  max-width: 320px;
+  font-size: 14px;
+  color: var(--vt-text-dim);
+}
+
+/* Card con el resumen del viaje dentro del cierre (completado). */
+.viaje-track__resumen-wrap {
+  width: 100%;
+  max-width: 420px;
+  margin-top: 8px;
+  padding: 18px;
+  box-sizing: border-box;
+  background: var(--vt-surface);
+  border: 1px solid var(--vt-border);
+  border-radius: 16px;
+}
+
+.viaje-track__cta {
+  margin-top: 8px;
+  padding: 13px 24px;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--vt-accent);
+  color: var(--vt-accent-ink);
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+}
+
+/* ============================================================================
+   ESTADOS SIMPLES (carga / error / no encontrado) — SIN CAMBIOS
+   ----------------------------------------------------------------------------
+   Se conservan el header y los tokens claros de siempre para no alterar cómo
+   se ven la carga y el error (offline-first: esos estados no deben mutar).
+   ============================================================================ */
 .viaje-tracking-page {
   max-width: 640px;
   margin: 0 auto;
@@ -36,92 +254,4 @@
   margin: 0;
   font-size: 18px;
   text-align: left;
-}
-
-.viaje-tracking-page__content {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.viaje-tracking-page__status {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-h);
-  text-align: left;
-}
-
-.viaje-tracking-page__section {
-  text-align: left;
-}
-
-.viaje-tracking-page__section h2 {
-  margin: 0 0 8px;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text);
-}
-
-.viaje-tracking-page__section p {
-  margin: 0;
-  font-size: 14px;
-  color: var(--text-h);
-}
-
-.viaje-tracking-page__section p.viaje-tracking-page__precio {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--accent);
-}
-
-/* Aviso de que un conductor aceptó: fondo destacado con los tokens de acento
-   porque es una buena noticia dentro del seguimiento, no un simple dato más. */
-.viaje-tracking-page__conductor {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 14px 16px;
-  border-radius: var(--radius);
-  background: var(--accent-bg);
-  border: 1px solid var(--accent-border);
-  text-align: left;
-}
-
-.viaje-tracking-page__conductor-mensaje {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-h);
-}
-
-.viaje-tracking-page__telefono-plano {
-  margin: 0;
-  font-size: 14px;
-  color: var(--text);
-}
-
-/* Verde oficial de WhatsApp: se usa solo en este botón de contacto, a
-   propósito fuera de la paleta de marca, para reconocerse de un vistazo. */
-.viaje-tracking-page__whatsapp {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  border-radius: var(--radius-pill);
-  border: none;
-  background: #25d366;
-  color: #fff;
-  font-weight: 600;
-  font-size: 14px;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.viaje-tracking-page__whatsapp:hover,
-.viaje-tracking-page__whatsapp:focus-visible {
-  background: #1ebe5b;
 }

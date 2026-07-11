@@ -33,6 +33,13 @@ export const VIAJE_ESTADO_LABELS = {
   completado: 'Viaje completado',
 }
 
+// Etiqueta del estado terminal "cancelado" del viaje. Se deja APARTE de
+// VIAJE_ESTADO_LABELS a propósito: ese objeto alimenta los pasos de un
+// progreso lineal (pendiente → confirmado → en_curso → completado) y
+// "cancelado" no es un paso de ese avance, sino una rama terminal alternativa.
+// Meterlo ahí agregaría un "paso" fantasma al indicador de progreso.
+export const VIAJE_ESTADO_CANCELADO_LABEL = 'Viaje cancelado'
+
 // Mismas etiquetas que VIAJE_ESTADO_LABELS pero en primera persona del
 // conductor (no del cliente), para el detalle de viaje y "Mis viajes activos".
 export const VIAJE_ESTADO_BADGE_LABELS = {

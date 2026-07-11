@@ -1,0 +1,124 @@
+.solicitud-viaje-view {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  /* Deja lugar para el botón "Continuar", fijo al fondo del viewport. */
+  padding-bottom: 84px;
+}
+
+.solicitud-viaje-view__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-secondary);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.solicitud-viaje-view__campo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: none;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+
+.solicitud-viaje-view__campo:hover,
+.solicitud-viaje-view__campo:focus-visible {
+  background: rgba(255, 255, 255, 0.04);
+  outline: none;
+}
+
+.solicitud-viaje-view__pin {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.solicitud-viaje-view__pin--origen {
+  background: #3b82f6;
+}
+
+.solicitud-viaje-view__pin--destino {
+  background: #22c55e;
+}
+
+/* Línea punteada vertical entre los dos pines, estilo timeline. Alineada con
+   el centro de los pines (16px de padding + 5px de radio del pin). */
+.solicitud-viaje-view__conector {
+  position: absolute;
+  left: 21px;
+  top: 34px;
+  bottom: 34px;
+  width: 1px;
+  border-left: 2px dotted #3a4552;
+}
+
+.solicitud-viaje-view__campo-texto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.solicitud-viaje-view__campo-label {
+  font-size: 12px;
+  color: #9aa5b1;
+}
+
+.solicitud-viaje-view__campo-valor {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-light);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.solicitud-viaje-view__campo-valor--placeholder {
+  font-weight: 400;
+  color: #9aa5b1;
+}
+
+.solicitud-viaje-view__spacer {
+  flex: 1;
+}
+
+.solicitud-viaje-view__acciones {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, transparent, var(--color-bg-primary) 30%);
+}
+
+.solicitud-viaje-view__continuar {
+  width: 100%;
+  max-width: 608px;
+  margin: 0 auto;
+  display: block;
+  font: inherit;
+  padding: 15px 16px;
+  border-radius: 14px;
+  border: none;
+  background: var(--color-accent);
+  color: var(--color-bg-primary);
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.solicitud-viaje-view__continuar:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
