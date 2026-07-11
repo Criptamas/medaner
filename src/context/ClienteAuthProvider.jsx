@@ -10,7 +10,7 @@ import { ClienteAuthContext } from './cliente-auth-context'
 // que hacer su propia query. Esa lectura es best-effort: si falla, la sesión
 // de Supabase Auth sigue siendo válida igual — el perfil es un complemento,
 // nunca debe tumbar el login.
-const PERFIL_VACIO = { nombre: null, telefono: null, avatarUrl: null }
+const PERFIL_VACIO = { nombre: null, telefono: null, avatarUrl: null, tipoUsuario: null }
 
 export function ClienteAuthProvider({ children }) {
   const [user, setUser] = useState(null)
@@ -25,7 +25,7 @@ export function ClienteAuthProvider({ children }) {
     try {
       const { data, error } = await supabase
         .from('usuarios')
-        .select('nombre, telefono, avatar_url')
+        .select('nombre, telefono, avatar_url, tipo_usuario')
         .eq('id', usuarioId)
         .single()
       if (error) throw error
@@ -33,6 +33,7 @@ export function ClienteAuthProvider({ children }) {
         nombre: data?.nombre ?? null,
         telefono: data?.telefono ?? null,
         avatarUrl: data?.avatar_url ?? null,
+        tipoUsuario: data?.tipo_usuario ?? null,
       })
     } catch (error) {
       // No relanzar: el usuario ya está autenticado igual, esto es solo el
@@ -87,6 +88,7 @@ export function ClienteAuthProvider({ children }) {
         nombre: perfil.nombre,
         telefono: perfil.telefono,
         avatarUrl: perfil.avatarUrl,
+        tipoUsuario: perfil.tipoUsuario,
         loading,
         refetchPerfil,
       }}

@@ -1,18 +1,19 @@
-import { randomBytes } from 'node:crypto'
 import { getSupabaseAdmin } from './_lib/supabaseAdmin.js'
-import { getAdminAuth, getAdminDb } from './_lib/firebaseAdmin.js'
+import { getAdminDb } from './_lib/firebaseAdmin.js'
 
-function generarPasswordTemporal() {
-  // 9 bytes -> 12 caracteres en base64url, suficiente entropía para una
-  // contraseña de un solo uso que el conductor va a cambiar/no reutilizar.
-  return randomBytes(9).toString('base64url')
-}
-
-// Aprueba una solicitud de conductor: crea la cuenta en Firebase Auth (el
-// sistema de login de conductores sigue siendo Firebase, no Supabase) y el
-// doc en Firestore conductores/{uid}, y marca la solicitud como aprobada en
-// Supabase. Sin chequeo de que quien llama es admin de verdad: mismo nivel
-// de protección informal que el resto de los endpoints admin-* del repo.
+// Aprueba una solicitud de conductor: crea el doc en Firestore
+// conductores/{uid} y marca la solicitud como aprobada en Supabase.
+// Ya NO crea una cuenta de Firebase Auth: con el puente Supabase->Firebase
+// (api/firebase-token.js) el conductor sigue usando su cuenta de Supabase
+// existente para loguearse, y Firestore ve `request.auth.uid` = uid de
+// Supabase vía custom token. Crear una segunda cuenta de Firebase Auth acá
+// generaría una identidad duplicada (un uid distinto al de Supabase) y
+// rompería justamente el puente que hace que las reglas de Firestore
+// reconozcan al conductor. El doc de Firestore se crea con
+// ID = solicitud.usuario_id porque ESE es el uid que va a traer el custom
+// token (ver firebase-token.js).
+// Sin chequeo de que quien llama es admin de verdad: mismo nivel de
+// protección informal que el resto de los endpoints admin-* del repo.
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Método no permitido' })
@@ -41,7 +42,7 @@ export default async function handler(req, res) {
     }
     if (solicitud.estado !== 'pendiente') {
       // No reaprovechar una solicitud ya procesada (aprobada o rechazada):
-      // evita crear dos veces la cuenta de Firebase Auth si el admin hace
+      // evita recrear/sobrescribir el doc de Firestore si el admin hace
       // doble click o reintenta una llamada que en realidad sí había pasado.
       res.status(409).json({ error: `La solicitud ya está en estado "${solicitud.estado}"` })
       return
@@ -60,39 +61,11 @@ export default async function handler(req, res) {
       return
     }
 
-    const { data: authUsuario, error: errorAuthUsuario } =
-      await supabase.auth.admin.getUserById(solicitud.usuario_id)
-    if (errorAuthUsuario) throw errorAuthUsuario
-    const email = authUsuario?.user?.email
-    if (!email) {
-      res.status(500).json({ error: 'El usuario no tiene email registrado en Supabase Auth' })
-      return
-    }
-
-    const passwordTemporal = generarPasswordTemporal()
-    const adminAuth = getAdminAuth()
-
-    let nuevoUid
-    try {
-      const usuarioFirebase = await adminAuth.createUser({
-        email,
-        password: passwordTemporal,
-        displayName: usuario.nombre ?? undefined,
-      })
-      nuevoUid = usuarioFirebase.uid
-    } catch (err) {
-      if (err?.code === 'auth/email-already-exists') {
-        res.status(409).json({ error: 'Ya existe una cuenta de Firebase Auth con ese email' })
-        return
-      }
-      throw err
-    }
-
     try {
       const db = getAdminDb()
       await db
         .collection('conductores')
-        .doc(nuevoUid)
+        .doc(solicitud.usuario_id)
         .set({
           nombre: usuario.nombre ?? null,
           telefono: usuario.telefono ?? null,
@@ -106,24 +79,14 @@ export default async function handler(req, res) {
           fcmToken: null,
         })
     } catch (errFirestore) {
-      // El usuario de Firebase Auth ya se creó — si dejamos el doc de
-      // Firestore sin crear, queda una cuenta huérfana que puede loguearse
-      // pero no aparece en ningún lado como conductor. Se limpia antes de
-      // devolver el error para no dejar el sistema en un estado intermedio.
+      // A diferencia del flujo anterior, ya no hay ninguna cuenta de
+      // Firebase Auth que limpiar (no se crea ninguna acá): si el .set
+      // falla, la solicitud simplemente queda "pendiente" y el admin puede
+      // reintentar sin dejar ningún recurso huérfano.
       console.error(
-        '[admin-aprobar-conductor] falló Firestore tras crear el usuario de Firebase Auth, limpiando:',
+        '[admin-aprobar-conductor] falló la escritura en Firestore:',
         errFirestore.message,
       )
-      try {
-        await adminAuth.deleteUser(nuevoUid)
-      } catch (errLimpieza) {
-        // Si ni la limpieza funciona, logueamos fuerte: hay que resolverlo a
-        // mano en la consola de Firebase (usuario huérfano sin doc).
-        console.error(
-          `[admin-aprobar-conductor] no se pudo limpiar el usuario huérfano ${nuevoUid} de Firebase Auth:`,
-          errLimpieza.message,
-        )
-      }
       throw errFirestore
     }
 
@@ -133,7 +96,7 @@ export default async function handler(req, res) {
       .eq('id', solicitudId)
     if (errorUpdate) throw errorUpdate
 
-    res.status(200).json({ ok: true, conductorUid: nuevoUid, email, passwordTemporal })
+    res.status(200).json({ ok: true, conductorUid: solicitud.usuario_id })
   } catch (err) {
     console.error('[admin-aprobar-conductor] falló la aprobación:', err.message)
     res.status(500).json({ error: 'No se pudo aprobar la solicitud' })

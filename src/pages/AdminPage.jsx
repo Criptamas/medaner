@@ -45,11 +45,11 @@ export default function AdminPage() {
   } = useSolicitudesConductor()
   const { toggle } = useDocToggle()
 
-  // Credenciales temporales del conductor recién aprobado (email + password
-  // generada por el endpoint). Se muestran UNA sola vez en un cuadro fijo en
-  // pantalla — no un alert() bloqueante que se pueda cerrar sin querer antes
-  // de copiarlas — y quedan ahí hasta que el admin las cierra a mano.
-  const [credencialesConductor, setCredencialesConductor] = useState(null)
+  // Confirmación de que se aprobó una solicitud: ya no hay credenciales que
+  // mostrar (el conductor entra con su propia cuenta Supabase, no se crea
+  // una cuenta Firebase con password temporal), pero se deja el aviso fijo
+  // en pantalla igual — no un alert() bloqueante — hasta que el admin lo cierra.
+  const [aprobacionExitosa, setAprobacionExitosa] = useState(false)
 
   // Separa pendientes (con acciones) de ya procesadas (historial colapsado),
   // priorizando simplicidad: un solo array recorrido dos veces, sin ordenar
@@ -115,13 +115,9 @@ export default function AdminPage() {
       if (!response.ok || !data?.ok) {
         throw new Error(data?.error || `POST /api/admin-aprobar-conductor respondió ${response.status}`)
       }
-      // Única vez que se muestra la contraseña temporal: queda en pantalla
-      // hasta que el admin la copie y cierre el cuadro a propósito.
-      setCredencialesConductor({
-        email: data.email,
-        passwordTemporal: data.passwordTemporal,
-        conductorUid: data.conductorUid,
-      })
+      // El conductor ya puede iniciar sesión con su propia cuenta Supabase
+      // (ya no hay password temporal que generar ni mostrar acá).
+      setAprobacionExitosa(true)
       await refetchSolicitudes()
     } catch {
       setFeedback('No pudimos aprobar la solicitud. Revisá tu conexión e intentá de nuevo.')
@@ -150,18 +146,6 @@ export default function AdminPage() {
       setFeedback('No pudimos rechazar la solicitud. Revisá tu conexión e intentá de nuevo.')
     } finally {
       setPendingId(null)
-    }
-  }
-
-  async function handleCopiarCredenciales() {
-    if (!credencialesConductor) return
-    const texto = `Email: ${credencialesConductor.email}\nContraseña temporal: ${credencialesConductor.passwordTemporal}`
-    try {
-      await navigator.clipboard.writeText(texto)
-      setFeedback('Credenciales copiadas al portapapeles.')
-    } catch {
-      // Clipboard API puede fallar (permiso, contexto no seguro); no rompe
-      // nada, las credenciales siguen visibles en el cuadro para copiar a mano.
     }
   }
 
@@ -196,22 +180,13 @@ export default function AdminPage() {
         </p>
       )}
 
-      {credencialesConductor && (
+      {aprobacionExitosa && (
         <div className="admin-page__credenciales" role="alert">
           <p className="admin-page__credenciales-titulo">
-            Conductor aprobado — pasale estos datos por WhatsApp. Es la única vez que se muestran.
-          </p>
-          <p>
-            Email: <code>{credencialesConductor.email}</code>
-          </p>
-          <p>
-            Contraseña temporal: <code>{credencialesConductor.passwordTemporal}</code>
+            Conductor aprobado. Ya puede iniciar sesión con su cuenta.
           </p>
           <div className="admin-page__credenciales-acciones">
-            <button type="button" onClick={handleCopiarCredenciales}>
-              Copiar
-            </button>
-            <button type="button" onClick={() => setCredencialesConductor(null)}>
+            <button type="button" onClick={() => setAprobacionExitosa(false)}>
               Cerrar
             </button>
           </div>
