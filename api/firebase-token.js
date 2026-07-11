@@ -1,5 +1,4 @@
 import { getSupabaseAdmin } from './_lib/supabaseAdmin.js'
-import { getAdminAuth } from './_lib/firebaseAdmin.js'
 
 // Puente Supabase -> Firebase: conductor/admin inician sesión con Supabase
 // Auth, pero Firestore (viajes/pedidos/conductores/tracking/FCM) sigue
@@ -9,6 +8,18 @@ import { getAdminAuth } from './_lib/firebaseAdmin.js'
 // frontend haga signInWithCustomToken y `request.auth.uid` en Firestore
 // termine siendo el mismo uid que ya identifica al usuario en Supabase — sin
 // eso, conductor/admin quedarían sin acceso a Firestore tras la unificación.
+//
+// firebase-admin se importa de forma DINÁMICA (dentro de las funciones), no
+// estática arriba: si el paquete crashea al cargar en el runtime de Vercel
+// (p.ej. versión de Node incompatible), un import estático tumbaría el módulo
+// ENTERO — incluido el diagnóstico de abajo, que entonces no podría reportar
+// la causa. Con el import dinámico, el módulo carga siempre y el error de
+// firebase-admin queda atrapable y reportable.
+async function importarAdminAuth() {
+  const { getAdminAuth } = await import('./_lib/firebaseAdmin.js')
+  return getAdminAuth()
+}
+
 // TEMP DIAGNÓSTICO (quitar tras resolver el 500): corre una promesa con un
 // tope de tiempo. Si no resuelve en `ms`, rechaza con 'TIMEOUT' — así
 // distinguimos un `await` que se CUELGA (red que nunca responde) de uno que
@@ -22,14 +33,15 @@ function conTimeout(promesa, ms) {
 
 export default async function handler(req, res) {
   // TEMP DIAGNÓSTICO (quitar tras resolver el 500): autodiagnóstico por GET.
-  // Abrir en el navegador https://<dominio>/api/firebase-token?diag=1 corre
-  // cada operación del puente por separado (con timeout) y devuelve un JSON
-  // legible que dice cuál falla o se cuelga en el runtime de Vercel — sin
-  // necesitar token, consola ni logs de Vercel. No expone secretos (solo
-  // booleanos y mensajes de error). Se accede sin auth a propósito: es una
-  // sonda temporal de salud, se elimina al resolver.
+  // Abrir https://<dominio>/api/firebase-token?diag=1 corre cada operación del
+  // puente por separado y devuelve un JSON legible que dice cuál falla en el
+  // runtime de Vercel — incluida la versión de Node y el import de
+  // firebase-admin, que era lo que no podíamos ver. Sin auth a propósito
+  // (sonda temporal, no expone secretos: solo booleanos, versión y mensajes
+  // de error). Se elimina al resolver.
   if (req.method === 'GET' && req.query?.diag) {
     const resultado = {
+      nodeVersion: process.version,
       envs: {
         VITE_SUPABASE_URL: !!process.env.VITE_SUPABASE_URL,
         SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
@@ -40,9 +52,7 @@ export default async function handler(req, res) {
       pasos: {},
     }
 
-    // 1) Crear cliente Supabase admin + una llamada de red trivial (getUser
-    //    con un token inválido: debe devolver un error rápido; si se CUELGA,
-    //    es un problema de red/URL en el runtime de Vercel).
+    // 1) Supabase admin + llamada de red trivial.
     try {
       const supabase = getSupabaseAdmin()
       resultado.pasos.getSupabaseAdmin = 'ok'
@@ -57,19 +67,31 @@ export default async function handler(req, res) {
       resultado.pasos.getSupabaseAdmin = `throw: ${e.message}`
     }
 
-    // 2) Firmar un custom token de prueba (uid ficticio). Si se cuelga es la
-    //    firma vía IAM (private key no usable); si tira, el mensaje lo dice.
+    // 2) IMPORT de firebase-admin (aislado): acá es donde sospechamos el crash.
+    let adminAuth = null
     try {
-      const t = await conTimeout(
-        getAdminAuth().createCustomToken('diag-uid-de-prueba', { tipo_usuario: 'conductor' }),
-        4000,
-      )
-      resultado.pasos.createCustomToken = `ok (token de ${t.length} chars)`
+      adminAuth = await importarAdminAuth()
+      resultado.pasos.importFirebaseAdmin = 'ok'
     } catch (e) {
-      resultado.pasos.createCustomToken =
-        e.message === 'TIMEOUT'
-          ? 'TIMEOUT (se cuelga, probable firma vía IAM)'
-          : `throw: ${e.code || ''} ${e.message}`
+      resultado.pasos.importFirebaseAdmin = `throw: ${e.code || ''} ${e.message}`
+    }
+
+    // 3) Firmar un custom token de prueba (solo si el import funcionó).
+    if (adminAuth) {
+      try {
+        const t = await conTimeout(
+          adminAuth.createCustomToken('diag-uid-de-prueba', { tipo_usuario: 'conductor' }),
+          4000,
+        )
+        resultado.pasos.createCustomToken = `ok (token de ${t.length} chars)`
+      } catch (e) {
+        resultado.pasos.createCustomToken =
+          e.message === 'TIMEOUT'
+            ? 'TIMEOUT (se cuelga, probable firma vía IAM)'
+            : `throw: ${e.code || ''} ${e.message}`
+      }
+    } else {
+      resultado.pasos.createCustomToken = 'omitido (firebase-admin no cargó)'
     }
 
     res.status(200).json(resultado)
@@ -92,25 +114,12 @@ export default async function handler(req, res) {
     return
   }
 
-  // TEMP DIAGNÓSTICO (quitar tras resolver el 500): `paso` registra hasta
-  // dónde llegó la ejecución. Si la función se cuelga (timeout de red), el
-  // último `console.log('[firebase-token] paso: ...')` en los logs de Vercel
-  // muestra en qué await quedó colgada; si tira un error atrapable, el cuerpo
-  // 500 devuelve el mensaje real para verlo directo en DevTools.
   let paso = 'inicio'
   try {
     paso = 'getSupabaseAdmin'
-    console.log('[firebase-token] paso:', paso, '| envs:', {
-      urlPresente: !!process.env.VITE_SUPABASE_URL,
-      serviceKeyPresente: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-      fbProject: !!process.env.FIREBASE_ADMIN_PROJECT_ID,
-      fbEmail: !!process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-      fbKey: !!process.env.FIREBASE_ADMIN_PRIVATE_KEY,
-    })
     const supabase = getSupabaseAdmin()
 
     paso = 'getUser'
-    console.log('[firebase-token] paso:', paso)
     const { data: { user }, error: errorUser } = await supabase.auth.getUser(accessToken)
     if (errorUser || !user) {
       res.status(401).json({ error: 'No autorizado', _diag: { paso, detalle: errorUser?.message } })
@@ -123,7 +132,6 @@ export default async function handler(req, res) {
     // permitiría que cualquiera se autoasigne 'admin' o 'conductor' y se
     // mintara un custom token de Firebase con ese rol.
     paso = 'query-usuarios'
-    console.log('[firebase-token] paso:', paso, '| uid:', user.id)
     const { data: perfil, error: errorPerfil } = await supabase
       .from('usuarios')
       .select('tipo_usuario')
@@ -148,10 +156,9 @@ export default async function handler(req, res) {
     // arriba). El claim `tipo_usuario` viaja disponible en el ID token
     // resultante por si en el futuro hace falta en reglas o en el cliente.
     paso = 'createCustomToken'
-    console.log('[firebase-token] paso:', paso)
-    const token = await getAdminAuth().createCustomToken(user.id, { tipo_usuario: tipoUsuario })
+    const adminAuth = await importarAdminAuth()
+    const token = await adminAuth.createCustomToken(user.id, { tipo_usuario: tipoUsuario })
 
-    console.log('[firebase-token] paso: OK')
     res.status(200).json({ token, tipoUsuario })
   } catch (err) {
     console.error(`[firebase-token] falló en paso "${paso}":`, err?.code, err?.message)
