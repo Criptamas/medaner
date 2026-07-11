@@ -9,7 +9,73 @@ import { getAdminAuth } from './_lib/firebaseAdmin.js'
 // frontend haga signInWithCustomToken y `request.auth.uid` en Firestore
 // termine siendo el mismo uid que ya identifica al usuario en Supabase — sin
 // eso, conductor/admin quedarían sin acceso a Firestore tras la unificación.
+// TEMP DIAGNÓSTICO (quitar tras resolver el 500): corre una promesa con un
+// tope de tiempo. Si no resuelve en `ms`, rechaza con 'TIMEOUT' — así
+// distinguimos un `await` que se CUELGA (red que nunca responde) de uno que
+// TIRA un error atrapable.
+function conTimeout(promesa, ms) {
+  return Promise.race([
+    promesa,
+    new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT')), ms)),
+  ])
+}
+
 export default async function handler(req, res) {
+  // TEMP DIAGNÓSTICO (quitar tras resolver el 500): autodiagnóstico por GET.
+  // Abrir en el navegador https://<dominio>/api/firebase-token?diag=1 corre
+  // cada operación del puente por separado (con timeout) y devuelve un JSON
+  // legible que dice cuál falla o se cuelga en el runtime de Vercel — sin
+  // necesitar token, consola ni logs de Vercel. No expone secretos (solo
+  // booleanos y mensajes de error). Se accede sin auth a propósito: es una
+  // sonda temporal de salud, se elimina al resolver.
+  if (req.method === 'GET' && req.query?.diag) {
+    const resultado = {
+      envs: {
+        VITE_SUPABASE_URL: !!process.env.VITE_SUPABASE_URL,
+        SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+        FIREBASE_ADMIN_PROJECT_ID: !!process.env.FIREBASE_ADMIN_PROJECT_ID,
+        FIREBASE_ADMIN_CLIENT_EMAIL: !!process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
+        FIREBASE_ADMIN_PRIVATE_KEY: !!process.env.FIREBASE_ADMIN_PRIVATE_KEY,
+      },
+      pasos: {},
+    }
+
+    // 1) Crear cliente Supabase admin + una llamada de red trivial (getUser
+    //    con un token inválido: debe devolver un error rápido; si se CUELGA,
+    //    es un problema de red/URL en el runtime de Vercel).
+    try {
+      const supabase = getSupabaseAdmin()
+      resultado.pasos.getSupabaseAdmin = 'ok'
+      try {
+        const r = await conTimeout(supabase.auth.getUser('token-invalido-de-diagnostico'), 5000)
+        resultado.pasos.getUser = r?.error ? `respondió con error: ${r.error.message}` : 'respondió ok'
+      } catch (e) {
+        resultado.pasos.getUser =
+          e.message === 'TIMEOUT' ? 'TIMEOUT (se cuelga, no responde)' : `throw: ${e.message}`
+      }
+    } catch (e) {
+      resultado.pasos.getSupabaseAdmin = `throw: ${e.message}`
+    }
+
+    // 2) Firmar un custom token de prueba (uid ficticio). Si se cuelga es la
+    //    firma vía IAM (private key no usable); si tira, el mensaje lo dice.
+    try {
+      const t = await conTimeout(
+        getAdminAuth().createCustomToken('diag-uid-de-prueba', { tipo_usuario: 'conductor' }),
+        4000,
+      )
+      resultado.pasos.createCustomToken = `ok (token de ${t.length} chars)`
+    } catch (e) {
+      resultado.pasos.createCustomToken =
+        e.message === 'TIMEOUT'
+          ? 'TIMEOUT (se cuelga, probable firma vía IAM)'
+          : `throw: ${e.code || ''} ${e.message}`
+    }
+
+    res.status(200).json(resultado)
+    return
+  }
+
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Método no permitido' })
     return
