@@ -22,6 +22,9 @@
     "react-router-dom": "^7.18.1",
     "workbox-precaching": "^7.4.1"
   },
+  "overrides": {
+    "jose": "^4.15.9"
+  },
   "devDependencies": {
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
