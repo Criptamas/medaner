@@ -28,7 +28,7 @@
   /* Barra azul a la izquierda: señala "en curso" con la nueva identidad */
   border-left: 4px solid var(--blue);
   border-radius: var(--radius);
-  background: var(--white);
+  background: var(--surface-2);
   text-align: left;
   text-decoration: none;
   color: inherit;

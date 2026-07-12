@@ -23,7 +23,7 @@
   max-width: 420px;
   margin: 0 12px 12px;
   padding: 24px 20px calc(20px + env(safe-area-inset-bottom));
-  background: var(--white);
+  background: var(--surface-2);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   text-align: center;
@@ -92,7 +92,7 @@
   border: none;
   border-radius: var(--radius-pill);
   background: var(--blue);
-  color: #fff;
+  color: var(--color-accent-ink);
   font-weight: 700;
   font-size: 16px;
   cursor: pointer;

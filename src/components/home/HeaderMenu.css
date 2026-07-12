@@ -11,8 +11,8 @@
   height: 42px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: var(--white);
-  color: var(--navy);
+  background: var(--surface-2);
+  color: var(--color-text-light);
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
 }
@@ -45,7 +45,7 @@
   flex-direction: column;
   gap: 6px;
   padding: 8px;
-  background: var(--white);
+  background: var(--surface-2);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
@@ -59,7 +59,7 @@
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--navy);
+  color: var(--color-text-light);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -73,7 +73,7 @@
 
 .header-menu__item--primary {
   background: var(--blue);
-  color: #fff;
+  color: var(--color-accent-ink);
 }
 
 .header-menu__item--primary:hover,

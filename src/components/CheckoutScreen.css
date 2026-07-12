@@ -100,7 +100,7 @@
   border-radius: 8px;
   border: none;
   background: var(--accent);
-  color: #fff;
+  color: var(--color-accent-ink);
   cursor: pointer;
 }
 

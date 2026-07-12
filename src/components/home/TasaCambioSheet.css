@@ -22,7 +22,7 @@
   margin: 0 auto;
   max-height: 85vh;
   overflow-y: auto;
-  background: var(--white);
+  background: var(--surface-2);
   border-top-left-radius: var(--radius-xl);
   border-top-right-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
@@ -58,7 +58,7 @@
   height: 32px;
   border-radius: 50%;
   border: 1px solid var(--line);
-  background: var(--white);
+  background: var(--surface-2);
   color: var(--ink);
   cursor: pointer;
 }
@@ -97,7 +97,7 @@
 
 .tasa-sheet__input-wrap:focus-within {
   border-color: var(--blue-400);
-  background: var(--white);
+  background: var(--surface-2);
 }
 
 .tasa-sheet__prefijo {
@@ -141,7 +141,7 @@
   border-radius: 50%;
   border: none;
   background: var(--blue);
-  color: var(--white);
+  color: var(--color-accent-ink);
   font-size: 17px;
   line-height: 1;
   cursor: pointer;

@@ -18,16 +18,19 @@ export default defineConfig({
       injectManifest: {
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       },
-      includeAssets: ['logoprototipo.png', 'logoprototipo.png'],
+      includeAssets: ['logoprototipo.png', 'apple-touch-icon.png'],
       manifest: {
         name: 'Medaner',
         short_name: 'Medaner',
-        description: 'Medaner',
+        description: 'Delivery y viajes en Punto Fijo, estado Falcón.',
         start_url: '/',
         scope: '/',
         display: 'standalone',
-        background_color: '#0F172A',
-        theme_color: '#0EA5A5',
+        // Paleta oscura del Bloque 4: la splash de la PWA y la barra del
+        // navegador deben coincidir con el fondo de la app, no con los
+        // colores viejos (azul/teal) que ya no existen.
+        background_color: '#0C141B',
+        theme_color: '#0C141B',
         icons: [
           {
             src: 'pwa-192x192.png',

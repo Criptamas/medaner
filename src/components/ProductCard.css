@@ -80,6 +80,6 @@
   border-radius: 999px;
   border: none;
   background: var(--accent);
-  color: #fff;
+  color: var(--color-accent-ink);
   cursor: pointer;
 }

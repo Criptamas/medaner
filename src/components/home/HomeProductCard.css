@@ -3,7 +3,7 @@
   flex-direction: column;
   width: 160px;
   flex: 0 0 160px;
-  background: var(--white);
+  background: var(--surface-2);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
@@ -94,7 +94,7 @@
   border: none;
   border-radius: 50%;
   background: var(--blue);
-  color: #fff;
+  color: var(--color-accent-ink);
   font-size: 20px;
   line-height: 1;
   cursor: pointer;

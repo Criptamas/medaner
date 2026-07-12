@@ -14,11 +14,23 @@
 }
 
 .home-footer__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--heading);
   font-weight: 800;
   font-size: 22px;
   letter-spacing: -0.02em;
-  color: #fff;
+  color: var(--color-text-light);
+}
+
+/* Mismo logotipo PNG que el header (ícono circular con fondo oscuro propio). */
+.home-footer__logo-img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: block;
+  flex-shrink: 0;
 }
 
 .home-footer__logo-dot {
@@ -42,7 +54,7 @@
   margin: 0 0 10px;
   font-size: 14px;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-text-light);
 }
 
 .home-footer__col-list {
@@ -101,7 +113,7 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   font-size: 13px;
   font-weight: 600;
-  color: #fff;
+  color: var(--color-text-light);
 }
 
 .home-footer__copy {
@@ -125,7 +137,7 @@
   padding: 12px 18px;
   border-radius: var(--radius-pill);
   background: var(--blue);
-  color: #fff;
+  color: var(--color-accent-ink);
   font-weight: 700;
   font-size: 14px;
   text-decoration: none;

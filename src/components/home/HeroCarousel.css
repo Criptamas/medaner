@@ -36,11 +36,13 @@
 
 /* Fondos por variante (gradientes de marca, sin imágenes externas) */
 .hero-slide--viaje {
-  background: linear-gradient(135deg, var(--navy) 0%, var(--blue-700) 100%);
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-600) 100%);
 }
 
 .hero-slide--delivery {
-  background: linear-gradient(135deg, var(--blue-700) 0%, var(--blue) 55%, var(--blue-400) 100%);
+  /* Tema oscuro: el hero es fondo oscuro con acentos amarillos (el amarillo es
+     acento, no un área grande), no un gradiente amarillo full. */
+  background: linear-gradient(135deg, var(--navy-600) 0%, var(--navy) 100%);
 }
 
 .hero-slide--pago {
@@ -93,8 +95,8 @@
   align-self: flex-start;
   padding: 8px 16px;
   border-radius: var(--radius-pill);
-  background: #fff;
-  color: var(--blue-700);
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
   font-weight: 700;
   font-size: 14px;
 }

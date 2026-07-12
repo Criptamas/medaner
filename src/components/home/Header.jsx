@@ -31,16 +31,11 @@ export default function Header({ query, onQueryChange }) {
     <header className="home-header">
       <div className="home-header__inner">
         <div className="home-header__bar">
+          {/* El logotipo ahora es el PNG de marca (ícono circular "m." con el
+              acento amarillo). Se mantiene el wordmark de texto al lado: el
+              ícono solo dice "m", el texto es lo que hace legible la marca. */}
           <Link to="/" className="home-logo" aria-label="Medaner, ir al inicio">
-            <span className="home-logo__mark" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
-                <path
-                  d="M12 2C7.87 2 4.5 5.2 4.5 9.14c0 4.8 5.9 11.35 6.86 12.38a.87.87 0 0 0 1.28 0c.96-1.03 6.86-7.58 6.86-12.38C19.5 5.2 16.13 2 12 2Z"
-                  fill="currentColor"
-                />
-                <circle cx="12" cy="9" r="2.6" fill="#fff" />
-              </svg>
-            </span>
+            <img src="/logoprototipo.png" alt="Medaner" className="home-logo__img" />
             <span className="home-logo__text">
               Medaner<span className="home-logo__dot">.</span>
             </span>

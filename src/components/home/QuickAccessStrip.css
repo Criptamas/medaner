@@ -40,7 +40,7 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: var(--white);
+  background: var(--surface-2);
   border: 1px solid var(--line);
   font-size: 26px;
   box-shadow: var(--shadow-sm);

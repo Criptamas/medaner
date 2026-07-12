@@ -38,13 +38,13 @@
 }
 
 .admin-solicitud-row__estado--aprobada {
-  color: #1e7e34;
-  background: #e6f4ea;
+  color: #86efac;
+  background: rgba(34, 197, 94, 0.15);
 }
 
 .admin-solicitud-row__estado--rechazada {
-  color: #b3261e;
-  background: #fdecea;
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.15);
 }
 
 .admin-solicitud-row__datos {
@@ -124,7 +124,7 @@
 .admin-solicitud-row__aprobar {
   border: 1px solid var(--accent);
   background: var(--accent);
-  color: #fff;
+  color: var(--color-accent-ink);
 }
 
 .admin-solicitud-row__rechazar {

@@ -36,7 +36,10 @@ export default function Footer() {
     <footer className="home-footer">
       <div className="home-footer__inner">
         <div className="home-footer__brand">
+          {/* Mismo criterio que el header: el logotipo es el PNG de marca, con
+              el wordmark de texto al lado para que la marca se lea. */}
           <span className="home-footer__logo">
+            <img src="/logoprototipo.png" alt="Medaner" className="home-footer__logo-img" />
             Medaner<span className="home-footer__logo-dot">.</span>
           </span>
           <p className="home-footer__tagline">

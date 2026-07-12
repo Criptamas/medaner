@@ -2,7 +2,11 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  background: var(--white);
+  /* var(--white) era el fondo del header en el tema claro; en oscuro un
+     header blanco puro rompería el tema (área grande blanca sobre app
+     oscura). Usamos la superficie elevada (cards/paneles) para que el
+     header se distinga del fondo de página sin ser un color ajeno. */
+  background: var(--surface-2);
   border-bottom: 1px solid var(--line);
   /* Respeta el notch en móviles (viewport-fit=cover) */
   padding-top: env(safe-area-inset-top);
@@ -37,9 +41,14 @@
   flex-shrink: 0;
 }
 
-.home-logo__mark {
-  display: inline-flex;
-  color: var(--blue);
+/* Logotipo PNG (ícono circular de marca). Trae su propio fondo oscuro, así que
+   se ve bien sobre el header sin necesitar una versión de trazo claro. */
+.home-logo__img {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: block;
+  flex-shrink: 0;
 }
 
 .home-logo__text {
@@ -47,7 +56,7 @@
   font-weight: 800;
   font-size: 22px;
   letter-spacing: -0.02em;
-  color: var(--navy);
+  color: var(--color-text-light);
   line-height: 1;
 }
 
@@ -86,7 +95,11 @@
 
 .home-search:focus-within {
   border-color: var(--blue-400);
-  background: var(--white);
+  /* Antes pasaba a fondo blanco al enfocar (contraste con el resting state
+     azulado clarito del tema viejo). En oscuro eso metería un input blanco
+     sobre header oscuro con texto claro adentro (ilegible). El foco ya se
+     nota con el borde; el fondo se mantiene igual que en reposo. */
+  background: var(--surface-2);
 }
 
 .home-search__icon {
@@ -123,7 +136,7 @@
   border: none;
   border-radius: 50%;
   background: var(--line);
-  color: var(--navy);
+  color: var(--color-text-light);
   font-size: 18px;
   line-height: 1;
   cursor: pointer;

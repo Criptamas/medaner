@@ -22,7 +22,7 @@
   margin: 0 auto;
   max-height: 85vh;
   overflow-y: auto;
-  background: var(--white);
+  background: var(--surface-2);
   border-top-left-radius: var(--radius-xl);
   border-top-right-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
@@ -59,7 +59,7 @@
   height: 32px;
   border-radius: 50%;
   border: 1px solid var(--line);
-  background: var(--white);
+  background: var(--surface-2);
   color: var(--text-h);
   cursor: pointer;
 }
@@ -87,7 +87,7 @@
 
 .cliente-auth-sheet__tab--activo {
   background: var(--blue);
-  color: var(--white);
+  color: var(--color-accent-ink);
 }
 
 .cliente-auth-sheet__form {
@@ -121,7 +121,7 @@
 
 .cliente-auth-sheet__campo input:focus {
   border-color: var(--blue-400);
-  background: var(--white);
+  background: var(--surface-2);
 }
 
 .cliente-auth-sheet__file-input {
@@ -156,7 +156,7 @@
   padding: 6px 10px;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  background: var(--white);
+  background: var(--surface-2);
   color: var(--text-muted);
   font-size: 12px;
   font-weight: 600;
@@ -181,8 +181,8 @@
   margin: 0;
   padding: 10px 12px;
   border-radius: var(--radius-sm);
-  background: #fdecea;
-  color: #b3261e;
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
   font-size: 13px;
   font-weight: 500;
 }
@@ -192,7 +192,7 @@
   border: none;
   border-radius: var(--radius);
   background: var(--blue);
-  color: var(--white);
+  color: var(--color-accent-ink);
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;

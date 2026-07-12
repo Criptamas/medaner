@@ -1,60 +1,80 @@
 /* ============================================================================
    MEDANER — SISTEMA DE DISEÑO GLOBAL
    ----------------------------------------------------------------------------
-   Fuente de verdad de la identidad visual (paleta azul + blanco, estilo
-   Farmatodo). Estos tokens son la base reutilizable de TODA la app: al
-   rediseñar /conductor, /admin, /pedido/:id, etc. en próximas sesiones, se
-   consumen estas variables (var(--...)) en vez de hardcodear colores.
+   Fuente de verdad de la identidad visual: TEMA OSCURO + acento amarillo
+   (Bloque 4). Estos tokens son la base reutilizable de TODA la app: los
+   componentes consumen var(--...) en vez de hardcodear colores.
 
-   Convención de tokens:
-   - Tokens "legacy" (--accent, --text, --text-h, --bg, --border, --code-bg,
-     --shadow) los usan los componentes que ya existían. Se REMAPEAN acá al
-     nuevo azul para que toda la app adopte la paleta sin tocar cada archivo.
-   - Tokens nuevos (--navy, --blue-*, --yellow, --surface-*, radios, sombras)
-     son el vocabulario del rediseño; úsalos en componentes nuevos.
+   Paleta base (Bloque 4):
+     Fondo primario   #0C141B  fondo de página, header/footer, texto sobre acento
+     Fondo secundario #1A222A  cards, paneles, sheets
+     Texto claro      #F8F8F8  texto principal sobre oscuro
+     Acento           #FFC70A  botones/CTA, íconos activos, links (TEXTO OSCURO encima)
+     Acento claro     #FFD43B  hover/estados activos
 
-   Paleta base:
-     Azul principal   #0052CC  botones/CTA, marca, links, estados activos
-     Azul claro       #4C9AFF  acentos suaves, hover, fondos de badges
-     Navy             #0A192F  header/footer, banners institucionales, títulos
-     Amarillo         #FFD700  SOLO acento: promos/alertas (usar con mesura)
-     Fondo            #FAFAFA / #FFFFFF  limpio, con aire
+   REGLA DE CONTRASTE: sobre el acento amarillo el texto va OSCURO (#0C141B),
+   nunca claro (amarillo + texto claro es ilegible).
+
+   NOTA DE MIGRACIÓN (tema claro -> oscuro): los tokens conservan sus NOMBRES
+   viejos (--blue, --white, --navy, --surface...) pero sus VALORES ahora son
+   del tema oscuro — así toda la app que ya consumía estas variables adoptó el
+   tema sin tocar cada archivo. "--blue" hoy es el amarillo de marca (por eso
+   cualquier componente con `background: var(--blue)` necesita texto OSCURO
+   encima, nunca `var(--white)` — ver regla de contraste). "--white" en cambio
+   se dejó en blanco puro real: tenía doble uso (texto/ícono claro Y fondo de
+   card), así que cada consumidor se migró a mano en su propio archivo en vez
+   de resolverse acá con un solo valor. Los nombres se mantienen a propósito
+   para no romper los cientos de var(--...) existentes.
    ============================================================================ */
 
 :root {
-  /* --- Marca / paleta cruda --- */
-  --navy: #0a192f;
-  --navy-600: #12294a;
-  --navy-700: #0f2647;
-  --blue: #0052cc;
-  --blue-600: #0047b3;
-  --blue-700: #003d99;
-  --blue-400: #4c9aff;
-  --blue-100: #eaf2ff;
-  --blue-050: #f4f8ff;
-  --yellow: #ffd700;
-  --yellow-600: #e6c200;
-  --yellow-ink: #5c4700; /* texto accesible sobre amarillo */
+  /* --- Tokens de marca del Bloque 4 (vocabulario nuevo, preferí estos) --- */
+  --color-bg-primary: #0c141b;
+  --color-bg-secondary: #1a222a;
+  --color-text-light: #f8f8f8;
+  --color-accent: #ffc70a;
+  --color-accent-light: #ffd43b;
+  --color-accent-ink: #0c141b; /* texto/íconos SOBRE el acento amarillo */
 
-  /* --- Neutros --- */
+  /* --- Paleta cruda (nombres viejos, valores del tema oscuro) --- */
+  --navy: #0c141b; /* antes header/footer navy; ahora el fondo más oscuro */
+  --navy-600: #1a222a;
+  --navy-700: #141c24;
+  --blue: #ffc70a; /* "azul de marca" -> ahora el acento amarillo */
+  --blue-600: #e6b200; /* estado presionado del acento */
+  --blue-700: #d4a600;
+  --blue-400: #ffd43b; /* acento claro (hover) */
+  --blue-100: #22303c; /* relleno sutil de badges (antes azul claro) */
+  --blue-050: #1a222a;
+  --yellow: #ffc70a;
+  --yellow-600: #e6b200;
+  --yellow-ink: #0c141b; /* texto accesible sobre amarillo (ahora oscuro) */
+
+  /* --- Neutros (tema oscuro) --- */
+  /* --white se deja en blanco puro a propósito: se usa tanto como texto/ícono
+     claro (ej. sobre --navy en Toast) como fondo de card en otros lugares.
+     Flipearlo acá a un tono oscuro rompería todo lo primero (texto oscuro
+     sobre fondo oscuro = invisible). Los usos de --white como FONDO de
+     card/página grande se migran caso por caso, en el CSS de cada componente,
+     a var(--surface-2) u otro token oscuro — no acá. */
   --white: #ffffff;
-  --surface: #fafafa; /* fondo de página */
-  --surface-2: #f1f5fb; /* relleno azulado sutil (cards, imágenes) */
-  --ink: #0a192f; /* títulos */
-  --text-body: #4a5568; /* cuerpo */
-  --text-muted: #7b8794; /* secundario */
-  --line: #e4e9f0; /* bordes */
-  --line-strong: #d3dbe8;
+  --surface: #0c141b; /* fondo de página */
+  --surface-2: #1a222a; /* cards/paneles */
+  --ink: #f8f8f8; /* títulos */
+  --text-body: #c5cdd6; /* cuerpo */
+  --text-muted: #8b95a1; /* secundario */
+  --line: #232d38; /* bordes */
+  --line-strong: #2e3a47;
 
   /* --- Tokens legacy remapeados (compat. con componentes existentes) --- */
   --text: var(--text-body);
   --text-h: var(--ink);
-  --bg: var(--white);
+  --bg: var(--surface-2);
   --border: var(--line);
   --code-bg: var(--surface-2);
-  --accent: var(--blue);
+  --accent: var(--color-accent);
   --accent-bg: var(--blue-100);
-  --accent-border: rgba(0, 82, 204, 0.4);
+  --accent-border: rgba(255, 199, 10, 0.4);
 
   /* --- Radios --- */
   --radius-sm: 8px;
@@ -83,7 +103,7 @@
   --mono: ui-monospace, Consolas, 'SF Mono', Menlo, monospace;
 
   font: 16px/1.5 var(--sans);
-  color-scheme: light;
+  color-scheme: dark;
   color: var(--text);
   background: var(--surface);
   font-synthesis: none;

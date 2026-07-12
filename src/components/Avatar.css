@@ -14,7 +14,7 @@
 
 .avatar--inicial {
   background: var(--blue);
-  color: #fff;
+  color: var(--color-accent-ink);
   font-weight: 700;
   line-height: 1;
   font-family: var(--heading);
