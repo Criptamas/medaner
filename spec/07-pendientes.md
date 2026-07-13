@@ -16,7 +16,7 @@
 - [ ] Publicar la regla de `configuracion` (`firebase deploy --only firestore:rules` o consola) y crear a mano el documento `configuracion/tarifas` (ver `04-tarifas-cotizacion.md`) — la cotización de precio no puede leer nada hasta que se hagan ambas cosas.
 - [ ] Testing con usuarios reales en Punto Fijo.
 - [ ] Crear a mano `configuracion/puntos` y publicar `firestore.rules` (subcolección `puntosHistorial`) antes de deploy (ver `08`/`09`).
-- [ ] Cargar en producción `fotoPerfilUrl`/`motoFotoUrl`/`placa`/`vehiculo` de cada conductor real: el form ya existe (`AdminConductorRow` → "Editar perfil", `POST /api/admin-editar-conductor`), falta que el admin lo use conductor por conductor (sin eso, la lista y el panel asignado siguen degradando a avatar por inicial y sin foto de moto).
+- [ ] Cargar en producción `fotoPerfilUrl`/`motoFotoUrl`/`placa`/`vehiculo` de cada conductor real: el form ya existe (`AdminConductorRow` → "Editar perfil", `POST /api/admin?action=editar-conductor`), falta que el admin lo use conductor por conductor. **Crítico:** la lista de conductores disponibles filtra por `vehiculo`, así que un conductor sin ese campo NO aparece (la lista se ve vacía aunque esté activo); además el panel asignado degrada a avatar por inicial y sin foto de moto.
 - [ ] Puntos — anti-fraude fino diferido: contar solo clientes distintos (falta identidad estable de cliente sin login) y detección de auto-trato.
 - [ ] A escala: rate-limiting de endpoints públicos (`conductores-cerca`, `conductores-disponibles`, `tasa-cambio`).
 - [ ] Puntos — si el push escalonado (soft priority) no alcanza: evaluar gate de aceptación server-side o migrar la fase 2 del push a webhook diferido (evitar `maxDuration` largo).

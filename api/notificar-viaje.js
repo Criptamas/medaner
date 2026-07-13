@@ -73,11 +73,12 @@ async function enviarPushYLimpiarTokens(db, messaging, destinatarios, data, viaj
   return resultado.successCount
 }
 
-// El push escalonado agrega un sleep de hasta `ventanaPrioridadSegundos`
-// dentro de la misma invocación (spec/09 §4) — el maxDuration por defecto de
-// Vercel (10s en Hobby) no alcanza. Solo aplica a viajes caros (baja
-// frecuencia), así que no es un costo por viaje típico.
-export const config = { maxDuration: 15 }
+// El push escalonado agrega un sleep dentro de la misma invocación (spec/09
+// §4). 10s es el máximo del plan Hobby de Vercel: pedir 15 hacía FALLAR el
+// deploy en "Deploying outputs". Por eso la ventana de prioridad se topa más
+// abajo, para que TODO el handler (geocoding + 2 envíos FCM + sleep) entre en
+// ~10s. Solo aplica a viajes caros (baja frecuencia).
+export const config = { maxDuration: 10 }
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -208,11 +209,11 @@ export default async function handler(req, res) {
 
   // Clamp defensivo: ventanaPrioridadSegundos es un valor de
   // configuracion/puntos editable a mano en consola, sin validación de
-  // rango. Sin este tope, un valor mal cargado (ej. 60) se comería el
-  // maxDuration de 15s de esta función — Vercel mataría la invocación a la
-  // mitad del sleep y la tanda "resto" nunca se enviaría, sin ningún log ni
-  // aviso. 10s deja margen para el resto del trabajo (FCM, Mapbox arriba).
-  const ventanaMs = Math.min(Math.max(ventanaPrioridadSegundos, 0), 10) * 1000
+  // rango. Todo el handler debe entrar en el maxDuration de 10s del plan
+  // Hobby (geocoding + 2 envíos FCM + este sleep), así que la ventana se topa
+  // en 5s: sin el tope, un valor mal cargado (ej. 60) mataría la invocación a
+  // la mitad del sleep y la tanda "resto" nunca se enviaría, sin log ni aviso.
+  const ventanaMs = Math.min(Math.max(ventanaPrioridadSegundos, 0), 5) * 1000
   await sleep(ventanaMs)
 
   // Si para cuando termina la ventana ya hay un conductor asignado (o el

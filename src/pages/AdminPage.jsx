@@ -70,13 +70,13 @@ export default function AdminPage() {
       // tiendas vive en Supabase: el catálogo no tiene policy de update para
       // el cliente (es de solo lectura desde el navegador), así que la
       // escritura pasa por un endpoint serverless con service_role.
-      const response = await fetch('/api/admin-toggle-tienda', {
+      const response = await fetch('/api/admin?action=toggle-tienda', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tiendaId, activa: nextValue }),
       })
       if (!response.ok) {
-        throw new Error(`POST /api/admin-toggle-tienda respondió ${response.status}`)
+        throw new Error(`POST /api/admin?action=toggle-tienda respondió ${response.status}`)
       }
       // useAllTiendas ya no es tiempo real (antes onSnapshot de Firestore
       // empujaba el cambio solo; ahora es un fetch al montar), así que hay
@@ -106,14 +106,14 @@ export default function AdminPage() {
     setPendingId(solicitudId)
     setFeedback(null)
     try {
-      const response = await fetch('/api/admin-aprobar-conductor', {
+      const response = await fetch('/api/admin?action=aprobar-conductor', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ solicitudId }),
       })
       const data = await response.json().catch(() => null)
       if (!response.ok || !data?.ok) {
-        throw new Error(data?.error || `POST /api/admin-aprobar-conductor respondió ${response.status}`)
+        throw new Error(data?.error || `POST /api/admin?action=aprobar-conductor respondió ${response.status}`)
       }
       // El conductor ya puede iniciar sesión con su propia cuenta Supabase
       // (ya no hay password temporal que generar ni mostrar acá).
@@ -133,13 +133,13 @@ export default function AdminPage() {
     setPendingId(solicitudId)
     setFeedback(null)
     try {
-      const response = await fetch('/api/admin-rechazar-conductor', {
+      const response = await fetch('/api/admin?action=rechazar-conductor', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ solicitudId, motivo: motivo.trim() || null }),
       })
       if (!response.ok) {
-        throw new Error(`POST /api/admin-rechazar-conductor respondió ${response.status}`)
+        throw new Error(`POST /api/admin?action=rechazar-conductor respondió ${response.status}`)
       }
       await refetchSolicitudes()
     } catch {

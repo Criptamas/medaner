@@ -20,9 +20,9 @@ export function useSolicitudesConductor() {
       // hace falta también el historial (aprobadas/rechazadas) para la
       // sección colapsada de procesadas, así que se pide todo y se separa
       // en el cliente (AdminPage ya filtra pendientes vs. procesadas).
-      const response = await fetch('/api/admin-solicitudes-conductor?estado=todas')
+      const response = await fetch('/api/admin?action=solicitudes-conductor&estado=todas')
       if (!response.ok) {
-        throw new Error(`GET /api/admin-solicitudes-conductor respondió ${response.status}`)
+        throw new Error(`GET /api/admin?action=solicitudes-conductor respondió ${response.status}`)
       }
       const data = await response.json()
       if (cancelledRef.current) return

@@ -19,7 +19,7 @@ antigüedad — así un conductor nuevo puede competir.
 tramos: [ {hasta: 1, puntos: 20}, {hasta: 2, puntos: 10}, {hasta: 3, puntos: 5} ]  // precioFinal > 3 → 0
 topeDiario: 60
 umbralPrioridad: 2          // viajes con precioFinal > 2 activan push escalonado
-ventanaPrioridadSegundos: 8
+ventanaPrioridadSegundos: 5  // clampeado a 5s: la función debe entrar en maxDuration 10s (Hobby)
 topPrioridad: 3
 ```
 Lectura pública (regla `configuracion` ya lo permite), escritura `if false`.
@@ -71,9 +71,12 @@ si no (viaje caro):
     releer viaje; si ya no está 'pendiente' → fin
     si no → push al resto
 ```
-El delay vive dentro de la misma invocación (`sleep` + `maxDuration ~15s`); solo
-aplica a viajes caros (baja frecuencia). Es soft priority (no candado): a escala,
-migrar la fase 2 a un webhook diferido (anotado en `07`).
+El delay vive dentro de la misma invocación. **`maxDuration: 10`** — es el
+máximo del plan Hobby de Vercel; pedir 15 hacía FALLAR el deploy en "Deploying
+outputs", por eso la ventana se clampea a 5s para que todo el handler (geocoding
++ 2 envíos FCM + sleep) entre en 10s. Solo aplica a viajes caros (baja
+frecuencia). Es soft priority (no candado): a escala, migrar la fase 2 a un
+webhook diferido (anotado en `07`).
 
 ### 5. Anti-abuso
 - **v1:** solo viajes `completado` otorgan; **tope diario** por conductor;
@@ -121,8 +124,8 @@ es una decisión de diseño nueva, solo evita repetir el mismo bloque de
 defaults dos veces.
 
 `notificar-viaje.js` además clampea `ventanaPrioridadSegundos` a un máximo de
-10 s antes de dormir (el campo se carga a mano en consola sin validación de
-rango): sin el clamp, un valor mal cargado se comería el `maxDuration` de 15 s
-y la tanda "resto" nunca saldría, sin ningún error visible. El clamp no
-cambia el comportamiento documentado arriba mientras el valor cargado sea
-razonable (8 s por default).
+5 s antes de dormir (el campo se carga a mano en consola sin validación de
+rango): todo el handler debe entrar en el `maxDuration: 10` del plan Hobby, así
+que un valor mal cargado (ej. 60) mataría la invocación a la mitad del sleep y
+la tanda "resto" nunca saldría, sin ningún error visible. El default también es
+5 s, para que coincida con el tope real.

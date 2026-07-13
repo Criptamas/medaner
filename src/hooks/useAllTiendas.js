@@ -24,9 +24,9 @@ export function useAllTiendas() {
     setLoading(true)
     setError(null)
     try {
-      const response = await fetch('/api/admin-tiendas')
+      const response = await fetch('/api/admin?action=tiendas')
       if (!response.ok) {
-        throw new Error(`GET /api/admin-tiendas respondió ${response.status}`)
+        throw new Error(`GET /api/admin?action=tiendas respondió ${response.status}`)
       }
       const data = await response.json()
       if (cancelledRef.current) return

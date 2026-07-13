@@ -11,7 +11,10 @@ const DEFAULTS = {
   ],
   topeDiario: 60,
   umbralPrioridad: 2,
-  ventanaPrioridadSegundos: 8,
+  // 5s (no 8): la función notificar-viaje debe entrar en el maxDuration de 10s
+  // del plan Hobby de Vercel. La ventana se clampea a 5s allá igual, así que el
+  // default coincide con el tope real y evita confusión.
+  ventanaPrioridadSegundos: 5,
   topPrioridad: 3,
 }
 

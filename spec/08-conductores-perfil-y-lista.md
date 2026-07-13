@@ -37,10 +37,10 @@ conductor (devuelve solo `lat/lng/vehiculo`).
   incorrecto y filtraría documentación de verificación.
 - Defaults nuevos se agregan al `.set(...)` de `api/admin-aprobar-conductor.js`
   (`vehiculo: 'moto'` porque el mototaxi es el caso dominante).
-- Edición posterior vía **nuevo endpoint** `POST /api/admin-editar-conductor`
+- Edición posterior vía el router de admin `POST /api/admin?action=editar-conductor`
   (Admin SDK, bypasea reglas) que setea solo `placa/fotoPerfilUrl/motoFotoUrl/
   vehiculo`. Mantiene estos campos fuera de la superficie de escritura del
-  cliente admin.
+  cliente admin. (El endpoint vive consolidado en `api/admin.js`, ver `11`.)
 
 ### 2. Endpoint `GET /api/conductores-disponibles`
 Sirve a la pantalla de espera (identidad sí, coords no). **Se mantiene** el

@@ -28,7 +28,7 @@ export default function AdminConductorRow({ conductor, updating, onToggle }) {
     setErrorGuardar(null)
     setGuardadoOk(false)
     try {
-      const response = await fetch('/api/admin-editar-conductor', {
+      const response = await fetch('/api/admin?action=editar-conductor', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -41,7 +41,7 @@ export default function AdminConductorRow({ conductor, updating, onToggle }) {
       })
       const data = await response.json().catch(() => null)
       if (!response.ok || !data?.ok) {
-        throw new Error(data?.error || `POST /api/admin-editar-conductor respondió ${response.status}`)
+        throw new Error(data?.error || `POST /api/admin?action=editar-conductor respondió ${response.status}`)
       }
       setGuardadoOk(true)
       setEditando(false)
