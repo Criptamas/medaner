@@ -10,13 +10,14 @@ export const VIAJE_ALREADY_TAKEN = 'VIAJE_ALREADY_TAKEN'
 export function useViajeActions() {
   const [error, setError] = useState(null)
 
-  // datosConductor = { nombre, telefono, placa, vehiculo }: se copian al viaje
-  // porque el cliente no tiene login y las reglas de Firestore le impiden leer
-  // conductores/{uid} directamente (mismo motivo por el que la ubicación en
-  // vivo se replica en viajes/{id}.ubicacionConductor). El viaje, que sí es
-  // público, queda como única fuente de verdad que el cliente puede leer.
-  // placa/vehiculo pueden no estar cargados aún en el perfil del conductor
-  // (los carga el admin a mano): degradan a '' sin romper, igual que nombre.
+  // datosConductor = { nombre, telefono, placa, vehiculo, fotoPerfilUrl,
+  // motoFotoUrl }: se copian al viaje porque el cliente no tiene login y las
+  // reglas de Firestore le impiden leer conductores/{uid} directamente (mismo
+  // motivo por el que la ubicación en vivo se replica en
+  // viajes/{id}.ubicacionConductor). El viaje, que sí es público, queda como
+  // única fuente de verdad que el cliente puede leer. placa/vehiculo/fotos
+  // pueden no estar cargados aún en el perfil del conductor (los carga el
+  // admin a mano, ver spec/08): degradan a '' sin romper, igual que nombre.
   async function acceptViaje(viajeId, conductorId, datosConductor = {}) {
     setError(null)
     const viajeRef = doc(db, 'viajes', viajeId)
@@ -33,6 +34,8 @@ export function useViajeActions() {
           conductorTelefono: datosConductor.telefono ?? '',
           conductorPlaca: datosConductor.placa ?? '',
           conductorVehiculo: datosConductor.vehiculo ?? '',
+          conductorFotoUrl: datosConductor.fotoPerfilUrl ?? '',
+          conductorMotoFotoUrl: datosConductor.motoFotoUrl ?? '',
         })
       })
 
@@ -63,6 +66,19 @@ export function useViajeActions() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ viajeId, nuevoEstado }),
       }).catch(() => {})
+
+      // Otorga puntos al conductor por completar la carrera (spec/09 §2), solo
+      // cuando el viaje efectivamente termina. Fire-and-forget aparte del de
+      // arriba: son dos endpoints con responsabilidades distintas (notificar
+      // vs. otorgar), y este updateDoc ya resolvió el commit en Firestore, así
+      // que el endpoint —que relee con Admin SDK— ya va a ver 'completado'.
+      if (nuevoEstado === 'completado') {
+        fetch('/api/otorgar-puntos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ viajeId }),
+        }).catch(() => {})
+      }
     } catch (err) {
       setError(err)
       throw err

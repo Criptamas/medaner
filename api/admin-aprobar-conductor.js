@@ -77,6 +77,19 @@ export default async function handler(req, res) {
           cuotaSemanalPagada: false,
           ubicacion: null,
           fcmToken: null,
+          // Perfil público (foto/placa/vehículo) y puntos: vacíos hasta que
+          // el admin los cargue con admin-editar-conductor.js o el conductor
+          // sume su primera carrera completada (ver spec/08 y spec/09).
+          // 'moto' es el default de vehiculo porque el mototaxi es el caso
+          // dominante en Punto Fijo — no es un valor "vacío", es la moda.
+          placa: '',
+          fotoPerfilUrl: '',
+          motoFotoUrl: '',
+          vehiculo: 'moto',
+          puntos: 0,
+          semanaPuntos: '',
+          puntosHoy: 0,
+          fechaPuntosHoy: '',
         })
     } catch (errFirestore) {
       // A diferencia del flujo anterior, ya no hay ninguna cuenta de

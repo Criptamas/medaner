@@ -13,6 +13,9 @@ por qué se decidió así (no solo el qué). Formato: `00-nombre-descriptivo.md`
 | `05-identidad-contacto.md` | Geocoding en Falcón, referencia manual, WhatsApp, roles admin |
 | `06-seguimiento-sin-login.md` | localStorage + recuperación por teléfono |
 | `07-pendientes.md` | TODO vivo — se actualiza seguido, no es una "decisión" fija |
+| `08-conductores-perfil-y-lista.md` | Campos foto/placa/moto del conductor, lista de disponibles en la espera |
+| `09-puntos-conductores.md` | Puntos por carreras baratas, ranking, primer derecho, reset semanal |
+| `10-header-logueado-saludo.md` | Header logueado: saludo con avatar reemplaza logo, fix de color de la tasa de cambio |
 
 ## Regla para agregar un nuevo spec
 1. Revisa este índice para el siguiente número disponible.

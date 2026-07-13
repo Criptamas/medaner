@@ -42,9 +42,17 @@
   color: var(--vt-text-dim);
 }
 
+/* Fila que agrupa placa + foto del vehículo: cualquiera de las dos puede
+   faltar (degradan por separado, ver JSX), por eso van en flex-row propio en
+   vez de asumir que siempre están juntas. */
+.conductor-panel__placa-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* Placa como "chip" monoespaciado, se lee como una matrícula. */
 .conductor-panel__placa {
-  align-self: flex-start;
   padding: 2px 8px;
   border-radius: 6px;
   background: var(--vt-surface-2);
@@ -53,6 +61,17 @@
   font-family: var(--mono, monospace);
   font-size: 13px;
   letter-spacing: 0.08em;
+}
+
+/* Miniatura chica del vehículo: redondeada (no circular, para diferenciarse
+   del Avatar de persona) junto a la placa. */
+.conductor-panel__moto-foto {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--vt-border);
+  flex-shrink: 0;
 }
 
 /* Verde oficial de WhatsApp, a propósito fuera de la paleta de la feature para

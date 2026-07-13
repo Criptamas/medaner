@@ -50,6 +50,13 @@
   --yellow-600: #e6b200;
   --yellow-ink: #0c141b; /* texto accesible sobre amarillo (ahora oscuro) */
 
+  /* Verde: único acento de color que NO es parte de la marca (amarillo).
+     Mismo tono que el pin de "destino" en MapaConductoresView (mapboxgl
+     Marker #22C55E) — se reutiliza acá para que "verde" signifique lo mismo
+     en toda la app (estado positivo/dato en vivo), en vez de inventar un
+     segundo verde. Con buen contraste sobre --surface-2 (fondo del header). */
+  --green: #22c55e;
+
   /* --- Neutros (tema oscuro) --- */
   /* --white se deja en blanco puro a propósito: se usa tanto como texto/ícono
      claro (ej. sobre --navy en Toast) como fondo de card en otros lugares.

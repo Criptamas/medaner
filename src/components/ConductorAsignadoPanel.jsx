@@ -33,7 +33,10 @@ export default function ConductorAsignadoPanel({ viaje }) {
         {/* El wrapper permite pintar el círculo del Avatar con la paleta oscura
             de esta feature sin tocar los estilos base compartidos de Avatar. */}
         <span className="conductor-panel__avatar">
-          <Avatar nombre={viaje.conductorNombre} size={56} />
+          {/* avatarUrl viene de conductorFotoUrl (copiado al viaje en
+              acceptViaje, ver spec/08 §5); si falta o la URL está rota,
+              Avatar ya degrada solo a la inicial del nombre. */}
+          <Avatar avatarUrl={viaje.conductorFotoUrl} nombre={viaje.conductorNombre} size={56} />
         </span>
         <div className="conductor-panel__identidad">
           <p className="conductor-panel__nombre">{viaje.conductorNombre || 'Tu conductor'}</p>
@@ -42,8 +45,25 @@ export default function ConductorAsignadoPanel({ viaje }) {
               <span aria-hidden="true">{icono}</span> {viaje.conductorVehiculo}
             </p>
           )}
-          {viaje.conductorPlaca && (
-            <span className="conductor-panel__placa">{viaje.conductorPlaca}</span>
+          {(viaje.conductorPlaca || viaje.conductorMotoFotoUrl) && (
+            <div className="conductor-panel__placa-row">
+              {viaje.conductorPlaca && (
+                <span className="conductor-panel__placa">{viaje.conductorPlaca}</span>
+              )}
+              {/* Viajes viejos (previos a esta feature) o conductores que el
+                  admin todavía no cargó no tienen esta URL: se omite entera,
+                  nunca un ícono de imagen rota. */}
+              {viaje.conductorMotoFotoUrl && (
+                <img
+                  className="conductor-panel__moto-foto"
+                  src={viaje.conductorMotoFotoUrl}
+                  alt="Vehículo del conductor"
+                  onError={(e) => {
+                    e.currentTarget.style.visibility = 'hidden'
+                  }}
+                />
+              )}
+            </div>
           )}
         </div>
       </div>

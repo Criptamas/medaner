@@ -32,6 +32,16 @@ conductores/
     ubicacion: { lat, lng }  ← matching de proximidad, el cliente NO puede leerlo
     fcmToken: string
     cuotaSemanalPagada: boolean ← admin-write-only
+    placa: string            ← admin (Admin SDK), URL/foto ver spec 08
+    fotoPerfilUrl: string    ← URL externa pública (NO Firebase Storage), admin
+    motoFotoUrl: string      ← URL externa pública, admin
+    vehiculo: 'moto'|'carro' ← admin, default 'moto'
+    puntos: number           ← SOLO servidor (Admin SDK), ver spec 09
+    semanaPuntos: string     ← 'AAAA-Www' ISO, reset perezoso semanal, solo servidor
+    puntosHoy: number        ← tope diario, solo servidor
+    fechaPuntosHoy: string   ← 'AAAA-MM-DD', solo servidor
+    puntosHistorial/         ← subcolección, ledger de auditoría, solo Admin SDK escribe
+      {viajeId}/  { puntos, precio, fecha }
 
 configuracion/
   tarifas/                  ← ID de documento fijo, exacto "tarifas"

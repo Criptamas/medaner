@@ -1,28 +1,46 @@
 .profile-chip {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 12px 4px 4px;
-  border-radius: var(--radius-pill);
-  background: var(--surface-2);
-  border: 1px solid var(--line);
+  gap: 10px;
+  min-width: 0;
+  /* flex-basis:0 (no "auto") a propósito: con "auto" el navegador calcula el
+     tamaño hipotético para decidir el wrap usando el ancho COMPLETO del
+     nombre sin truncar (el ellipsis recién aplica después) — con un nombre
+     largo eso hacía que la tasa de cambio se cayera a una segunda fila en vez
+     de compartir la de arriba. Con basis:0 + grow:1 el bloque crece para
+     ocupar el espacio libre y ahí sí trunca con ellipsis si no alcanza.
+     max-width limita ese crecimiento en desktop (donde sobra ancho junto al
+     buscador): sin tope, el link terminaba con un área clickeable enorme e
+     invisible entre el nombre y el buscador. 240px alcanza para nombres
+     típicos sin truncar y sigue permitiendo que se achique en mobile. */
+  flex: 1 1 0;
+  max-width: 240px;
   text-decoration: none;
-  max-width: 180px;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: opacity 0.15s ease;
 }
 
 .profile-chip:hover,
 .profile-chip:focus-visible {
-  background: var(--blue-100);
-  border-color: var(--blue-400);
+  opacity: 0.85;
+}
+
+.profile-chip__texto {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.profile-chip__saludo {
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
 .profile-chip__nombre {
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--navy);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-h);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-width: 0;
 }

@@ -56,6 +56,22 @@ service cloud.firestore {
         || (request.auth.uid == conductorId
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['activo', 'ubicacion', 'fcmToken']));
       allow create, delete: if false;
+      // A propósito NO están en ningún hasOnly de arriba (ni admin ni el
+      // propio conductor pueden tocarlos por reglas): placa/fotoPerfilUrl/
+      // motoFotoUrl/vehiculo (spec/08, se editan vía admin-editar-conductor.js
+      // con Admin SDK) y puntos/semanaPuntos/puntosHoy/fechaPuntosHoy
+      // (spec/09, solo los escribe otorgar-puntos.js). Server-write-only:
+      // ningún camino de cliente autenticado puede inflar sus propios puntos
+      // ni cambiar su placa/foto sin pasar por esos endpoints.
+
+      // Ledger de puntos otorgados por viaje completado (spec/09 §2 y §6).
+      // "write: if false" sin excepción para isAdmin() a propósito: ni
+      // siquiera el admin escribe acá por reglas, solo Admin SDK
+      // (otorgar-puntos.js) — así el ledger sirve de auditoría confiable.
+      match /puntosHistorial/{registroId} {
+        allow read: if isAdmin() || request.auth.uid == conductorId;
+        allow write: if false;
+      }
     }
 
     match /pedidos/{pedidoId} {

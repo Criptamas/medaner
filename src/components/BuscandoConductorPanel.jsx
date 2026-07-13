@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import IlustracionBuscando from './IlustracionBuscando'
 import ViajeResumenDetalle from './ViajeResumenDetalle'
+import ConductoresDisponiblesLista from './ConductoresDisponiblesLista'
+import { useConductoresDisponibles } from '../hooks/useConductoresDisponibles'
 import './BuscandoConductorPanel.css'
 
 // Panel anclado abajo del mapa mientras el viaje está "pendiente" (buscando un
@@ -10,6 +12,13 @@ export default function BuscandoConductorPanel({ viajeId, viaje }) {
   const [expandido, setExpandido] = useState(false)
   const [cancelando, setCancelando] = useState(false)
   const [errorCancelar, setErrorCancelar] = useState(null)
+
+  // activo=true fijo: este panel SOLO existe mientras viaje.estado ===
+  // 'pendiente' (ver el switch en ViajeTrackingPage). Apenas un conductor
+  // acepta, el onSnapshot de useViaje cambia el estado y este panel se
+  // desmonta — el cleanup del hook corta la cadena de polling solo, sin
+  // necesidad de un flag adicional acá.
+  const { conductores } = useConductoresDisponibles(viaje.origen, viaje.tipoVehiculo, true)
 
   async function handleCancelar() {
     setCancelando(true)
@@ -57,6 +66,10 @@ export default function BuscandoConductorPanel({ viajeId, viaje }) {
           </p>
         </div>
       </header>
+
+      {/* Contenido en vivo primero (lo que el cliente realmente quiere ver
+          mientras espera), la ilustración/detalles quedan debajo. */}
+      <ConductoresDisponiblesLista conductores={conductores} />
 
       {/* La ilustración deja lugar a los detalles al expandir, para no estirar
           el panel de más y mantener el mapa visible en pantallas chicas. */}

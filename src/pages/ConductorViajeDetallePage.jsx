@@ -62,6 +62,8 @@ export default function ConductorViajeDetallePage() {
         telefono: conductor?.telefono,
         placa: conductor?.placa,
         vehiculo: conductor?.vehiculo,
+        fotoPerfilUrl: conductor?.fotoPerfilUrl,
+        motoFotoUrl: conductor?.motoFotoUrl,
       })
     } catch (err) {
       setFeedback(

@@ -13,9 +13,12 @@ import './Header.css'
 // - SIN sesión: logo Medaner + menú hamburguesa (Iniciar sesión · Crear
 //   cuenta · Tasa de cambio). Nada más — la app se usa registrado, así que el
 //   header anónimo es una invitación a entrar, no un panel de acciones.
-// - CON sesión: logo + buscador + tasa del día + chip de perfil (foto +
-//   nombre → /perfil). El buscador solo aparece logueado: buscar/pedir es
-//   "usar la app".
+// - CON sesión: el logo se reemplaza por el saludo (avatar + "Hola, <nombre>",
+//   ver ProfileChip) — a alguien que ya está adentro no hace falta mostrarle
+//   la marca ahí — y a la derecha queda solo la tasa del día, en verde.
+//   Debajo, el buscador (solo aparece logueado: buscar/pedir es "usar la
+//   app"). La marca Medaner sigue viva en el estado sin sesión y en el resto
+//   del sitio, así que sacarla de acá no la borra de la app.
 //
 // El CTA "Pedir un viaje" se quitó del header a propósito: ya vive como banner
 // gigante en el hero (HeroCarousel, slide /pedir-viaje).
@@ -31,24 +34,26 @@ export default function Header({ query, onQueryChange }) {
     <header className="home-header">
       <div className="home-header__inner">
         <div className="home-header__bar">
-          {/* El logotipo ahora es el PNG de marca (ícono circular "m." con el
-              acento amarillo). Se mantiene el wordmark de texto al lado: el
-              ícono solo dice "m", el texto es lo que hace legible la marca. */}
-          <Link to="/" className="home-logo" aria-label="Medaner, ir al inicio">
-            <img src="/logoprototipo.png" alt="Medaner" className="home-logo__img" />
-            <span className="home-logo__text">
-              Medaner<span className="home-logo__dot">.</span>
-            </span>
-          </Link>
+          {/* Logueado: el saludo (avatar + nombre) ocupa el lugar del logo.
+              Sin sesión (incluido mientras `loading` resuelve): logo de marca
+              como siempre — el PNG "m." + wordmark, único lugar donde hace
+              falta reforzar la marca ante alguien que todavía no entró. */}
+          {logueado ? (
+            <ProfileChip />
+          ) : (
+            <Link to="/" className="home-logo" aria-label="Medaner, ir al inicio">
+              <img src="/logoprototipo.png" alt="Medaner" className="home-logo__img" />
+              <span className="home-logo__text">
+                Medaner<span className="home-logo__dot">.</span>
+              </span>
+            </Link>
+          )}
 
           <div className="home-header__actions">
             {/* Mientras se resuelve la sesión no renderizamos ni hamburguesa ni
-                perfil: evita el flash hamburguesa -> perfil en cada carga. */}
+                tasa: evita el flash hamburguesa -> tasa en cada carga. */}
             {loading ? null : logueado ? (
-              <>
-                <TasaCambioWidget />
-                <ProfileChip />
-              </>
+              <TasaCambioWidget />
             ) : (
               <HeaderMenu
                 onIniciarSesion={() => setAuthMode('login')}

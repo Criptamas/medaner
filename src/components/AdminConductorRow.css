@@ -1,13 +1,19 @@
 .admin-conductor-row {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  flex-direction: column;
+  gap: 10px;
   padding: 16px;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--bg);
   text-align: left;
+}
+
+.admin-conductor-row__principal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .admin-conductor-row__info h3 {
@@ -20,4 +26,119 @@
   margin: 4px 0 0;
   font-size: 14px;
   color: var(--text);
+}
+
+.admin-conductor-row__editar-toggle {
+  align-self: flex-start;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+/* --green: único caso en este archivo de un token fuera de la paleta de
+   marca (amarillo) — reservado para "estado positivo" (ver comentario del
+   token en index.css), igual que en el resto de la app. */
+.admin-conductor-row__ok {
+  margin: 0;
+  font-size: 13px;
+  color: var(--green);
+}
+
+.admin-conductor-row__form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.admin-conductor-row__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.admin-conductor-row__campo-fila {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-conductor-row__campo-fila input {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-conductor-row__campo input,
+.admin-conductor-row__campo select {
+  font: inherit;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-h);
+}
+
+.admin-conductor-row__campo input:focus,
+.admin-conductor-row__campo select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.admin-conductor-row__preview {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.admin-conductor-row__preview--vehiculo {
+  border-radius: 8px;
+}
+
+.admin-conductor-row__error {
+  margin: 0;
+  font-size: 13px;
+  color: #f87171;
+}
+
+.admin-conductor-row__form-acciones {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-conductor-row__form-acciones button {
+  flex: 1;
+  font: inherit;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-conductor-row__form-acciones button[type='button'] {
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-h);
+}
+
+.admin-conductor-row__form-acciones button[type='submit'] {
+  border: none;
+  background: var(--accent);
+  color: var(--color-accent-ink);
+}
+
+.admin-conductor-row__form-acciones button:disabled {
+  opacity: 0.6;
+  cursor: default;
 }

@@ -1,0 +1,70 @@
+/* Tokens --vt-* heredados de .viaje-track (ViajeTrackingPage.css): este
+   componente solo se monta dentro de BuscandoConductorPanel, así que sigue el
+   mismo criterio que IlustracionBuscando/ViajeResumenDetalle (no reinventa
+   una paleta nueva para un pedazo de la misma pantalla). */
+
+.conductores-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* Scroll propio y acotado: con hasta 20 conductores (tope del backend) la
+     lista no debe estirar el panel entero y tapar el botón "Cancelar viaje"
+     — solo ESTA sección scrollea, el resto del panel queda estable. */
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.conductores-lista__card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--radius, 12px);
+  background: var(--vt-surface-2);
+  border: 1px solid var(--vt-border);
+}
+
+.conductores-lista__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.conductores-lista__nombre {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--vt-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Acento amarillo para destacar los puntos como "dato bueno" del conductor,
+   mismo criterio de contraste que el resto de la feature (texto oscuro solo
+   iría sobre el acento como fondo, acá es texto sobre --vt-surface-2 así que
+   el amarillo directo se lee bien). */
+.conductores-lista__puntos {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vt-accent);
+}
+
+.conductores-lista__detalle {
+  margin: 0;
+  font-size: 13px;
+  color: var(--vt-text-dim);
+}
+
+.conductores-lista__vacio {
+  margin: 0;
+  padding: 14px 4px;
+  font-size: 14px;
+  color: var(--vt-text-dim);
+  text-align: center;
+}
