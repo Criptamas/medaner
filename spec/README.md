@@ -17,6 +17,7 @@ por qué se decidió así (no solo el qué). Formato: `00-nombre-descriptivo.md`
 | `09-puntos-conductores.md` | Puntos por carreras baratas, ranking, primer derecho, reset semanal |
 | `10-header-logueado-saludo.md` | Header logueado: saludo con avatar reemplaza logo, fix de color de la tasa de cambio |
 | `11-limite-funciones-vercel.md` | Tope de 12 funciones (Hobby), router `api/admin.js` que consolida los 6 endpoints admin |
+| `12-badge-conductores-precio.md` | Badge de conductores disponibles junto al precio, modo conteo del endpoint, fix del token `--green` |
 
 ## Regla para agregar un nuevo spec
 1. Revisa este índice para el siguiente número disponible.

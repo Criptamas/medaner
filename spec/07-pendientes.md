@@ -20,7 +20,7 @@
 - [ ] Puntos — anti-fraude fino diferido: contar solo clientes distintos (falta identidad estable de cliente sin login) y detección de auto-trato.
 - [ ] A escala: rate-limiting de endpoints públicos (`conductores-cerca`, `conductores-disponibles`, `tasa-cambio`).
 - [ ] Puntos — si el push escalonado (soft priority) no alcanza: evaluar gate de aceptación server-side o migrar la fase 2 del push a webhook diferido (evitar `maxDuration` largo).
-- [ ] Token `--green` (nuevo, en `src/index.css`, usado hoy solo en `TasaCambioWidget`) vale lo mismo que el color hardcodeado del pin de "destino" en `MapaConductoresView.jsx` (`mapboxgl.Marker({ color: '#22C55E' })`). Consolidar ese uso para que también lea `var(--green)` en vez de repetir el hex — no se tocó en este cambio para no meterse con lógica de mapas fuera de alcance (ver `10-header-logueado-saludo.md`).
+- [ ] `MapaConductoresView.jsx` sigue con el hex hardcodeado `mapboxgl.Marker({ color: '#22C55E' })` para el pin de "destino" en vez de leer `var(--green)` — no se tocó al corregir el token (ver `12-badge-conductores-precio.md`) para no meterse con lógica de mapas fuera de alcance.
 
 ## Bugs críticos actuales (mencionados fuera de este repo, confirmar estado)
 - [ ] Conductores registrados y admin reciben error "no registrado" al hacer login.

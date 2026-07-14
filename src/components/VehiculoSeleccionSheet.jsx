@@ -5,6 +5,7 @@ import { useTasaCambio } from '../hooks/useTasaCambio'
 import { useClienteAuth } from '../hooks/useClienteAuth'
 import { useCreateViaje } from '../hooks/useCreateViaje'
 import { useFcmToken } from '../hooks/useFcmToken'
+import { useConteoConductoresDisponibles } from '../hooks/useConteoConductoresDisponibles'
 import { getRouteDistance } from '../utils/directions'
 import { calcularPrecioBase, formatUSD } from '../utils/tarifas'
 import { PAYMENT_METHODS } from '../utils/pedidoLabels'
@@ -15,9 +16,25 @@ import './VehiculoSeleccionSheet.css'
 // (no se exporta ni se reusa fuera de este archivo) porque su única razón de
 // existir es no repetir el markup dos veces acá adentro — no es una pieza de
 // diseño reusable en otras pantallas, a diferencia de DireccionesFavoritasList.
-function TarjetaVehiculo({ tipo, icono, capacidadLabel, precioUSD, valorTasa, seleccionado, onSeleccionar, conInfoTooltip }) {
+function TarjetaVehiculo({
+  tipo,
+  icono,
+  capacidadLabel,
+  precioUSD,
+  valorTasa,
+  seleccionado,
+  onSeleccionar,
+  conInfoTooltip,
+  disponibles,
+  cargandoConteo,
+}) {
   const [mostrarInfo, setMostrarInfo] = useState(false)
   const precioBs = valorTasa != null && Number.isFinite(precioUSD) ? precioUSD * valorTasa : null
+  // Mientras cargandoConteo es true (primer fetch del hook todavía sin
+  // resolver) no se muestra el badge: mostrar "0" de entrada sería un flash
+  // engañoso antes de tener el dato real (ver spec de la feature).
+  const mostrarBadge = !cargandoConteo && Number.isFinite(disponibles)
+  const hayDisponibles = mostrarBadge && disponibles > 0
 
   return (
     <button
@@ -31,7 +48,21 @@ function TarjetaVehiculo({ tipo, icono, capacidadLabel, precioUSD, valorTasa, se
         {icono}
       </span>
       <span className="vehiculo-seleccion-sheet__tarjeta-capacidad">{capacidadLabel}</span>
-      <span className="vehiculo-seleccion-sheet__tarjeta-precio">{formatUSD(precioUSD)}</span>
+      <span className="vehiculo-seleccion-sheet__tarjeta-precio">
+        {formatUSD(precioUSD)}
+        {mostrarBadge && (
+          <span
+            className={`vehiculo-seleccion-sheet__tarjeta-badge${hayDisponibles ? '' : ' vehiculo-seleccion-sheet__tarjeta-badge--vacio'}`}
+            aria-label={
+              hayDisponibles
+                ? `${disponibles} conductores disponibles cerca`
+                : 'Sin conductores disponibles cerca por ahora'
+            }
+          >
+            {disponibles}
+          </span>
+        )}
+      </span>
 
       {precioBs != null && (
         <span className="vehiculo-seleccion-sheet__tarjeta-bs">
@@ -83,6 +114,10 @@ export default function VehiculoSeleccionSheet({ origen, destino }) {
 
   const { tarifas, loading: loadingTarifas, error: errorTarifas, reintentar: reintentarTarifas } = useTarifas()
   const { valor: valorTasa } = useTasaCambio()
+  // activo=true fijo a propósito: el conteo de conductores es independiente
+  // del cálculo de precio (tarifas/ruta), así que arranca apenas se monta el
+  // sheet en vez de esperar a que esos otros hooks resuelvan.
+  const { conteo, cargando: cargandoConteo } = useConteoConductoresDisponibles(origen, true)
 
   const [ruta, setRuta] = useState(null)
   const [loadingRuta, setLoadingRuta] = useState(true)
@@ -270,6 +305,8 @@ export default function VehiculoSeleccionSheet({ origen, destino }) {
               seleccionado={vehiculoSeleccionado === 'carro'}
               onSeleccionar={() => setVehiculoSeleccionado('carro')}
               conInfoTooltip={false}
+              disponibles={conteo.carro}
+              cargandoConteo={cargandoConteo}
             />
             <TarjetaVehiculo
               tipo="moto"
@@ -280,6 +317,8 @@ export default function VehiculoSeleccionSheet({ origen, destino }) {
               seleccionado={vehiculoSeleccionado === 'moto'}
               onSeleccionar={() => setVehiculoSeleccionado('moto')}
               conInfoTooltip
+              disponibles={conteo.moto}
+              cargandoConteo={cargandoConteo}
             />
           </div>
 
