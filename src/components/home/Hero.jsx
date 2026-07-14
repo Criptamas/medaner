@@ -15,13 +15,8 @@ export default function Hero() {
   return (
     <section className="hero" aria-label="Destacados">
       <div className="hero__principal">
-        {/* Imagen de fondo vía <img> (no CSS background-image) a propósito:
-            así podemos degradar con onError igual que Avatar.jsx — si
-            /bannerImg.jpg todavía no existe o la URL se rompe, ocultamos el
-            <img> y queda el fondo sólido de --surface-2 del contenedor,
-            nunca un ícono de imagen rota. Es puramente decorativa (el
-            mensaje real va en el texto de al lado), por eso alt="". */}
-        <img
+      <Link to="/ser-conductor">
+      <img
           className="hero__principal-img"
           src="/bannerImg.jpg"
           alt=""
@@ -31,6 +26,9 @@ export default function Hero() {
             e.currentTarget.style.visibility = 'hidden'
           }}
         />
+        </Link>
+
+      
       </div>
 
       <div className="hero__banners">
