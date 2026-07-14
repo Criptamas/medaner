@@ -4,6 +4,7 @@ import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
 import { leerPedidosActivos, eliminarPedidoActivo } from '../utils/seguimientoLocal'
 import { ESTADO_BADGE_LABELS, VIAJE_ESTADO_LABELS } from '../utils/pedidoLabels'
+import { IconMoto, IconCar } from './icons/Icons'
 import './MisPedidosRecientes.css'
 
 const COLECCION_POR_TIPO = { pedido: 'pedidos', viaje: 'viajes' }
@@ -15,9 +16,13 @@ const ESTADOS_FINALES_POR_TIPO = {
   pedido: new Set(['entregado']),
   viaje: new Set(['completado', 'cancelado']),
 }
+// IconMoto reusado también para "Pedido" (delivery en moto/scooter): visualmente
+// son el mismo vehículo de dos ruedas, no vale la pena un segundo ícono casi
+// idéntico solo para distinguir "moto de viaje" de "moto de delivery" (ver
+// spec/15-*.md).
 const TIPO_INFO = {
-  pedido: { icono: '🛵', label: 'Pedido' },
-  viaje: { icono: '🚕', label: 'Viaje' },
+  pedido: { Icono: IconMoto, label: 'Pedido' },
+  viaje: { Icono: IconCar, label: 'Viaje' },
 }
 
 function etiquetaEstado(tipo, estado) {
@@ -107,7 +112,8 @@ export default function MisPedidosRecientes() {
             <li key={id}>
               <Link to={`/${tipo}/${id}`} className="mis-pedidos-recientes__card">
                 <span className="mis-pedidos-recientes__tipo">
-                  {info.icono} {info.label}
+                  <info.Icono size={16} aria-hidden="true" className="mis-pedidos-recientes__tipo-icono" />
+                  {info.label}
                 </span>
                 <span className="mis-pedidos-recientes__badge">
                   {etiquetaEstado(tipo, estado)}

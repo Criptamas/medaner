@@ -19,6 +19,8 @@ por qué se decidió así (no solo el qué). Formato: `00-nombre-descriptivo.md`
 | `11-limite-funciones-vercel.md` | Tope de 12 funciones (Hobby), router `api/admin.js` que consolida los 6 endpoints admin |
 | `12-badge-conductores-precio.md` | Badge de conductores disponibles junto al precio, modo conteo del endpoint, fix del token `--green` |
 | `13-conductor-solicitud-cuenta-unica-y-fotos-publicas.md` | Cuenta única al postular a conductor, `tipo_usuario` solo cambia en la aprobación, bucket público `conductor-publico` para selfie/vehículo |
+| `14-hero-banner-estatico.md` | Reemplazo del carrusel por banner estático (`bannerImg.jpg`), por qué `HeroCarousel.jsx/.css` se conservan sin importar |
+| `15-patrones-uber-iconos-svg-viewport-mobile.md` | Fix de viewport mobile (Header+Hero sin scroll), patrones de UI de uber.com (no su paleta) en PedirViajePage/QuickAccessStrip/cards, set de iconos SVG propio que reemplaza emojis funcionales |
 
 ## Regla para agregar un nuevo spec
 1. Revisa este índice para el siguiente número disponible.

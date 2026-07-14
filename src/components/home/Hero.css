@@ -87,9 +87,16 @@
 }
 
 .promo-banner__titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-weight: 700;
   font-size: 16px;
   line-height: 1.15;
+}
+
+.promo-banner__icono {
+  flex-shrink: 0;
 }
 
 .promo-banner__texto {
@@ -136,6 +143,41 @@
 .promo-banner--comprar:hover,
 .promo-banner--comprar:focus-visible {
   border-color: var(--blue-400);
+}
+
+/* ===== Mobile: Hero llena exactamente el viewport restante tras el Header
+   (ver .home__viewport--hero en HomePage.css, que le da a .home__hero-section
+   su flex:1). Reparto interno: el banner-foto mantiene su alto natural, los 2
+   banners de acceso se estiran para ocupar el resto. ===== */
+@media (max-width: 767px) {
+  .hero {
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* No se estira aunque el hero tenga flex:1 — el espacio extra lo absorben
+     los banners de abajo, no la foto. */
+  .hero__principal {
+    flex-shrink: 0;
+  }
+
+  .hero__banners {
+    flex: 1;
+    min-height: 0;
+    /* Fuerza una única fila explícita del 100% del alto disponible: sin esto,
+       una fila "auto" de grid no necesariamente estira sus items al alto del
+       contenedor (depende de content-size), y promo-banner height:100% no
+       tendría de qué "100%" partir. */
+    grid-template-rows: 1fr;
+  }
+
+  .promo-banner {
+    height: 100%;
+    /* Piso de seguridad: en pantallas muy bajas (ej. celular en horizontal)
+       no se aplastan hasta ser ilegibles. Ahí es aceptable un poco de scroll
+       — no se sacrifica legibilidad por cumplir el 100% a rajatabla. */
+    min-height: 88px;
+  }
 }
 
 /* ===== Desktop: banner principal más grande; banners secundarios más altos ===== */

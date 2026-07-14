@@ -38,8 +38,15 @@
 
 .conductor-panel__vehiculo {
   margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   font-size: 14px;
   color: var(--vt-text-dim);
+}
+
+.conductor-panel__vehiculo-icono {
+  flex-shrink: 0;
 }
 
 /* Fila que agrupa placa + foto del vehículo: cualquiera de las dos puede

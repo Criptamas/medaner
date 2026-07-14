@@ -132,8 +132,9 @@
 }
 
 .vehiculo-seleccion-sheet__tarjeta-icono {
-  font-size: 28px;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .vehiculo-seleccion-sheet__tarjeta-capacidad {

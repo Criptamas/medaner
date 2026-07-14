@@ -9,7 +9,7 @@
   margin: 0;
   padding: 4px 16px;
   display: flex;
-  gap: 14px;
+  gap: 16px;
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
@@ -24,8 +24,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  width: 72px;
+  gap: 8px;
+  width: 76px;
   padding: 0;
   border: none;
   background: none;
@@ -33,18 +33,22 @@
   scroll-snap-align: start;
 }
 
+/* Tile cuadrado de radio grande (no círculo): referencia de la franja de
+   accesos rápidos de uber.com (Ride/Reserve/Food...), NO su paleta — ver
+   spec/15-*.md. Un poco más grande que antes para que el ícono (ahora SVG
+   propio, no emoji) respire con más aire alrededor. */
 .quick-access__icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-lg);
   background: var(--surface-2);
   border: 1px solid var(--line);
-  font-size: 26px;
+  color: var(--text-body);
   box-shadow: var(--shadow-sm);
-  transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+  transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease, color 0.15s ease;
 }
 
 .quick-access__item:hover .quick-access__icon {
@@ -54,6 +58,7 @@
 .quick-access__item--activo .quick-access__icon {
   background: var(--blue-100);
   border-color: var(--blue);
+  color: var(--blue-700);
 }
 
 .quick-access__label {
@@ -62,7 +67,7 @@
   color: var(--text-body);
   text-align: center;
   line-height: 1.15;
-  max-width: 72px;
+  max-width: 76px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

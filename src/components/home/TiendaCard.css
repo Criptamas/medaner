@@ -1,11 +1,14 @@
 .tienda-card {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px;
+  gap: 14px;
+  /* Radio y padding más generosos (referencia de patrones uber.com, NO su
+     paleta — ver spec/15-*.md): la card se siente menos "chata" sin cambiar
+     su densidad de información. */
+  padding: 16px;
   background: var(--surface-2);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   text-decoration: none;
   color: inherit;
   transition: box-shadow 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
@@ -27,7 +30,9 @@
   height: 48px;
   border-radius: 50%;
   background: var(--blue-100);
-  font-size: 24px;
+  /* El ícono (SVG currentColor) toma el mismo acento que el badge de
+     categoría de esta misma card, en vez del gris de texto por defecto. */
+  color: var(--blue-700);
 }
 
 .tienda-card__info {

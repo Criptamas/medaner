@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { IconCar, IconShoppingBag } from '../icons/Icons'
 import './Hero.css'
 
 // Hero de la Home.
@@ -32,17 +33,24 @@ export default function Hero() {
       </div>
 
       <div className="hero__banners">
-        {/* Acceso directo a pedir un viaje: mismo destino e ícono (🚕) que ya
-            usaba el slide "viaje" del carrusel anterior. */}
+        {/* Acceso directo a pedir un viaje: mismo destino que ya usaba el
+            slide "viaje" del carrusel anterior. Ícono decorativo (aria-hidden):
+            el texto ya dice "Pedir viaje", no es el único contenido informativo. */}
         <Link to="/pedir-viaje" className="promo-banner promo-banner--viaje">
-          <span className="promo-banner__titulo">🚕 Pedir viaje</span>
+          <span className="promo-banner__titulo">
+            <IconCar size={20} aria-hidden="true" className="promo-banner__icono" />
+            Pedir viaje
+          </span>
           <span className="promo-banner__texto">Mototaxi o taxi al instante →</span>
         </Link>
 
         {/* Acceso directo a la sección de tiendas del home (ancla interna:
             id="home-tiendas" en HomePage.jsx). */}
         <a href="#home-tiendas" className="promo-banner promo-banner--comprar">
-          <span className="promo-banner__titulo">🛒 Comprar</span>
+          <span className="promo-banner__titulo">
+            <IconShoppingBag size={20} aria-hidden="true" className="promo-banner__icono" />
+            Comprar
+          </span>
           <span className="promo-banner__texto">Tiendas locales con delivery →</span>
         </a>
       </div>

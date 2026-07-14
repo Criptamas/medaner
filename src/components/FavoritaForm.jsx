@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import './FavoritaForm.css'
 
-const ICONOS_TITULO = { Hogar: '🏠', Trabajo: '💼', Universidad: '🎓', Personalizado: '❤️' }
 const OPCIONES_TITULO = ['Hogar', 'Trabajo', 'Universidad', 'Personalizado']
 
 // Form de crear/editar una dirección favorita, extraído de DestinoViajeStep
@@ -85,9 +84,14 @@ export default function FavoritaForm({
       <label className="favorita-form__campo">
         <span>Tipo</span>
         <select value={campoTitulo} onChange={(event) => setCampoTitulo(event.target.value)}>
+          {/* Sin ícono acá a propósito: un <option> nativo solo puede mostrar
+              texto (cualquier elemento hijo se ignora), así que el set de
+              iconos SVG no puede renderizarse dentro de un <select> — ver
+              FavoritaTituloIcon.jsx. El ícono para este mismo concepto sí se
+              ve en DireccionesFavoritasList (tarjetas custom). */}
           {OPCIONES_TITULO.map((opcion) => (
             <option key={opcion} value={opcion}>
-              {ICONOS_TITULO[opcion]} {opcion}
+              {opcion}
             </option>
           ))}
         </select>

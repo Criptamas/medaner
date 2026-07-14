@@ -1,9 +1,10 @@
 /* ============================================================================
    PEDIR VIAJE — TEMA OSCURO LOCAL
    ----------------------------------------------------------------------------
-   Paleta propia de esta pantalla, deliberadamente distinta del sistema de
-   diseño global azul+blanco (src/index.css). Declarada UNA sola vez acá, en
-   el selector raíz .pedir-viaje-page: todos los componentes hijos nuevos
+   Paleta propia de esta pantalla (mismos valores que el tema oscuro global
+   de src/index.css, pero declarados aparte bajo su propio namespace
+   --color-*). Declarada UNA sola vez acá, en el selector raíz
+   .pedir-viaje-page: todos los componentes hijos nuevos
    (SolicitudViajeView, DireccionesFavoritasList, FavoritaForm,
    SeleccionarUbicacionView, MapaConductoresView, VehiculoSeleccionSheet) la
    heredan vía var(--color-...) porque siempre se renderizan dentro de este

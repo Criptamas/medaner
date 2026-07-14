@@ -3,9 +3,12 @@ import Avatar from './Avatar'
 import ViajeResumenDetalle from './ViajeResumenDetalle'
 import { construirEnlaceWhatsApp } from '../utils/telefono'
 import { VIAJE_ESTADO_LABELS } from '../utils/pedidoLabels'
+import { IconCar, IconMoto } from './icons/Icons'
 import './ConductorAsignadoPanel.css'
 
-const VEHICULO_ICON = { moto: '🏍️', carro: '🚗' }
+// Mismos componentes de ícono que VehiculoSeleccionSheet (carro/moto): un
+// solo set de iconos reusado en toda la app en vez de duplicar el SVG.
+const VEHICULO_ICON = { moto: IconMoto, carro: IconCar }
 
 // Mensaje prellenado al abrir WhatsApp con el conductor: le ahorra al cliente
 // escribir el saludo inicial (mismo texto que usaba ViajeTrackingPage).
@@ -21,7 +24,7 @@ export default function ConductorAsignadoPanel({ viaje }) {
   // (única fuente que el cliente puede leer). Cualquiera puede faltar en viajes
   // viejos o si el admin no lo cargó: cada bloque degrada sin romper.
   const enlaceWhatsApp = construirEnlaceWhatsApp(viaje.conductorTelefono)
-  const icono = VEHICULO_ICON[viaje.tipoVehiculo] ?? '🚗'
+  const IconoVehiculo = VEHICULO_ICON[viaje.tipoVehiculo] ?? IconCar
 
   return (
     <section className="viaje-panel conductor-panel" aria-label="Conductor asignado">
@@ -42,7 +45,8 @@ export default function ConductorAsignadoPanel({ viaje }) {
           <p className="conductor-panel__nombre">{viaje.conductorNombre || 'Tu conductor'}</p>
           {viaje.conductorVehiculo && (
             <p className="conductor-panel__vehiculo">
-              <span aria-hidden="true">{icono}</span> {viaje.conductorVehiculo}
+              <IconoVehiculo size={16} aria-hidden="true" className="conductor-panel__vehiculo-icono" />
+              <span>{viaje.conductorVehiculo}</span>
             </p>
           )}
           {(viaje.conductorPlaca || viaje.conductorMotoFotoUrl) && (

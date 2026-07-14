@@ -79,9 +79,31 @@ export default function HomePage() {
         canonicalPath="/"
       />
 
-      <Header query={query} onQueryChange={setQuery} />
+      {/* Wrapper de Header + Hero: en mobile (ver HomePage.css) se convierte en
+          columna de altura de viewport completa para que el primer pantallazo
+          sea Header + Hero, sin scroll — el resto del home queda debajo, fuera
+          de este wrapper, revelado al bajar (ver spec/15-*.md). Header se
+          mantiene SIEMPRE en la misma posición del árbol (nunca se desmonta al
+          alternar buscando): perdería el foco del input al escribir si
+          cambiara de padre en cada tecla. La clase modificadora --hero (y con
+          ella el layout de pantalla completa) solo se aplica sin búsqueda
+          activa, que es el único caso con Hero para llenar. */}
+      <div className={`home__viewport${buscando ? '' : ' home__viewport--hero'}`}>
+        <Header query={query} onQueryChange={setQuery} />
 
-      <main className="home">
+        {!buscando && (
+          <section className="home__section home__hero-section">
+            <Hero />
+          </section>
+        )}
+      </div>
+
+      {/* home--hero-arriba repone el espacio que antes daba el gap del flex de
+          .home entre el hero y esta primera sección, ahora que el hero quedó
+          afuera de este <main> (ver comentario del wrapper de arriba). Sin
+          búsqueda activa nada más: con búsqueda no hay hero antes, así que
+          .home ya tenía el padding-top correcto sin esto. */}
+      <main className={`home${buscando ? '' : ' home--hero-arriba'}`}>
         {/* h1 para SEO/accesibilidad (frase clave), sin recargar el diseño */}
         <h1 className="sr-only">Medaner — Delivery y viajes en Punto Fijo, estado Falcón</h1>
 
@@ -128,10 +150,6 @@ export default function HomePage() {
           </section>
         ) : (
           <>
-            <section className="home__section home__hero-section">
-              <Hero />
-            </section>
-
             {categorias.length > 0 && (
               <section className="home__section" aria-label="Categorías">
                 <QuickAccessStrip

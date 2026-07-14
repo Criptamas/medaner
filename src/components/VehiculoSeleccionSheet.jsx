@@ -10,6 +10,7 @@ import { getRouteDistance } from '../utils/directions'
 import { calcularPrecioBase, formatUSD } from '../utils/tarifas'
 import { PAYMENT_METHODS } from '../utils/pedidoLabels'
 import StatusMessage from './StatusMessage'
+import { IconCar, IconMoto } from './icons/Icons'
 import './VehiculoSeleccionSheet.css'
 
 // Tarjeta de un vehículo (Carro o Moto) dentro del sheet. Componente local
@@ -18,7 +19,7 @@ import './VehiculoSeleccionSheet.css'
 // diseño reusable en otras pantallas, a diferencia de DireccionesFavoritasList.
 function TarjetaVehiculo({
   tipo,
-  icono,
+  Icono,
   capacidadLabel,
   precioUSD,
   valorTasa,
@@ -44,8 +45,8 @@ function TarjetaVehiculo({
       aria-pressed={seleccionado}
       aria-label={`Elegir ${tipo}`}
     >
-      <span className="vehiculo-seleccion-sheet__tarjeta-icono" aria-hidden="true">
-        {icono}
+      <span className="vehiculo-seleccion-sheet__tarjeta-icono">
+        <Icono size={28} aria-hidden="true" />
       </span>
       <span className="vehiculo-seleccion-sheet__tarjeta-capacidad">{capacidadLabel}</span>
       <span className="vehiculo-seleccion-sheet__tarjeta-precio">
@@ -298,7 +299,7 @@ export default function VehiculoSeleccionSheet({ origen, destino }) {
           <div className="vehiculo-seleccion-sheet__vehiculos">
             <TarjetaVehiculo
               tipo="carro"
-              icono="🚗"
+              Icono={IconCar}
               capacidadLabel="👤 4"
               precioUSD={ofertaActiva && vehiculoSeleccionado === 'carro' ? precioFinal : precioBaseCarro}
               valorTasa={valorTasa}
@@ -310,7 +311,7 @@ export default function VehiculoSeleccionSheet({ origen, destino }) {
             />
             <TarjetaVehiculo
               tipo="moto"
-              icono="🏍️"
+              Icono={IconMoto}
               capacidadLabel="👤 1"
               precioUSD={ofertaActiva && vehiculoSeleccionado === 'moto' ? precioFinal : precioBaseMoto}
               valorTasa={valorTasa}

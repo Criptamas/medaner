@@ -4,11 +4,13 @@
   margin-left: auto;
   width: 36px;
   height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--bg);
-  font-size: 16px;
-  line-height: 1;
+  color: var(--text-h);
   cursor: pointer;
 }
 

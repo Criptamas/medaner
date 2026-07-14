@@ -31,8 +31,10 @@
 - [ ] Ejecutar a mano en Supabase antes de deploy: crear bucket público `conductor-publico` + policy, y agregar columna `foto_vehiculo_url` a `solicitudes_conductor` (SQL exacto en `13`).
 
 ## En progreso
-- [ ] Rediseño del flujo de solicitud de viaje en una sola página consolidada.
+- [x] Rediseño del flujo de solicitud de viaje en una sola página consolidada — `PedirViajePage.jsx` ya orquestaba una sola página sin pasos/rutas separadas; se completó con el estilo de referencia (combobox tipo píldora + CTA único), ver `15-patrones-uber-iconos-svg-viewport-mobile.md`.
 - [ ] Actualización de paleta de colores en todo el sitio.
+- [x] Home mobile: el banner principal + los 2 banners secundarios (`Hero.jsx`) ocupan el viewport restante tras el header, sin scroll, solo en smartphones — implementado, ver `15-patrones-uber-iconos-svg-viewport-mobile.md`.
+- [x] "UI de base": se identificó uber.com como referencia (patrones de UI — combobox de ubicación, franja de accesos rápidos — NO su paleta, que sigue siendo la del logo amarillo/blanco/negro sobre tema oscuro). Ver `15-patrones-uber-iconos-svg-viewport-mobile.md`.
 - [ ] Migración híbrida de base de datos (Supabase para datos relacionales, Firebase solo FCM) — ver `00-arquitectura-general.md`.
 - [ ] Widget de tasa de cambio BCV.
 - [ ] Feature de ubicaciones favoritas.

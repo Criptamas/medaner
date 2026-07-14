@@ -6,12 +6,18 @@
   padding-bottom: 84px;
 }
 
+/* Combobox de origen/destino: referencia de patrones de uber.com (pill
+   prominente para el input de ubicación), NO su paleta — ver spec/15-*.md.
+   Mismo lenguaje visual que .home-search (Header.css): fondo --surface-2 y
+   borde --line, con radio grande en vez del pill completo (999px no
+   funciona bien con dos filas apiladas). */
 .solicitud-viaje-view__card {
   position: relative;
   display: flex;
   flex-direction: column;
-  background: var(--color-bg-secondary);
-  border-radius: 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
   overflow: hidden;
 }
 
@@ -19,7 +25,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 16px;
+  padding: 16px 18px;
   border: none;
   background: none;
   color: inherit;
@@ -51,12 +57,12 @@
 }
 
 /* Línea punteada vertical entre los dos pines, estilo timeline. Alineada con
-   el centro de los pines (16px de padding + 5px de radio del pin). */
+   el centro de los pines (18px de padding + 5px de radio del pin). */
 .solicitud-viaje-view__conector {
   position: absolute;
-  left: 21px;
-  top: 34px;
-  bottom: 34px;
+  left: 23px;
+  top: 36px;
+  bottom: 36px;
   width: 1px;
   border-left: 2px dotted #3a4552;
 }
@@ -108,8 +114,8 @@
   margin: 0 auto;
   display: block;
   font: inherit;
-  padding: 15px 16px;
-  border-radius: 14px;
+  padding: 16px;
+  border-radius: var(--radius-pill);
   border: none;
   background: var(--color-accent);
   color: var(--color-bg-primary);

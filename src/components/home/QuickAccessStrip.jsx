@@ -1,4 +1,5 @@
-import { iconoDeCategoria } from '../../utils/categorias'
+import CategoriaIcon from '../icons/CategoriaIcon'
+import { IconCompass } from '../icons/Icons'
 import './QuickAccessStrip.css'
 
 // Tira horizontal de accesos rápidos por categoría (scroll táctil).
@@ -19,8 +20,8 @@ export default function QuickAccessStrip({ categorias, seleccionada, onSeleccion
             aria-pressed={!seleccionada}
             onClick={() => onSeleccionar(null)}
           >
-            <span className="quick-access__icon" aria-hidden="true">
-              🧭
+            <span className="quick-access__icon">
+              <IconCompass size={26} aria-hidden="true" />
             </span>
             <span className="quick-access__label">Todas</span>
           </button>
@@ -36,8 +37,8 @@ export default function QuickAccessStrip({ categorias, seleccionada, onSeleccion
                 aria-pressed={activa}
                 onClick={() => onSeleccionar(activa ? null : categoria)}
               >
-                <span className="quick-access__icon" aria-hidden="true">
-                  {iconoDeCategoria(categoria)}
+                <span className="quick-access__icon">
+                  <CategoriaIcon categoria={categoria} size={26} />
                 </span>
                 <span className="quick-access__label">{categoria}</span>
               </button>

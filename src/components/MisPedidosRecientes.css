@@ -45,9 +45,17 @@
 }
 
 .mis-pedidos-recientes__tipo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 14px;
   font-weight: 700;
   color: var(--text-h);
+}
+
+.mis-pedidos-recientes__tipo-icono {
+  flex-shrink: 0;
+  color: var(--blue);
 }
 
 .mis-pedidos-recientes__badge {

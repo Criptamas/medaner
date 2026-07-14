@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { useClienteAuth } from '../hooks/useClienteAuth'
+import FavoritaTituloIcon from './icons/FavoritaTituloIcon'
 import './DireccionesFavoritasList.css'
-
-const ICONOS_TITULO = { Hogar: '🏠', Trabajo: '💼', Universidad: '🎓', Personalizado: '❤️' }
 
 function nombreFavorita(favorita) {
   return favorita.titulo === 'Personalizado' ? favorita.etiqueta_personalizada : favorita.titulo
@@ -94,8 +93,8 @@ export default function DireccionesFavoritasList({
                 }
               }}
             >
-              <span className="direcciones-favoritas-list__tarjeta-icono" aria-hidden="true">
-                {ICONOS_TITULO[favorita.titulo]}
+              <span className="direcciones-favoritas-list__tarjeta-icono">
+                <FavoritaTituloIcon titulo={favorita.titulo} size={20} />
               </span>
               <span className="direcciones-favoritas-list__tarjeta-info">
                 <span className="direcciones-favoritas-list__tarjeta-nombre">{nombreFavorita(favorita)}</span>

@@ -16,9 +16,75 @@
   margin: 0;
 }
 
-/* El hero puede ir un poco más ancho visualmente; mantiene el padding del main */
+/* El hero ahora vive FUERA de <main class="home"> (queda junto al Header en
+   .home__viewport, ver mecanismo en HomePage.jsx y spec/15-*.md) — sin este
+   bloque perdía el inset horizontal y el tope --container que .home le daba
+   antes (confirmado: sin esto el banner queda pegado a los bordes de
+   pantalla). Replica ese mismo padding/max-width para que no cambie NADA
+   visualmente. margin-top total: 16px (padding-top que tenía .home) + 4px
+   (separación propia del hero) = 20px; ídem en desktop con el 24px de .home. */
 .home__hero-section {
-  margin-top: 4px;
+  width: 100%;
+  max-width: var(--container);
+  margin: 20px auto 0;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .home__hero-section {
+    margin-top: 28px;
+    padding: 0 24px;
+  }
+}
+
+/* Repone el gap:28px/36px que .home ya no puede dar entre el hero y esta
+   primera sección (el hero quedó afuera de .home, ver arriba): antes ambos
+   eran hijos flex de .home y ese gap los separaba; acá se repone como
+   margin-top ya que .home__hero-section no participa más de ese flex. 12px
+   + el padding-top de .home (16px mobile / 24px desktop) = 28px/36px, el
+   mismo total de antes en ambos breakpoints. */
+.home--hero-arriba {
+  margin-top: 12px;
+}
+
+/* Wrapper de Header + Hero (ver HomePage.jsx). Por defecto "transparente":
+   display:contents hace que sus hijos (Header y, sin búsqueda, el hero) se
+   comporten como si fueran hijos directos de #root, exactamente igual que
+   antes de introducir este div — cero cambio de layout en desktop/tablet, y
+   tampoco en mobile cuando se está buscando (sin Hero que llenar). */
+.home__viewport {
+  display: contents;
+}
+
+@media (max-width: 767px) {
+  /* Con Hero visible (home sin búsqueda activa): pasa a ser un contenedor
+     real en columna que ocupa toda la altura de pantalla disponible, para
+     que el primer pantallazo sea Header + Hero completo, sin scroll (ver
+     spec/15-*.md). 100vh primero como fallback (navegadores sin soporte de
+     dvh), 100dvh después: ajusta al alto real cuando la barra de
+     direcciones de Chrome/Safari mobile cambia de tamaño. */
+  .home__viewport--hero {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .home__viewport--hero > .home-header {
+    flex-shrink: 0;
+  }
+
+  /* El hero absorbe TODO el espacio restante después del header. min-height:0
+     (en vez del auto por defecto de los flex items) es necesario para que
+     pueda encogerse por debajo del tamaño de su contenido si hiciera falta,
+     en vez de forzar overflow del wrapper. */
+  .home__viewport--hero > .home__hero-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
 }
 
 .home__section-titulo {

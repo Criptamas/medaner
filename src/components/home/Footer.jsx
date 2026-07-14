@@ -1,3 +1,4 @@
+import { IconCash, IconPhone, IconTransfer } from '../icons/Icons'
 import './Footer.css'
 
 // Footer navy con columnas placeholder (contenido real más adelante) y los
@@ -23,10 +24,12 @@ const COLUMNAS = [
   },
 ]
 
+// IconTransfer para "Zelle" es genérico a propósito, NO el logo de Zelle
+// (marca de terceros) — el texto "Zelle" ya identifica el método.
 const PAGOS = [
-  { icono: '💵', label: 'Efectivo' },
-  { icono: '📱', label: 'Pago móvil' },
-  { icono: '💸', label: 'Zelle' },
+  { Icono: IconCash, label: 'Efectivo' },
+  { Icono: IconPhone, label: 'Pago móvil' },
+  { Icono: IconTransfer, label: 'Zelle' },
 ]
 
 export default function Footer() {
@@ -69,7 +72,7 @@ export default function Footer() {
         <ul className="home-footer__pagos-list">
           {PAGOS.map((pago) => (
             <li className="home-footer__pago" key={pago.label}>
-              <span aria-hidden="true">{pago.icono}</span>
+              <pago.Icono size={16} aria-hidden="true" />
               {pago.label}
             </li>
           ))}
