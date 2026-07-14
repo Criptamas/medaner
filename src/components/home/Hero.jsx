@@ -31,16 +31,6 @@ export default function Hero() {
             e.currentTarget.style.visibility = 'hidden'
           }}
         />
-        {/* Overlay oscuro degradado: garantiza contraste del texto sin
-            importar qué imagen se suba después. */}
-        <div className="hero__principal-overlay" aria-hidden="true" />
-        <div className="hero__principal-contenido">
-          <span className="hero__principal-eyebrow">Punto Fijo, Falcón</span>
-          <h2 className="hero__principal-titulo">Todo lo que necesitas, en un solo lugar</h2>
-          <p className="hero__principal-texto">
-            Delivery de tiendas locales y viajes en mototaxi o taxi, pagando como prefieras.
-          </p>
-        </div>
       </div>
 
       <div className="hero__banners">
