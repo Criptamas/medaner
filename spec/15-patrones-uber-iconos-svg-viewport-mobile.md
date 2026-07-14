@@ -1,7 +1,7 @@
 # Patrones de uber.com (sin su paleta), set de iconos SVG propio, y fix de viewport mobile del Hero
 
-**Fecha:** 2026-07-14
-**Estado:** implementado
+**Fecha:** 2026-07-14 (Parte 4 agregada el mismo día, ronda siguiente)
+**Estado:** implementado — con una reversión parcial, ver Parte 4
 
 ## Contexto
 
@@ -284,3 +284,180 @@ mismo concepto sigue existiendo donde SÍ puede renderizarse:
   en esta sesión, pero `vite build` compiló esos módulos sin errores
   (incluidos en el chunk `PedirViajePage-*.js`), que es el nivel de
   verificación que esta tarea pedía sin backend real disponible.
+
+## Parte 4 — Reversión del viewport-fill mobile + ilustraciones planas propias
+
+El dueño del producto revisó el resultado de la Parte 1 (Header+Hero llenando
+el viewport en mobile) y de los iconos de línea simple en dos superficies
+puntuales, y pidió dos cambios sobre lo ya implementado.
+
+### 4.a — El viewport-fill de la Parte 1 se revirtió
+
+**Motivo:** los 2 banners secundarios (`.promo-banner`), al estirarse con
+`flex:1` para llenar el espacio restante del viewport, quedaban "enormes y
+vacíos" — mucho espacio en blanco alrededor de un título + subtítulo cortos.
+El dueño del producto rechazó explícitamente que estos banners fueran
+flexibles/estirados. Como el mecanismo de la Parte 1 dependía enteramente de
+que `.hero__banners`/`.promo-banner` tuvieran `flex:1` (ver Parte 1 arriba),
+no había forma de mantener "Header+Hero llenan el viewport exacto" sin
+banners flexibles — **se descartó el objetivo de llenado exacto del
+viewport**, no solo su implementación.
+
+**Reversión (limpia, sin dejar código muerto):**
+- `HomePage.jsx`: se quitó el wrapper `<div className="home__viewport...">`
+  que sacaba `Header` + la sección del hero de `<main>`. `Header` volvió a
+  ser hermano directo de `<main className="home">` (posición fija en el
+  árbol, igual que antes — sigue sin desmontarse al escribir en el buscador).
+  La sección del hero (`<section className="home__section
+  home__hero-section"><Hero /></section>`) volvió a ser el primer hijo
+  condicional (`!buscando`) de `<main>`, antes del ternario que decide entre
+  resultados de búsqueda y el resto de la Home.
+- `HomePage.css`: se eliminaron `.home__viewport`, `.home__viewport--hero` (y
+  su bloque `@media (max-width:767px)`), `.home--hero-arriba`, y el bloque de
+  `.home__hero-section` que le daba padding/max-width propios (ya no hace
+  falta: al volver el hero dentro de `.home`, ese contenedor ya le da
+  padding horizontal, `max-width:var(--container)` y el `gap` respecto a la
+  siguiente sección, gratis).
+- `Hero.css`: se eliminó el `@media (max-width:767px)` que ponía `.hero
+  {flex:1}`, `.hero__banners {flex:1; grid-template-rows:1fr}` y
+  `.promo-banner {height:100%; min-height:88px}` — todo el mecanismo de
+  estiramiento.
+
+`HeroCarousel.jsx`/`.css` no se tocaron (siguen sin importarse en ningún
+lado, ver `14-hero-banner-estatico.md`).
+
+### 4.b — Banners: alto fijo mayor + ilustración de fondo (reemplaza el estiramiento)
+
+En vez de estirarse al viewport, `.promo-banner` pasó a tener **alto fijo**
+(`height: 220px` en mobile — no `min-height`, a propósito, para que quede
+claro que no es negociable/flexible; en desktop, `900px+`, vuelve a
+`height:auto; min-height:190px` como estaba antes de la Parte 1, ahí sí hay
+aire de sobra alrededor y no hace falta forzarlo). Para que ese alto se vea
+"lleno" y no vacío, cada banner ahora tiene su propia ilustración de fondo:
+
+- `.promo-banner--viaje` (Pedir viaje) → `IllustrationMoto`.
+- `.promo-banner--comprar` (Comprar) → `IllustrationFood`.
+
+Implementación: la ilustración se renderiza como hijo del `<Link>`/`<a>` del
+banner, `position:absolute` en la esquina inferior derecha con un pequeño
+"sangrado" negativo (`right:-12px; bottom:-12px`) para que se sienta parte
+del fondo y no un ícono flotando centrado; `overflow:hidden` en
+`.promo-banner` recorta lo que sobra a las esquinas redondeadas.
+`pointer-events:none` en la ilustración para que no capture el click/tap del
+banner completo (`.promo-banner` sigue siendo el único elemento clickeable).
+Encima va un `<span className="promo-banner__overlay">` con un gradiente
+lineal (sólido del lado del texto → transparente hacia la esquina de la
+ilustración) para que el título/subtítulo sigan legibles sobre la
+ilustración; cada variante usa el gradiente en su propio tono (réplica en
+rgba() del hex de `--blue-100`/`--surface-2` — un `linear-gradient` no puede
+tomar la opacidad de un `var()` hex directo sin `color-mix()`, que todavía no
+tiene soporte universal en navegadores Android/iOS de gama baja, así que se
+hardcodeó el rgba equivalente en vez de depender de esa función). El texto
+(`.promo-banner__titulo`/`__texto`) se reposicionó con `position:relative;
+z-index:2` para quedar por encima de la ilustración y el overlay a pesar de
+venir antes en el DOM — un elemento `position:static` NO gana automáticamente
+por orden de DOM frente a elementos `position:absolute` sin z-index
+explícito, hay que forzarlo. Los iconos chicos del título (`IconCar` /
+`IconShoppingBag`, junto al texto "Pedir viaje"/"Comprar") se mantuvieron sin
+cambios: son pequeños y quedan sobre la zona sólida del gradiente, no
+compiten con la ilustración de fondo.
+
+### 4.c — Ilustraciones planas propias (reemplazan los iconos de línea en 2 superficies puntuales)
+
+El dueño del producto también rechazó los iconos de línea simple (Parte 3,
+`IconCar`/`IconMoto`) en dos superficies concretas — la tarjeta de selección
+de vehículo y los banners del home — pidiendo en su lugar **ilustraciones
+planas detalladas estilo undraw.co** (formas rellenas con 2-3 tonos de
+sombreado, ventanas/reflejos, no un trazo de un solo color). El resto de las
+superficies con iconos de línea (Footer, CartIcon, favoritos, categorías del
+QuickAccessStrip, `ConductorAsignadoPanel`, `MisPedidosRecientes`) **no se
+tocaron** — el reclamo fue específico a estas dos superficies, no un rechazo
+general al set de iconos de la Parte 3.
+
+**Origen de las ilustraciones — se intentó primero la opción de licencia
+abierta, según el orden de preferencia pedido:** se probó `undraw.co` por
+navegador (buscar "car" en su buscador). El buscador de ese sitio depende de
+Algolia y no llegó a renderizar resultados utilizables en la sesión: la
+herramienta de captura de pantalla del navegador dio timeout repetidas veces
+(en esa página y también después, en la propia app, así que no era un
+problema del sitio sino de la herramienta de captura en este entorno), y
+`read_page`/`get_page_text` tras enviar la búsqueda no mostraron ningún
+resultado en el DOM (solo quedó el formulario de búsqueda vacío). Ante una
+fuente poco confiable y sin poder confirmar visualmente qué se estaba
+descargando, se optó por la alternativa explícitamente autorizada para este
+caso: **ilustraciones propias, dibujadas a mano en SVG inline**, en el mismo
+espíritu undraw (planas, con volumen/sombreado, no fotografía) — sin
+depender de un asset ni una licencia de terceros.
+
+Nuevo archivo `src/components/icons/Illustrations.jsx` —
+`IllustrationCar`, `IllustrationMoto`, `IllustrationFood`. Mismo contrato de
+props que los íconos de `Icons.jsx` (`className` + cualquier prop de `<svg>`
+vía spread), pero sin wrapper `IconBase` compartido: a diferencia de los
+íconos (un solo `stroke="currentColor"`), estas son ilustraciones
+**multicolor** (varios `fill` distintos por forma), así que no hay un
+"color heredado" único que centralizar. Técnica reusada en las 3 piezas para
+lograr sombreado sin degradés ni filtros: dos formas superpuestas por cada
+"cuerpo" (carrocería del auto, tanque de la moto, pan de la hamburguesa) —
+la de atrás un poco más grande y en tono oscuro (`var(--blue-700)`), la de
+adelante en el tono principal (`var(--yellow)`) tapando casi todo menos un
+borde/banda que queda como sombra. Paleta:
+- Tono principal / sombra de cada "carrocería": `var(--yellow)` /
+  `var(--blue-700)` (tokens existentes de `src/index.css`).
+- Vidrios/faros/reflejos: blancos o cremas claros nuevos (`#e8f1f8`,
+  `#fff6dd`) — no hay token de "vidrio de auto" o "luz cálida", inevitable.
+- Llantas: grises oscuros neutros nuevos (`#0c141b`, `#2e3a47`, `#4b5563`,
+  `#9aa5b1` para el caño de escape) — no hay token de "metal/caucho".
+- Comida: la lechuga reusa `var(--green)` (ya es el único acento fuera de la
+  paleta de marca que existe en el proyecto, ver `src/index.css` y
+  `12-badge-conductores-precio.md`); tomate y carne usan tonos realistas
+  nuevos (`#c0453f`, `#7a4b23`) inevitables para que se lea como comida de
+  verdad y no como un ícono monocromo.
+
+**Dónde se usan:**
+- `VehiculoSeleccionSheet.jsx` / `.css`: la prop `Icono` de `TarjetaVehiculo`
+  se renombró a `Ilustracion` (recibe `IllustrationCar`/`IllustrationMoto`
+  directo, mismo patrón que antes con los iconos). Se eliminó el `<span
+  className="...tarjeta-icono">` que envolvía un ícono de 28px y se
+  reemplazó por la ilustración sola con su propia clase
+  (`.vehiculo-seleccion-sheet__tarjeta-ilustracion`): alto fijo 76px +
+  `max-width:138px`, sin distorsión (el SVG escala con
+  `preserveAspectRatio` por defecto y se centra solo dentro de esa caja,
+  aunque el auto y la moto tengan proporciones de `viewBox` distintas). Se
+  ajustó el padding de la tarjeta (`18px 10px 16px`) para la ilustración más
+  grande. El resto de la lógica (precio, badge de conductores, tooltip,
+  selección, aria) no se tocó.
+- `Hero.jsx` / `Hero.css`: ver 4.b arriba — `IllustrationMoto` de fondo en
+  el banner "Pedir viaje", `IllustrationFood` en "Comprar".
+
+**Verificación:** `npm run dev` (Vite) + navegador en mobile (390×844) y
+desktop (1280×900). La herramienta de captura de pantalla del navegador dio
+timeout de forma consistente en toda la sesión (no solo en undraw.co), así
+que la verificación visual se hizo leyendo el DOM/estilos computados en vez
+de una captura: se confirmó por JS (`getBoundingClientRect` +
+`getComputedStyle`) que en mobile ambos `.promo-banner` miden exactamente
+220×173px (alto fijo, no estirado), que las ilustraciones de fondo (`<svg>`)
+están presentes, visibles y con sus dimensiones esperadas (moto 176×120,
+comida 133×120, proporciones consistentes con sus `viewBox`), que los
+gradientes de overlay se aplican con el color correcto por variante, que el
+hero vuelve a heredar el padding/max-width de `.home` (sección del hero en
+`x:16..374` de un viewport de 390, igual que el resto de las secciones), y
+que no hay scroll horizontal (`body.scrollWidth === window.innerWidth`). En
+desktop se confirmó que `.promo-banner` vuelve a `height:auto;
+min-height:190px` (no se queda con el alto fijo de mobile) y que
+`.hero__principal` sigue en 340px como antes. Sin errores de consola ni
+requests fallidos (`bannerImg.jpg` y todos los módulos cargan 200 OK). `npm
+run build` (vite build) compiló sin errores, incluyendo el chunk
+`PedirViajePage-*.js` (donde vive `VehiculoSeleccionSheet`).
+
+**No se pudo verificar visualmente:** las tarjetas de
+`VehiculoSeleccionSheet` con las ilustraciones — esa vista vive detrás de
+`RutaClienteProtegida` (requiere sesión de cliente) y no hay Supabase
+configurado localmente, mismo límite ya documentado en la Parte 3 de este
+spec para el combobox de `PedirViajePage`. Tampoco se pudo probar el flujo de
+búsqueda (`buscando=true`) en el navegador: el buscador del header solo se
+renderiza con sesión de cliente activa (ver comentario en `Header.jsx`), así
+que no había forma de escribir en él sin login. La lectura del código (la
+condición `{!buscando && (...)}` para el hero y el ternario de resultados se
+mantuvieron intactos, solo se movió su posición en el árbol) da confianza de
+que el comportamiento no cambió, pero queda como verificación manual
+pendiente cuando haya sesión de cliente disponible.

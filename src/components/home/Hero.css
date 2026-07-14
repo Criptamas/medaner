@@ -73,20 +73,70 @@
 }
 
 .promo-banner {
+  position: relative;
+  /* Recorta la ilustración de fondo a las esquinas redondeadas del banner. */
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 4px;
-  /* Notablemente más alto que el banner compacto anterior (72px) — el dueño
-     del producto pidió más presencia visual para estos dos accesos. */
-  min-height: 152px;
+  /* Alto FIJO (no min-height): el dueño del producto pidió más presencia
+     visual pero rechazó explícitamente que estos banners fueran flexibles/
+     estirados (ver spec/15-*.md) — con alto fijo grande + ilustración de
+     fondo se ve lleno sin depender de estirarse al viewport. */
+  height: 220px;
   padding: 20px;
   border-radius: var(--radius);
   text-decoration: none;
   border: 1px solid transparent;
 }
 
+/* Ilustración de fondo: a la esquina inferior derecha, un poco recortada
+   (bleed) para que se sienta parte del fondo y no un ícono flotando en el
+   medio. pointer-events:none para que no interfiera con el click/tap del
+   banner completo (es un <a>/<Link>). */
+.promo-banner__ilustracion {
+  position: absolute;
+  right: -12px;
+  bottom: -12px;
+  height: 120px;
+  width: auto;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* La moto es monocroma y pinta con currentColor (ver MotoIllustration.jsx), así
+   que el color se define acá y no dentro del SVG. Sin esto heredaría el color de
+   texto del banner. El fondo de este banner es --blue-100 (#22303c, oscuro pese
+   al nombre legacy), así que el amarillo de marca contrasta bien. */
+.promo-banner--viaje .promo-banner__ilustracion {
+  color: var(--yellow);
+}
+
+/* Gradiente oscuro sobre la ilustración para que el título/subtítulo sigan
+   legibles: sólido del lado del texto, transparente hacia la esquina donde
+   vive la ilustración. Los stops en rgba() replican el hex de cada fondo de
+   variante (--blue-100 / --surface-2) — un gradiente no puede tomar la
+   opacidad de un var() hex directo sin color-mix(), que todavía no tiene
+   soporte universal en navegadores Android/iOS de gama baja. */
+.promo-banner__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.promo-banner--viaje .promo-banner__overlay {
+  background: linear-gradient(115deg, #22303c 42%, rgba(34, 48, 60, 0.62) 66%, rgba(34, 48, 60, 0) 100%);
+}
+
+.promo-banner--comprar .promo-banner__overlay {
+  background: linear-gradient(115deg, #1a222a 42%, rgba(26, 34, 42, 0.62) 66%, rgba(26, 34, 42, 0) 100%);
+}
+
 .promo-banner__titulo {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -100,6 +150,8 @@
 }
 
 .promo-banner__texto {
+  position: relative;
+  z-index: 2;
   font-size: 13px;
   line-height: 1.3;
 }
@@ -145,42 +197,10 @@
   border-color: var(--blue-400);
 }
 
-/* ===== Mobile: Hero llena exactamente el viewport restante tras el Header
-   (ver .home__viewport--hero en HomePage.css, que le da a .home__hero-section
-   su flex:1). Reparto interno: el banner-foto mantiene su alto natural, los 2
-   banners de acceso se estiran para ocupar el resto. ===== */
-@media (max-width: 767px) {
-  .hero {
-    flex: 1;
-    min-height: 0;
-  }
-
-  /* No se estira aunque el hero tenga flex:1 — el espacio extra lo absorben
-     los banners de abajo, no la foto. */
-  .hero__principal {
-    flex-shrink: 0;
-  }
-
-  .hero__banners {
-    flex: 1;
-    min-height: 0;
-    /* Fuerza una única fila explícita del 100% del alto disponible: sin esto,
-       una fila "auto" de grid no necesariamente estira sus items al alto del
-       contenedor (depende de content-size), y promo-banner height:100% no
-       tendría de qué "100%" partir. */
-    grid-template-rows: 1fr;
-  }
-
-  .promo-banner {
-    height: 100%;
-    /* Piso de seguridad: en pantallas muy bajas (ej. celular en horizontal)
-       no se aplastan hasta ser ilegibles. Ahí es aceptable un poco de scroll
-       — no se sacrifica legibilidad por cumplir el 100% a rajatabla. */
-    min-height: 88px;
-  }
-}
-
-/* ===== Desktop: banner principal más grande; banners secundarios más altos ===== */
+/* ===== Desktop: banner principal más grande; banners secundarios más altos.
+   El alto fijo de mobile (220px, ver .promo-banner arriba) se reemplaza acá
+   por min-height: en pantallas grandes el banner tiene más aire alrededor y
+   no hace falta forzar un alto exacto para que se vea lleno. ===== */
 @media (min-width: 900px) {
   .hero__principal {
     min-height: 340px;
@@ -200,6 +220,11 @@
   }
 
   .promo-banner {
+    height: auto;
     min-height: 190px;
+  }
+
+  .promo-banner__ilustracion {
+    height: 170px;
   }
 }

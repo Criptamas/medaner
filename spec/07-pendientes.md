@@ -33,7 +33,7 @@
 ## En progreso
 - [x] Rediseño del flujo de solicitud de viaje en una sola página consolidada — `PedirViajePage.jsx` ya orquestaba una sola página sin pasos/rutas separadas; se completó con el estilo de referencia (combobox tipo píldora + CTA único), ver `15-patrones-uber-iconos-svg-viewport-mobile.md`.
 - [ ] Actualización de paleta de colores en todo el sitio.
-- [x] Home mobile: el banner principal + los 2 banners secundarios (`Hero.jsx`) ocupan el viewport restante tras el header, sin scroll, solo en smartphones — implementado, ver `15-patrones-uber-iconos-svg-viewport-mobile.md`.
+- [x] Home mobile, banners del Hero: **decisión final, distinta a la anotada antes** — el objetivo original ("banner principal + 2 banners ocupan el viewport restante sin scroll") se descartó por decisión del dueño del producto, que rechazó que los banners secundarios fueran flexibles/estirados (quedaban vacíos). En su lugar: `.promo-banner` tiene alto fijo mayor en mobile (220px) con una ilustración propia de fondo (moto / comida) + overlay para legibilidad, sin intentar llenar el viewport exacto. Ver `15-patrones-uber-iconos-svg-viewport-mobile.md`, Parte 4.
 - [x] "UI de base": se identificó uber.com como referencia (patrones de UI — combobox de ubicación, franja de accesos rápidos — NO su paleta, que sigue siendo la del logo amarillo/blanco/negro sobre tema oscuro). Ver `15-patrones-uber-iconos-svg-viewport-mobile.md`.
 - [ ] Migración híbrida de base de datos (Supabase para datos relacionales, Firebase solo FCM) — ver `00-arquitectura-general.md`.
 - [ ] Widget de tasa de cambio BCV.

@@ -117,7 +117,7 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 16px 12px;
+  padding: 18px 10px 16px;
   border-radius: 16px;
   border: 2px solid transparent;
   background: var(--color-bg-primary);
@@ -131,10 +131,21 @@
   border-color: var(--color-accent);
 }
 
-.vehiculo-seleccion-sheet__tarjeta-icono {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Ilustración protagonista de la tarjeta (reemplaza el ícono de línea de
+   28px que había antes, ver spec/15-*.md): alto fijo + max-width para que
+   ambas ilustraciones (auto/moto, con proporciones de viewBox distintas)
+   midan lo mismo entre tarjetas — el SVG escala manteniendo su proporción
+   interna (preserveAspectRatio por defecto) y se centra solo, sin distorsión. */
+.vehiculo-seleccion-sheet__tarjeta-ilustracion {
+  display: block;
+  width: 100%;
+  max-width: 138px;
+  height: 76px;
+  margin: 0 auto 6px;
+  /* La moto es monocroma y pinta con currentColor (ver MotoIllustration.jsx);
+     sin este color heredaría el del texto de la tarjeta. El auto trae sus
+     propios fills, así que no lo afecta. */
+  color: var(--color-accent);
 }
 
 .vehiculo-seleccion-sheet__tarjeta-capacidad {

@@ -10,7 +10,7 @@ import { getRouteDistance } from '../utils/directions'
 import { calcularPrecioBase, formatUSD } from '../utils/tarifas'
 import { PAYMENT_METHODS } from '../utils/pedidoLabels'
 import StatusMessage from './StatusMessage'
-import { IconCar, IconMoto } from './icons/Icons'
+import { IllustrationCar, IllustrationMoto } from './icons/Illustrations'
 import './VehiculoSeleccionSheet.css'
 
 // Tarjeta de un vehículo (Carro o Moto) dentro del sheet. Componente local
@@ -19,7 +19,7 @@ import './VehiculoSeleccionSheet.css'
 // diseño reusable en otras pantallas, a diferencia de DireccionesFavoritasList.
 function TarjetaVehiculo({
   tipo,
-  Icono,
+  Ilustracion,
   capacidadLabel,
   precioUSD,
   valorTasa,
@@ -45,9 +45,7 @@ function TarjetaVehiculo({
       aria-pressed={seleccionado}
       aria-label={`Elegir ${tipo}`}
     >
-      <span className="vehiculo-seleccion-sheet__tarjeta-icono">
-        <Icono size={28} aria-hidden="true" />
-      </span>
+      <Ilustracion className="vehiculo-seleccion-sheet__tarjeta-ilustracion" aria-hidden="true" />
       <span className="vehiculo-seleccion-sheet__tarjeta-capacidad">{capacidadLabel}</span>
       <span className="vehiculo-seleccion-sheet__tarjeta-precio">
         {formatUSD(precioUSD)}
@@ -299,7 +297,7 @@ export default function VehiculoSeleccionSheet({ origen, destino }) {
           <div className="vehiculo-seleccion-sheet__vehiculos">
             <TarjetaVehiculo
               tipo="carro"
-              Icono={IconCar}
+              Ilustracion={IllustrationCar}
               capacidadLabel="👤 4"
               precioUSD={ofertaActiva && vehiculoSeleccionado === 'carro' ? precioFinal : precioBaseCarro}
               valorTasa={valorTasa}
@@ -311,7 +309,7 @@ export default function VehiculoSeleccionSheet({ origen, destino }) {
             />
             <TarjetaVehiculo
               tipo="moto"
-              Icono={IconMoto}
+              Ilustracion={IllustrationMoto}
               capacidadLabel="👤 1"
               precioUSD={ofertaActiva && vehiculoSeleccionado === 'moto' ? precioFinal : precioBaseMoto}
               valorTasa={valorTasa}

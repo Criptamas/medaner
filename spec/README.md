@@ -20,7 +20,7 @@ por qué se decidió así (no solo el qué). Formato: `00-nombre-descriptivo.md`
 | `12-badge-conductores-precio.md` | Badge de conductores disponibles junto al precio, modo conteo del endpoint, fix del token `--green` |
 | `13-conductor-solicitud-cuenta-unica-y-fotos-publicas.md` | Cuenta única al postular a conductor, `tipo_usuario` solo cambia en la aprobación, bucket público `conductor-publico` para selfie/vehículo |
 | `14-hero-banner-estatico.md` | Reemplazo del carrusel por banner estático (`bannerImg.jpg`), por qué `HeroCarousel.jsx/.css` se conservan sin importar |
-| `15-patrones-uber-iconos-svg-viewport-mobile.md` | Fix de viewport mobile (Header+Hero sin scroll), patrones de UI de uber.com (no su paleta) en PedirViajePage/QuickAccessStrip/cards, set de iconos SVG propio que reemplaza emojis funcionales |
+| `15-patrones-uber-iconos-svg-viewport-mobile.md` | Patrones de UI de uber.com (no su paleta) en PedirViajePage/QuickAccessStrip/cards, set de iconos SVG propio que reemplaza emojis funcionales. Parte 4: el fix de viewport mobile (Header+Hero sin scroll) se REVIRTIÓ (banners con alto fijo + ilustración de fondo en su lugar); tarjeta de selección de vehículo y banners del home usan ilustraciones planas propias (`Illustrations.jsx`), no los iconos de línea |
 
 ## Regla para agregar un nuevo spec
 1. Revisa este índice para el siguiente número disponible.
