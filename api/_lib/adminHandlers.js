@@ -11,10 +11,47 @@ import { getAdminDb } from './firebaseAdmin.js'
 // Todos comparten la misma "protección informal": no verifican que quien llama
 // sea admin de verdad (limitación conocida, igual que antes de consolidar).
 
+// Copia un archivo del bucket privado conductor-verificacion al bucket
+// público conductor-publico (ver spec/13). Best-effort a propósito: si algo
+// falla (download, upload o simplemente pathOrigen es null), se loguea y se
+// devuelve '' en vez de lanzar — una foto pública faltante degrada igual que
+// hoy (el admin la puede cargar después vía editarConductor), pero NO debe
+// bloquear la aprobación completa del conductor.
+// download+upload (no `.copy()` cross-bucket) es intencional: es idempotente
+// ante reintentos de aprobarConductor, sin depender de un comportamiento de
+// overwrite cross-bucket no verificado en la versión instalada de storage-js.
+async function copiarFotoAPublico(supabase, pathOrigen, pathDestino) {
+  if (!pathOrigen) return ''
+
+  try {
+    const { data: blob, error: errorDescarga } = await supabase.storage
+      .from('conductor-verificacion')
+      .download(pathOrigen)
+    if (errorDescarga) throw errorDescarga
+
+    const { error: errorSubida } = await supabase.storage
+      .from('conductor-publico')
+      .upload(pathDestino, blob, { upsert: true, contentType: blob.type })
+    if (errorSubida) throw errorSubida
+
+    const { data: publicUrlData } = supabase.storage
+      .from('conductor-publico')
+      .getPublicUrl(pathDestino)
+    return publicUrlData?.publicUrl ?? ''
+  } catch (err) {
+    console.error(
+      `[admin/aprobar-conductor] no se pudo copiar "${pathOrigen}" a conductor-publico:`,
+      err.message,
+    )
+    return ''
+  }
+}
+
 // --- Solicitudes de conductor: aprobar ---
-// Aprueba una solicitud de conductor: crea el doc en Firestore
-// conductores/{uid} y marca la solicitud como aprobada en Supabase. Ya NO crea
-// una cuenta de Firebase Auth: con el puente Supabase->Firebase
+// Aprueba una solicitud de conductor: copia sus fotos de verificación al
+// bucket público, crea el doc en Firestore conductores/{uid}, promueve
+// tipo_usuario a 'conductor' en Supabase y marca la solicitud como aprobada.
+// Ya NO crea una cuenta de Firebase Auth: con el puente Supabase->Firebase
 // (api/firebase-token.js) el conductor sigue usando su cuenta de Supabase
 // existente para loguearse. El doc de Firestore se crea con
 // ID = solicitud.usuario_id porque ESE es el uid que va a traer el custom token.
@@ -35,7 +72,7 @@ export async function aprobarConductor(req, res) {
   try {
     const { data: solicitud, error: errorSolicitud } = await supabase
       .from('solicitudes_conductor')
-      .select('id, usuario_id, cedula, estado')
+      .select('id, usuario_id, cedula, estado, foto_selfie_url, foto_vehiculo_url')
       .eq('id', solicitudId)
       .maybeSingle()
 
@@ -65,6 +102,30 @@ export async function aprobarConductor(req, res) {
       return
     }
 
+    // Fotos públicas (spec/13): se copian ANTES de escribir Firestore para
+    // poder auto-poblar fotoPerfilUrl/motoFotoUrl con la URL real en vez del
+    // default vacío. Best-effort cada una (ver copiarFotoAPublico) — si
+    // fallan, el doc igual se crea con esos campos en '', el admin las carga
+    // después vía editarConductor, igual que degradaba antes de este cambio.
+    const extSelfie = solicitud.foto_selfie_url.split('.').pop()
+    const fotoPerfilUrl = await copiarFotoAPublico(
+      supabase,
+      solicitud.foto_selfie_url,
+      `${solicitud.usuario_id}/perfil.${extSelfie}`,
+    )
+
+    // foto_vehiculo_url puede ser null en solicitudes previas a este cambio
+    // (columna agregada después) — copiarFotoAPublico ya devuelve '' sin
+    // intentar nada si pathOrigen es null, pero evitamos incluso construir
+    // un pathDestino sin extensión real.
+    const motoFotoUrl = solicitud.foto_vehiculo_url
+      ? await copiarFotoAPublico(
+          supabase,
+          solicitud.foto_vehiculo_url,
+          `${solicitud.usuario_id}/vehiculo.${solicitud.foto_vehiculo_url.split('.').pop()}`,
+        )
+      : ''
+
     try {
       const db = getAdminDb()
       await db
@@ -81,12 +142,13 @@ export async function aprobarConductor(req, res) {
           cuotaSemanalPagada: false,
           ubicacion: null,
           fcmToken: null,
-          // Campos del perfil público (spec/08 §1): los carga el admin después
-          // vía editarConductor. Defaults vacíos para que la lista de
-          // conductores disponibles y el panel asignado degraden sin romper.
+          // Campos del perfil público (spec/08 §1): auto-poblados desde las
+          // fotos ya subidas en el registro (spec/13) — '' si la copia falló
+          // o si la solicitud es previa a la foto de vehículo. El admin
+          // sigue pudiendo corregirlas después vía editarConductor.
           placa: '',
-          fotoPerfilUrl: '',
-          motoFotoUrl: '',
+          fotoPerfilUrl,
+          motoFotoUrl,
           vehiculo: 'moto',
           // Puntos (spec/09): server-write-only, arrancan en 0.
           puntos: 0,
@@ -101,6 +163,20 @@ export async function aprobarConductor(req, res) {
       )
       throw errFirestore
     }
+
+    // Transición de rol (spec/13): SOLO acá pasa a 'conductor', nunca en el
+    // signup. Sin try/catch propio a propósito: si falla, debe propagarse al
+    // catch de la función para que el paso 7 (marcar la solicitud como
+    // 'aprobada') NUNCA se alcance. Así, ante un fallo acá, la solicitud
+    // queda en 'pendiente' y un reintento completo es seguro (idempotente);
+    // si este update fuera después del paso 7, un fallo dejaría la solicitud
+    // 'aprobada' con el rol sin cambiar y sin forma de reintentar (el guard
+    // del paso 1 rechaza reprocesar una solicitud ya aprobada).
+    const { error: errorRol } = await supabase
+      .from('usuarios')
+      .update({ tipo_usuario: 'conductor' })
+      .eq('id', solicitud.usuario_id)
+    if (errorRol) throw errorRol
 
     const { error: errorUpdate } = await supabase
       .from('solicitudes_conductor')

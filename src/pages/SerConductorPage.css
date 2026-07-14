@@ -100,6 +100,22 @@
   cursor: not-allowed;
 }
 
+.ser-conductor-page__dato-sesion {
+  margin: 0;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--text-body);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.ser-conductor-page__dato-sesion strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
 .ser-conductor-page__aviso {
   margin: 0;
   padding: 10px 12px;

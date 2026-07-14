@@ -4,6 +4,68 @@
   gap: 12px;
 }
 
+/* ===== Banner principal: imagen de fondo + overlay + texto ===== */
+.hero__principal {
+  position: relative;
+  min-height: 220px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  isolation: isolate; /* que el ::after de z-index no se filtre afuera */
+  /* Fondo sólido de fallback: se ve mientras el <img> carga y queda como
+     resultado final si onError lo oculta (bannerImg.jpg ausente/roto). */
+  background: var(--surface-2);
+}
+
+.hero__principal-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+
+.hero__principal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  /* Más oscuro abajo (donde va el texto) que arriba, para dejar algo de la
+     imagen visible sin sacrificar legibilidad. */
+  background: linear-gradient(180deg, rgba(12, 20, 27, 0.35) 0%, rgba(12, 20, 27, 0.88) 100%);
+}
+
+.hero__principal-contenido {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+}
+
+.hero__principal-eyebrow {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--yellow);
+}
+
+.hero__principal-titulo {
+  margin: 0;
+  color: var(--white);
+  font-size: 24px;
+  line-height: 1.15;
+  max-width: 24ch;
+}
+
+.hero__principal-texto {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 40ch;
+}
+
+/* ===== Banners secundarios: acceso directo a viaje / tiendas ===== */
 .hero__banners {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -15,8 +77,10 @@
   flex-direction: column;
   justify-content: center;
   gap: 4px;
-  min-height: 72px;
-  padding: 14px 16px;
+  /* Notablemente más alto que el banner compacto anterior (72px) — el dueño
+     del producto pidió más presencia visual para estos dos accesos. */
+  min-height: 152px;
+  padding: 20px;
   border-radius: var(--radius);
   text-decoration: none;
   border: 1px solid transparent;
@@ -24,71 +88,76 @@
 
 .promo-banner__titulo {
   font-weight: 700;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.15;
 }
 
 .promo-banner__texto {
   font-size: 13px;
-  line-height: 1.2;
+  line-height: 1.3;
 }
 
-.promo-banner--conductor {
+.promo-banner--viaje {
   background: var(--blue-100);
   border-color: var(--blue-400);
 }
 
-.promo-banner--conductor .promo-banner__titulo {
+.promo-banner--viaje .promo-banner__titulo {
   color: var(--blue-700);
 }
 
-.promo-banner--conductor .promo-banner__texto {
+.promo-banner--viaje .promo-banner__texto {
   color: var(--blue);
 }
 
-.promo-banner--conductor:hover,
-.promo-banner--conductor:focus-visible {
+.promo-banner--viaje:hover,
+.promo-banner--viaje:focus-visible {
   background: var(--blue-050);
   border-color: var(--blue);
 }
 
-.promo-banner--negocio {
-  background: var(--navy);
+/* --navy vale lo mismo que --surface (#0c141b, ver src/index.css): usarlo acá
+   de fondo dejaba la card idéntica al fondo de la página, invisible sin borde
+   propio. --surface-2 es el token correcto para "card sobre el fondo"
+   (mismo patrón que TiendaCard). */
+.promo-banner--comprar {
+  background: var(--surface-2);
+  border-color: var(--line);
 }
 
-.promo-banner--negocio .promo-banner__titulo {
+.promo-banner--comprar .promo-banner__titulo {
   color: #fff;
 }
 
-.promo-banner--negocio .promo-banner__texto {
+.promo-banner--comprar .promo-banner__texto {
   color: var(--yellow);
 }
 
-.promo-banner--negocio:hover,
-.promo-banner--negocio:focus-visible {
-  background: var(--navy-600);
+.promo-banner--comprar:hover,
+.promo-banner--comprar:focus-visible {
+  border-color: var(--blue-400);
 }
 
-/* ===== Desktop: carrusel (izq, grande) + banners apilados (der) ===== */
+/* ===== Desktop: banner principal más grande; banners secundarios más altos ===== */
 @media (min-width: 900px) {
-  .hero {
-    flex-direction: row;
-    align-items: stretch;
-    gap: 16px;
+  .hero__principal {
+    min-height: 340px;
   }
 
-  .hero__carousel {
-    flex: 1 1 auto;
-    min-width: 0;
+  .hero__principal-contenido {
+    padding: 40px;
   }
 
-  .hero__banners {
-    flex: 0 0 300px;
-    grid-template-columns: 1fr; /* apilados verticalmente */
-    grid-auto-rows: 1fr;
+  .hero__principal-titulo {
+    font-size: 36px;
+    max-width: 20ch;
+  }
+
+  .hero__principal-texto {
+    font-size: 16px;
   }
 
   .promo-banner {
-    min-height: 0;
+    min-height: 190px;
   }
 }

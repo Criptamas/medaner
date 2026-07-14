@@ -26,6 +26,10 @@
 - [ ] Conductores registrados y admin reciben error "no registrado" al hacer login.
 - [ ] Conductores quedan en home screen en vez de ir al dashboard tras instalar la PWA.
 
+- [ ] Documentar/exportar al repo el trigger `on_auth_user_created` de Supabase (hoy vive solo en el dashboard, confirmado indirectamente por comentario en `ClienteAuthSheet.jsx`) — ver `13-conductor-solicitud-cuenta-unica-y-fotos-publicas.md`.
+- [ ] Decidir retención de las 3 fotos de verificación (placa/selfie/vehículo) cuando una solicitud de conductor es rechazada — hoy quedan huérfanas en el bucket privado, ver `13`.
+- [ ] Ejecutar a mano en Supabase antes de deploy: crear bucket público `conductor-publico` + policy, y agregar columna `foto_vehiculo_url` a `solicitudes_conductor` (SQL exacto en `13`).
+
 ## En progreso
 - [ ] Rediseño del flujo de solicitud de viaje en una sola página consolidada.
 - [ ] Actualización de paleta de colores en todo el sitio.

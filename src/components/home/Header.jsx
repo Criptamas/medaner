@@ -21,7 +21,7 @@ import './Header.css'
 //   del sitio, así que sacarla de acá no la borra de la app.
 //
 // El CTA "Pedir un viaje" se quitó del header a propósito: ya vive como banner
-// gigante en el hero (HeroCarousel, slide /pedir-viaje).
+// en el hero (Hero.jsx, banner "Pedir viaje" → /pedir-viaje).
 export default function Header({ query, onQueryChange }) {
   const { user, loading } = useClienteAuth()
   // null | 'login' | 'signup' — controla el bottom sheet de auth que abre el
